@@ -85,7 +85,7 @@ namespace Linql.ModelGenerator.Backend
                 }
 
                 List<Type> interfaces = Type.GetInterfaces().Where(r => r.Assembly != typeof(IComparable).Assembly).ToList();
-
+                interfaces = interfaces.Except(interfaces.SelectMany(s => s.GetInterfaces())).ToList(); 
                 type.Interfaces = interfaces.Select(r => this.GenerateType(r)).ToList();
 
                 if (Type.IsPrimitive)

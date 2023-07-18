@@ -66,6 +66,26 @@ namespace Linql.ModelGenerator.Backend.Test
 
         }
 
+        [Test]
+        public void Test_MultipleInterfaces()
+        {
+            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(MultipleInterfaces));
+           
+            Assert.That(type.Interfaces.Count(), Is.EqualTo(3));
+
+        }
+
+        [Test]
+        public void Test_MultipleInterfacesNested()
+        {
+            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(MultipleInterfacesNested));
+
+            Assert.That(type.Interfaces.Count(), Is.EqualTo(2));
+
+        }
+
+
+
 
     }
 }
