@@ -3,10 +3,8 @@ using System.Text.Json;
 
 namespace Linql.ModelGenerator.Backend.Test
 {
-    public class LinqlModelGenerator_Constructor
+    public class LinqlModelGenerator_Constructor : BaseModelGeneratorTest
     {
-
-        private string ModelsPath { get; set; } = "../../../../";
 
         [Test]
         public void AssemblyFromCsProj()

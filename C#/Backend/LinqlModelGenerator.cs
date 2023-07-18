@@ -13,6 +13,8 @@ namespace Linql.ModelGenerator.Backend
     {
         public Assembly Assembly { get; set; }
 
+        protected Dictionary<Type, IntermediaryType> TypeProcessing { get; set; } = new Dictionary<Type, IntermediaryType>();
+
         public LinqlModelGenerator(Assembly Assembly)
         {
             this.Assembly = Assembly;
@@ -65,8 +67,23 @@ namespace Linql.ModelGenerator.Backend
             IntermediaryModule module = new IntermediaryModule();
             module.BaseLanguage = "C#";
             module.ModuleName = Assembly.GetName().Name;
-
+            module.Types = Assembly.GetTypes().Select(r => this.GenerateType(r)).ToList();
             return module;
+        }
+
+        protected IntermediaryType GenerateType(Type Type)
+        {
+            IntermediaryType type = new IntermediaryType();
+            type.TypeName = Type.Name;
+
+            if (!this.TypeProcessing.ContainsKey(Type))
+            {
+                this.TypeProcessing.Add(Type, type);
+                type.IsClass = Type.IsClass;
+                type.IsInterface = Type.IsInterface;
+                type.IsAbstract = Type.IsAbstract;
+            }
+            return type;
         }
     }
 }

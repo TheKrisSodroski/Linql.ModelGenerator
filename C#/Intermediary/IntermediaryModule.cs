@@ -9,7 +9,7 @@ namespace Linql.ModelGenerator.Intermediary
 
         public string ModuleName { get; set; }
 
-        public List<IntermediaryClass> Classes { get; set; } = new List<IntermediaryClass>();
+        public List<IntermediaryType> Types { get; set; } = new List<IntermediaryType>();
 
     }
 }

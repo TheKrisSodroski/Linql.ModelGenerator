@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
@@ -22,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Backend\Linql.ModelGenerator.Backend.csproj" />
+    <ProjectReference Include="..\Test.Module1\Test.Module1.csproj" />
   </ItemGroup>
 
 </Project>
