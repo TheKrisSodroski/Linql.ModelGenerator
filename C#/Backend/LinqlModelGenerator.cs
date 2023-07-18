@@ -78,15 +78,7 @@ namespace Linql.ModelGenerator.Backend
             if (Type.IsPrimitive)
             {
                 type.IsPrimitive = true;
-
-                if (Type == typeof(int))
-                {
-                    type.TypeName = "int";
-                }
-                else
-                {
-                    type.TypeName = Type.Name;
-                }
+                type.TypeName = this.GetPrimitiveTypeName(Type);
             }
             else
             {
@@ -103,6 +95,22 @@ namespace Linql.ModelGenerator.Backend
             }
 
             return type;
+        }
+
+        protected string GetPrimitiveTypeName(Type Type)
+        {
+            string typeName = "object";
+
+            if (Type == typeof(object))
+            {
+                typeName = "object";
+            }
+            else
+            {
+                typeName = Type.Name;
+            }
+
+            return typeName;
         }
 
         protected IntermediaryProperty GenerateProperty(PropertyInfo Property)

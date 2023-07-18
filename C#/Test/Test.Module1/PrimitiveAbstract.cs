@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Test.Module1
 {
-    public class PrimitiveClass
+    public abstract class PrimitiveAbstract
     {
         public int Int32 { get; set; }
 

@@ -20,24 +20,60 @@ namespace Linql.ModelGenerator.Backend.Test
         public void Generate()
         {
            
-            Assert.That(this.Module.ModuleName == typeof(PrimitiveClass).Assembly.GetName().Name);
-            Assert.That(this.Module.BaseLanguage == "C#");
+            Assert.That(this.Module.ModuleName, Is.EqualTo(typeof(PrimitiveClass).Assembly.GetName().Name));
+            Assert.That(this.Module.BaseLanguage, Is.EqualTo("C#"));
 
         }
 
         [Test]
         public void Test_PrimitiveClass()
         {
-
             IntermediaryType basicType = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(PrimitiveClass));
 
-            Assert.That(basicType != null);
-            Assert.That(basicType.IsClass == true && basicType.IsAbstract == false && basicType.IsInterface == false);
+            Assert.That(basicType, Is.Not.EqualTo(null));
+            Assert.That(basicType.IsClass, Is.True);
+            Assert.That(basicType.IsAbstract, Is.False);
+            Assert.That(basicType.IsInterface, Is.False);
 
-            IntermediaryProperty prop = basicType.Properties.FirstOrDefault(r => r.PropertyName == nameof(PrimitiveClass.Int));
-            Assert.That(prop != null && prop.Type.TypeName == "int");
-
+            basicType.Properties.ForEach(r =>
+            {
+                Assert.That(r.Type.TypeName, Is.EqualTo(r.PropertyName));
+            });
         }
+
+        [Test]
+        public void Test_PrimitiveInterface()
+        {
+            IntermediaryType basicInterface = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(IPrimitiveInterface));
+
+            Assert.That(basicInterface, Is.Not.EqualTo(null));
+            Assert.That(basicInterface.IsClass, Is.False);
+            Assert.That(basicInterface.IsAbstract, Is.True);
+            Assert.That(basicInterface.IsInterface, Is.True);
+
+            basicInterface.Properties.ForEach(r =>
+            {
+                Assert.That(r.Type.TypeName, Is.EqualTo(r.PropertyName));
+            });
+        }
+
+        [Test]
+        public void Test_PrimitiveAbstract()
+        {
+            IntermediaryType basicInterface = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(PrimitiveAbstract));
+
+            Assert.That(basicInterface, Is.Not.EqualTo(null));
+            Assert.That(basicInterface.IsClass, Is.True);
+            Assert.That(basicInterface.IsAbstract, Is.True);
+            Assert.That(basicInterface.IsInterface, Is.False);
+
+            basicInterface.Properties.ForEach(r =>
+            {
+                Assert.That(r.Type.TypeName, Is.EqualTo(r.PropertyName));
+            });
+        }
+
+
 
     }
 }
