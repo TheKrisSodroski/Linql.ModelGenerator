@@ -73,28 +73,43 @@ namespace Linql.ModelGenerator.Backend
 
         protected IntermediaryType GenerateType(Type Type)
         {
-            IntermediaryType type = new IntermediaryType();
-
-            if (Type.IsPrimitive)
+            string TypeName = Type.Name;
+            if (!this.TypeProcessing.ContainsKey(Type))
             {
-                type.IsPrimitive = true;
-                type.TypeName = this.GetPrimitiveTypeName(Type);
-            }
-            else
-            {
-                type.TypeName = Type.Name;
+                IntermediaryType type = new IntermediaryType();
+                type.InternalPath = Type.Namespace;
 
-                if (!this.TypeProcessing.ContainsKey(Type))
+                if (Type.BaseType != null)
                 {
+                    type.BaseClass = this.GenerateType(Type.BaseType);
+                }
+
+                List<Type> interfaces = Type.GetInterfaces().Where(r => r.Assembly != typeof(IComparable).Assembly).ToList();
+
+                type.Interfaces = interfaces.Select(r => this.GenerateType(r)).ToList();
+
+                if (Type.IsPrimitive)
+                {
+                    type.IsPrimitive = true;
+                    type.TypeName = this.GetPrimitiveTypeName(Type);
+                }
+                else
+                {
+                    type.TypeName = TypeName;
                     this.TypeProcessing.Add(Type, type);
                     type.IsClass = Type.IsClass;
                     type.IsInterface = Type.IsInterface;
                     type.IsAbstract = Type.IsAbstract;
                     type.Properties = Type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).Select(r => this.GenerateProperty(r)).ToList();
-                }
-            }
 
-            return type;
+                }
+
+                return type;
+            }
+            else
+            {
+                return this.TypeProcessing[Type];
+            }
         }
 
         protected string GetPrimitiveTypeName(Type Type)

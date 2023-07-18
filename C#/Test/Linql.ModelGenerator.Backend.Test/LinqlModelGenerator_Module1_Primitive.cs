@@ -5,16 +5,8 @@ using Test.Module1;
 
 namespace Linql.ModelGenerator.Backend.Test
 {
-    public class LinqlModelGenerator_Module1 : BaseModelGeneratorTest
+    public class LinqlModelGenerator_Module1_Primitive : BaseModelGeneratorTest
     {
-
-        protected IntermediaryModule Module { get; set; }
-
-        [OneTimeSetUp] public void SetUp()
-        {
-            LinqlModelGenerator generator = new LinqlModelGenerator(Path.Combine(this.ModelsPath, "Test.Module1"));
-            this.Module = generator.Generate();
-        }
 
         [Test]
         public void Generate()
@@ -34,6 +26,7 @@ namespace Linql.ModelGenerator.Backend.Test
             Assert.That(basicType.IsClass, Is.True);
             Assert.That(basicType.IsAbstract, Is.False);
             Assert.That(basicType.IsInterface, Is.False);
+            Assert.That(basicType.InternalPath, Is.EqualTo(typeof(PrimitiveClass).Namespace));
 
             basicType.Properties.ForEach(r =>
             {
@@ -50,6 +43,7 @@ namespace Linql.ModelGenerator.Backend.Test
             Assert.That(basicInterface.IsClass, Is.False);
             Assert.That(basicInterface.IsAbstract, Is.True);
             Assert.That(basicInterface.IsInterface, Is.True);
+            Assert.That(basicInterface.InternalPath, Is.EqualTo(typeof(IPrimitiveInterface).Namespace));
 
             basicInterface.Properties.ForEach(r =>
             {
@@ -66,14 +60,13 @@ namespace Linql.ModelGenerator.Backend.Test
             Assert.That(basicInterface.IsClass, Is.True);
             Assert.That(basicInterface.IsAbstract, Is.True);
             Assert.That(basicInterface.IsInterface, Is.False);
+            Assert.That(basicInterface.InternalPath, Is.EqualTo(typeof(PrimitiveAbstract).Namespace));
 
             basicInterface.Properties.ForEach(r =>
             {
                 Assert.That(r.Type.TypeName, Is.EqualTo(r.PropertyName));
             });
         }
-
-
 
     }
 }
