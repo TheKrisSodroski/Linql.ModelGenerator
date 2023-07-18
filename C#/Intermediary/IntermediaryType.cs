@@ -19,5 +19,11 @@ namespace Linql.ModelGenerator.Intermediary
 
         public bool IsGenericType { get; set; }
 
+        public bool IsPrimitive { get; set; }
+
+        public List<IntermediaryProperty> Properties { get; set; } = new List<IntermediaryProperty>();
+
+        public List<IntermediaryAttribute> Attributes { get; set; } = new List<IntermediaryAttribute>();
+
     }
 }

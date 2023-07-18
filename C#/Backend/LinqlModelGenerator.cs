@@ -44,7 +44,7 @@ namespace Linql.ModelGenerator.Backend
 
                     string compiledDirectory = compiledDirectories.FirstOrDefault(r => r.Contains("netstandard"));
 
-                    if(compiledDirectory == null)
+                    if (compiledDirectory == null)
                     {
                         compiledDirectory = compiledDirectories.FirstOrDefault();
                     }
@@ -74,16 +74,43 @@ namespace Linql.ModelGenerator.Backend
         protected IntermediaryType GenerateType(Type Type)
         {
             IntermediaryType type = new IntermediaryType();
-            type.TypeName = Type.Name;
 
-            if (!this.TypeProcessing.ContainsKey(Type))
+            if (Type.IsPrimitive)
             {
-                this.TypeProcessing.Add(Type, type);
-                type.IsClass = Type.IsClass;
-                type.IsInterface = Type.IsInterface;
-                type.IsAbstract = Type.IsAbstract;
+                type.IsPrimitive = true;
+
+                if (Type == typeof(int))
+                {
+                    type.TypeName = "int";
+                }
+                else
+                {
+                    type.TypeName = Type.Name;
+                }
             }
+            else
+            {
+                type.TypeName = Type.Name;
+
+                if (!this.TypeProcessing.ContainsKey(Type))
+                {
+                    this.TypeProcessing.Add(Type, type);
+                    type.IsClass = Type.IsClass;
+                    type.IsInterface = Type.IsInterface;
+                    type.IsAbstract = Type.IsAbstract;
+                    type.Properties = Type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).Select(r => this.GenerateProperty(r)).ToList();
+                }
+            }
+
             return type;
+        }
+
+        protected IntermediaryProperty GenerateProperty(PropertyInfo Property)
+        {
+            IntermediaryProperty prop = new IntermediaryProperty();
+            prop.PropertyName = Property.Name;
+            prop.Type = this.GenerateType(Property.PropertyType);
+            return prop;
         }
     }
 }

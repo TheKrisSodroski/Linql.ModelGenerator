@@ -20,23 +20,23 @@ namespace Linql.ModelGenerator.Backend.Test
         public void Generate()
         {
            
-            Assert.That(this.Module.ModuleName == typeof(BasicClass).Assembly.GetName().Name);
+            Assert.That(this.Module.ModuleName == typeof(PrimitiveClass).Assembly.GetName().Name);
             Assert.That(this.Module.BaseLanguage == "C#");
 
-            IntermediaryType basicType = Module.Types.FirstOrDefault(r => r.TypeName == nameof(BasicClass));
-
-            Assert.That(basicType != null);
-            Assert.That(basicType.IsClass == true && basicType.IsAbstract == false && basicType.IsInterface == false);
         }
 
         [Test]
-        public void BasicClass()
+        public void Test_PrimitiveClass()
         {
 
-            IntermediaryType basicType = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(BasicClass));
+            IntermediaryType basicType = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(PrimitiveClass));
 
             Assert.That(basicType != null);
             Assert.That(basicType.IsClass == true && basicType.IsAbstract == false && basicType.IsInterface == false);
+
+            IntermediaryProperty prop = basicType.Properties.FirstOrDefault(r => r.PropertyName == nameof(PrimitiveClass.Int));
+            Assert.That(prop != null && prop.Type.TypeName == "int");
+
         }
 
     }
