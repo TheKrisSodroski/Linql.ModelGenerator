@@ -68,8 +68,6 @@ namespace Linql.ModelGenerator.Backend.Test
             Assert.That(arg2.DefaultValue, Is.EqualTo(5));
             Assert.That(arg2.ArgumentName, Is.EqualTo("Int"));
 
-
-
         }
 
 
