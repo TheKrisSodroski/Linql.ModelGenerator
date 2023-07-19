@@ -105,7 +105,8 @@ namespace Linql.ModelGenerator.Backend
                 type.IsClass = Type.IsClass;
                 type.IsInterface = Type.IsInterface;
                 type.IsAbstract = Type.IsAbstract;
-                type.ModulePath = Type.Namespace;
+                type.NameSpace = Type.Namespace;
+                type.Module = Type.Assembly.GetName().Name;
 
                 if (Type.BaseType != null && Type.BaseType != typeof(object))
                 {
@@ -126,31 +127,37 @@ namespace Linql.ModelGenerator.Backend
 
                 if (this.IsPrimitive(Type) || this.PrimitiveTypePlugins.Any(s => s.IsPrimitiveType(Type)))
                 {
-                    type.ModulePath = null;
+                    type.NameSpace = null;
                     type.IsPrimitive = true;
                     type.TypeName = this.GetPrimitiveTypeName(Type);
                     type.BaseClass = null;
+                    type.Module = null;
                 }
                 else
                 {
                     if (this.IsArray(Type))
                     {
                         type.TypeName = "Array";
-                        type.ModulePath = null;
+                        type.NameSpace = null;
                         type.BaseClass = null;
+                        type.Module = null;
                         type.GenericArguments = new List<IntermediaryType>() { this.GenerateType(Type.GetElementType()) };
                     }
                     else if (this.IsDictionary(Type))
                     {
                         type.TypeName = "Dictionary";
-                        type.ModulePath = null;
+                        type.NameSpace = null;
                         type.BaseClass = null;
+                        type.Module = null;
+
                     }
                     else if (this.IsList(Type))
                     {
                         type.TypeName = "List";
-                        type.ModulePath = null;
+                        type.NameSpace = null;
                         type.BaseClass = null;
+                        type.Module = null;
+
                     }
                     else
                     {
@@ -168,7 +175,11 @@ namespace Linql.ModelGenerator.Backend
                     if (type is IntermediaryAttribute attr)
                     {
                         ConstructorInfo constructorInfo = Type.GetConstructors().FirstOrDefault();
-                        attr.Arguments = constructorInfo.GetParameters().Select(r => this.GenerateParameter(r)).ToList();
+
+                        if (constructorInfo != null)
+                        {
+                            attr.Arguments = constructorInfo.GetParameters().Select(r => this.GenerateParameter(r)).ToList();
+                        }
                     }
 
                 }

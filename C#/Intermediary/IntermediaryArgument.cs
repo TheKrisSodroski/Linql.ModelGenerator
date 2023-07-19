@@ -10,5 +10,11 @@ namespace Linql.ModelGenerator.Intermediary
         public object DefaultValue { get; set; }
 
         public IntermediaryType Type { get; set; }
+
+        public override string ToString()
+        {
+            return $"{this.ArgumentName} - {this.Type.ToString()}";
+        }
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Linql.ModelGenerator.Intermediary
 {
@@ -8,7 +9,6 @@ namespace Linql.ModelGenerator.Intermediary
         public string TypeName { get; set; }
 
         public List<IntermediaryType> GenericArguments { get; set; }
-        public IntermediaryModule Module { get; set; }
         public IntermediaryType TypeConstraint { get; set; }
 
         public IntermediaryType BaseClass { get; set; }
@@ -29,7 +29,28 @@ namespace Linql.ModelGenerator.Intermediary
 
         public List<IntermediaryAttribute> Attributes { get; set; } = new List<IntermediaryAttribute>();
 
-        public string ModulePath { get; set; }
+        public string Module { get; set; }
+
+        public string NameSpace { get; set; }
+
+        public override string ToString()
+        {
+            List<string> names = new List<string>();
+
+            if(this.Module != null)
+            {
+                names.Add(this.Module);
+            }
+            if (this.NameSpace != null)
+            {
+                names.Add(this.NameSpace);
+            }
+
+            names.Add(this.TypeName);
+
+            return String.Join(".", names.ToArray());
+        }
+
 
     }
 }

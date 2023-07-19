@@ -11,5 +11,11 @@ namespace Linql.ModelGenerator.Intermediary
 
         public List<IntermediaryType> Types { get; set; } = new List<IntermediaryType>();
 
+        public override string ToString()
+        {
+            return $"{this.ModuleName} - {this.BaseLanguage}";
+        }
+
+
     }
 }
