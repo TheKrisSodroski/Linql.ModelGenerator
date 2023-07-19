@@ -5,7 +5,7 @@ using Test.Module1.Inheritance;
 
 namespace Test.Module1.Generics
 {
-    public class GenericWithConstraint<T, S> where T: PrimitiveAbstract where S: IInterfaceFour, new()
+    public class GenericWithConstraint<T, S> where T: IPrimitiveInterface where S: MultipleInterfacesNested, IInterfaceFour, new()
     {
     }
 }

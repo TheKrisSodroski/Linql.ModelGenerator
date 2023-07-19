@@ -77,47 +77,49 @@ namespace Linql.ModelGenerator.Backend
             if (!this.TypeProcessing.ContainsKey(Type))
             {
                 IntermediaryType type = new IntermediaryType();
+                this.TypeProcessing.Add(Type, type);
+
                 type.IsGenericType = Type.IsGenericType;
                 type.IsClass = Type.IsClass;
                 type.IsInterface = Type.IsInterface;
                 type.IsAbstract = Type.IsAbstract;
 
-                if (Type.IsGenericParameter)
+                type.InternalPath = Type.Namespace;
+
+                if (Type.BaseType != null && Type.BaseType != typeof(object))
                 {
-                    type.TypeName = TypeName;
+                    type.BaseClass = this.GenerateType(Type.BaseType);
+                }
+
+                List<Type> interfaces = Type.GetInterfaces().Where(r => r.Assembly != typeof(IComparable).Assembly).ToList();
+                List<Type> baseTypeInterfaces = new List<Type>();
+                if(Type.BaseType != null)
+                {
+                    baseTypeInterfaces.AddRange(Type.BaseType.GetInterfaces());
+                }
+
+                interfaces = interfaces
+                    .Except(baseTypeInterfaces)
+                    .Except(interfaces.SelectMany(s => s.GetInterfaces())).ToList();
+                type.Interfaces = interfaces.Select(r => this.GenerateType(r)).ToList();
+
+                if (Type.IsPrimitive)
+                {
+                    type.IsPrimitive = true;
+                    type.TypeName = this.GetPrimitiveTypeName(Type);
                 }
                 else
                 {
-                    type.InternalPath = Type.Namespace;
+                    type.TypeName = TypeName;
 
-                    if (Type.BaseType != null)
+                    if (Type.IsGenericType)
                     {
-                        type.BaseClass = this.GenerateType(Type.BaseType);
+                        type.TypeName = type.TypeName.Split('`').FirstOrDefault();
+                        type.GenericArguments = Type.GetGenericArguments().Select(r => this.GenerateType(r)).ToList();
                     }
 
-                    List<Type> interfaces = Type.GetInterfaces().Where(r => r.Assembly != typeof(IComparable).Assembly).ToList();
-                    interfaces = interfaces.Except(interfaces.SelectMany(s => s.GetInterfaces())).ToList();
-                    type.Interfaces = interfaces.Select(r => this.GenerateType(r)).ToList();
+                    type.Properties = Type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).Select(r => this.GenerateProperty(r)).ToList();
 
-                    if (Type.IsPrimitive)
-                    {
-                        type.IsPrimitive = true;
-                        type.TypeName = this.GetPrimitiveTypeName(Type);
-                    }
-                    else
-                    {
-                        type.TypeName = TypeName;
-
-                        if (Type.IsGenericType)
-                        {
-                            type.TypeName = type.TypeName.Split('`').FirstOrDefault();
-                            type.GenericArguments = Type.GetGenericArguments().Select(r => this.GenerateType(r)).ToList();
-                        }
-
-                        this.TypeProcessing.Add(Type, type);
-                        type.Properties = Type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).Select(r => this.GenerateProperty(r)).ToList();
-
-                    }
                 }
 
                 return type;

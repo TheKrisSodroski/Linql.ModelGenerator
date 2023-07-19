@@ -58,10 +58,13 @@ namespace Linql.ModelGenerator.Backend.Test
         [Test]
         public void GenericWithConstraint()
         {
-            Type genericOne = typeof(GenericWithConstraint<InheritAbstract, MultipleInterfacesNested>);
+            Type genericOne = typeof(GenericWithConstraint<IPrimitiveInterface, MultipleInterfacesNested>);
             string typeName = genericOne.Name.Split("`").FirstOrDefault();
 
             IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == typeName);
+            IntermediaryType genericConstraint1 = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(IPrimitiveInterface));
+            IntermediaryType genericConstraint2 = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(MultipleInterfacesNested));
+
 
             Assert.That(type, Is.Not.EqualTo(null));
             Assert.That(type.IsClass, Is.True);
@@ -76,6 +79,14 @@ namespace Linql.ModelGenerator.Backend.Test
 
             Assert.That(genericTypeArg.TypeName, Is.EqualTo("T"));
             Assert.That(genericTypeArg2.TypeName, Is.EqualTo("S"));
+
+            Assert.That(genericTypeArg.Interfaces.Count(), Is.EqualTo(1));
+
+            Assert.That(genericTypeArg.Interfaces[0], Is.EqualTo(genericConstraint1));
+
+            Assert.That(genericTypeArg2.Interfaces.Count(), Is.EqualTo(0));
+            Assert.That(genericTypeArg2.BaseClass, Is.EqualTo(genericConstraint2));
+
 
         }
 
