@@ -31,6 +31,54 @@ namespace Linql.ModelGenerator.Backend.Test
         }
 
 
+        [Test]
+        public void GenericWithTwo()
+        {
+            Type genericOne = typeof(GenericTwo<object, object>);
+            string typeName = genericOne.Name.Split("`").FirstOrDefault();
+
+            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == typeName);
+
+            Assert.That(type, Is.Not.EqualTo(null));
+            Assert.That(type.IsClass, Is.True);
+            Assert.That(type.IsAbstract, Is.False);
+            Assert.That(type.IsInterface, Is.False);
+            Assert.That(type.IsGenericType, Is.True);
+
+            Assert.That(type.GenericArguments.Count(), Is.EqualTo(2));
+
+            IntermediaryType genericTypeArg = type.GenericArguments.FirstOrDefault();
+            IntermediaryType genericTypeArg2 = type.GenericArguments.LastOrDefault();
+
+            Assert.That(genericTypeArg.TypeName, Is.EqualTo("T"));
+            Assert.That(genericTypeArg2.TypeName, Is.EqualTo("S"));
+
+        }
+
+        [Test]
+        public void GenericWithConstraint()
+        {
+            Type genericOne = typeof(GenericWithConstraint<InheritAbstract, MultipleInterfacesNested>);
+            string typeName = genericOne.Name.Split("`").FirstOrDefault();
+
+            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == typeName);
+
+            Assert.That(type, Is.Not.EqualTo(null));
+            Assert.That(type.IsClass, Is.True);
+            Assert.That(type.IsAbstract, Is.False);
+            Assert.That(type.IsInterface, Is.False);
+            Assert.That(type.IsGenericType, Is.True);
+
+            Assert.That(type.GenericArguments.Count(), Is.EqualTo(2));
+
+            IntermediaryType genericTypeArg = type.GenericArguments.FirstOrDefault();
+            IntermediaryType genericTypeArg2 = type.GenericArguments.LastOrDefault();
+
+            Assert.That(genericTypeArg.TypeName, Is.EqualTo("T"));
+            Assert.That(genericTypeArg2.TypeName, Is.EqualTo("S"));
+
+        }
+
 
     }
 }
