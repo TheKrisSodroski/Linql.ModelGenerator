@@ -108,7 +108,7 @@ namespace Linql.ModelGenerator.Backend
                 type.NameSpace = Type.Namespace;
                 type.Module = Type.Assembly.GetName().Name;
 
-                if (Type.BaseType != null && Type.BaseType != typeof(object))
+                if (Type.BaseType != null && !this.IgnoreTypePlugins.Any(s => s.IgnoreType(Type.BaseType)))
                 {
                     type.BaseClass = this.GenerateType(Type.BaseType);
                 }
@@ -124,6 +124,7 @@ namespace Linql.ModelGenerator.Backend
                     .Except(baseTypeInterfaces)
                     .Except(interfaces.SelectMany(s => s.GetInterfaces())).ToList();
                 type.Interfaces = interfaces.Select(r => this.GenerateType(r)).ToList();
+
 
                 if (this.IsPrimitive(Type) || this.PrimitiveTypePlugins.Any(s => s.IsPrimitiveType(Type)))
                 {

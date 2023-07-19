@@ -21,7 +21,7 @@ namespace Linql.ModelGenerator.Backend
 
         public bool IgnoreType(Type Type)
         {
-            return false;
+            return DefaultIgnoreTypePlugin.AssembliesToIgnore.Contains(Type.Assembly);
         }
     }
 }
