@@ -79,7 +79,9 @@ namespace Linql.ModelGenerator.Backend
             IntermediaryModule module = new IntermediaryModule();
             module.BaseLanguage = "C#";
             module.ModuleName = Assembly.GetName().Name;
-            module.Types = Assembly.GetTypes().Select(r => this.GenerateType(r)).ToList();
+            module.Types = Assembly.GetTypes()
+                .Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreType(r)))
+                .Select(r => this.GenerateType(r)).ToList();
             return module;
         }
 
@@ -88,14 +90,22 @@ namespace Linql.ModelGenerator.Backend
             string TypeName = Type.Name;
             if (!this.TypeProcessing.ContainsKey(Type))
             {
-                IntermediaryType type = new IntermediaryType();
+                IntermediaryType type;
+                if (this.IsAttribute(Type))
+                {
+                    type = new IntermediaryAttribute();
+                }
+                else
+                {
+                    type = new IntermediaryType();
+                }
                 this.TypeProcessing.Add(Type, type);
 
                 type.IsGenericType = Type.IsGenericType;
                 type.IsClass = Type.IsClass;
                 type.IsInterface = Type.IsInterface;
                 type.IsAbstract = Type.IsAbstract;
-                type.InternalPath = Type.Namespace;
+                type.ModulePath = Type.Namespace;
 
                 if (Type.BaseType != null && Type.BaseType != typeof(object))
                 {
@@ -116,7 +126,7 @@ namespace Linql.ModelGenerator.Backend
 
                 if (this.IsPrimitive(Type) || this.PrimitiveTypePlugins.Any(s => s.IsPrimitiveType(Type)))
                 {
-                    type.InternalPath = null;
+                    type.ModulePath = null;
                     type.IsPrimitive = true;
                     type.TypeName = this.GetPrimitiveTypeName(Type);
                     type.BaseClass = null;
@@ -126,20 +136,20 @@ namespace Linql.ModelGenerator.Backend
                     if (this.IsArray(Type))
                     {
                         type.TypeName = "Array";
-                        type.InternalPath = null;
+                        type.ModulePath = null;
                         type.BaseClass = null;
                         type.GenericArguments = new List<IntermediaryType>() { this.GenerateType(Type.GetElementType()) };
                     }
                     else if (this.IsDictionary(Type))
                     {
                         type.TypeName = "Dictionary";
-                        type.InternalPath = null;
+                        type.ModulePath = null;
                         type.BaseClass = null;
                     }
                     else if (this.IsList(Type))
                     {
                         type.TypeName = "List";
-                        type.InternalPath = null;
+                        type.ModulePath = null;
                         type.BaseClass = null;
                     }
                     else
@@ -155,6 +165,12 @@ namespace Linql.ModelGenerator.Backend
 
                     type.Properties = Type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).Select(r => this.GenerateProperty(r)).ToList();
 
+                    if (type is IntermediaryAttribute attr)
+                    {
+                        ConstructorInfo constructorInfo = Type.GetConstructors().FirstOrDefault();
+                        attr.Arguments = constructorInfo.GetParameters().Select(r => this.GenerateParameter(r)).ToList();
+                    }
+
                 }
 
                 return type;
@@ -163,6 +179,11 @@ namespace Linql.ModelGenerator.Backend
             {
                 return this.TypeProcessing[Type];
             }
+        }
+
+        protected bool IsAttribute(Type Type)
+        {
+            return typeof(Attribute).IsAssignableFrom(Type);
         }
 
         protected bool IsList(Type Type)
@@ -209,6 +230,15 @@ namespace Linql.ModelGenerator.Backend
             prop.PropertyName = Property.Name;
             prop.Type = this.GenerateType(Property.PropertyType);
             return prop;
+        }
+
+        protected IntermediaryArgument GenerateParameter(ParameterInfo Parameter)
+        {
+            IntermediaryArgument arg = new IntermediaryArgument();
+            arg.ArgumentName = Parameter.Name;
+            arg.DefaultValue = Parameter.DefaultValue;
+            arg.Type = this.GenerateType(Parameter.ParameterType);
+            return arg;
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Linql.ModelGenerator.Intermediary
 
         public List<IntermediaryAttribute> Attributes { get; set; } = new List<IntermediaryAttribute>();
 
-        public string InternalPath { get; set; }
+        public string ModulePath { get; set; }
 
     }
 }

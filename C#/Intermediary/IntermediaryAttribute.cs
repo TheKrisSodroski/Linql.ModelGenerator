@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Linql.ModelGenerator.Intermediary
 {
-    public class IntermediaryAttribute
+    public class IntermediaryAttribute : IntermediaryType
     {
-        public string AttributeName { get; set; }
+        public List<IntermediaryArgument> Arguments { get; set; } = new List<IntermediaryArgument>();
 
-        public string ModuleLocation { get; set; }
     }
 }

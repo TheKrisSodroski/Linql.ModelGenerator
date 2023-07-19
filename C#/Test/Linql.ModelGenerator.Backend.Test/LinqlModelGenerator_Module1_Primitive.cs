@@ -26,7 +26,7 @@ namespace Linql.ModelGenerator.Backend.Test
             Assert.That(basicType.IsClass, Is.True);
             Assert.That(basicType.IsAbstract, Is.False);
             Assert.That(basicType.IsInterface, Is.False);
-            Assert.That(basicType.InternalPath, Is.EqualTo(typeof(PrimitiveClass).Namespace));
+            Assert.That(basicType.ModulePath, Is.EqualTo(typeof(PrimitiveClass).Namespace));
 
             basicType.Properties.ForEach(r =>
             {
@@ -34,7 +34,7 @@ namespace Linql.ModelGenerator.Backend.Test
                 {
                     Assert.That(r.Type.TypeName, Is.EqualTo(r.PropertyName));
                 }
-                Assert.That(r.Type.InternalPath, Is.EqualTo(null));
+                Assert.That(r.Type.ModulePath, Is.EqualTo(null));
 
             });
         }
@@ -48,7 +48,7 @@ namespace Linql.ModelGenerator.Backend.Test
             Assert.That(basicInterface.IsClass, Is.False);
             Assert.That(basicInterface.IsAbstract, Is.True);
             Assert.That(basicInterface.IsInterface, Is.True);
-            Assert.That(basicInterface.InternalPath, Is.EqualTo(typeof(IPrimitiveInterface).Namespace));
+            Assert.That(basicInterface.ModulePath, Is.EqualTo(typeof(IPrimitiveInterface).Namespace));
 
             basicInterface.Properties.ForEach(r =>
             {
@@ -56,7 +56,7 @@ namespace Linql.ModelGenerator.Backend.Test
                 {
                     Assert.That(r.Type.TypeName, Is.EqualTo(r.PropertyName));
                 }
-                Assert.That(r.Type.InternalPath, Is.EqualTo(null));
+                Assert.That(r.Type.ModulePath, Is.EqualTo(null));
             });
         }
 
@@ -69,7 +69,7 @@ namespace Linql.ModelGenerator.Backend.Test
             Assert.That(basicInterface.IsClass, Is.True);
             Assert.That(basicInterface.IsAbstract, Is.True);
             Assert.That(basicInterface.IsInterface, Is.False);
-            Assert.That(basicInterface.InternalPath, Is.EqualTo(typeof(PrimitiveAbstract).Namespace));
+            Assert.That(basicInterface.ModulePath, Is.EqualTo(typeof(PrimitiveAbstract).Namespace));
 
             basicInterface.Properties.ForEach(r =>
             {
@@ -77,7 +77,7 @@ namespace Linql.ModelGenerator.Backend.Test
                 {
                     Assert.That(r.Type.TypeName, Is.EqualTo(r.PropertyName));
                 }
-                Assert.That(r.Type.InternalPath, Is.EqualTo(null));
+                Assert.That(r.Type.ModulePath, Is.EqualTo(null));
             });
         }
 
