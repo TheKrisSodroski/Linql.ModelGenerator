@@ -15,9 +15,17 @@ namespace Linql.ModelGenerator.Backend
 
         protected Dictionary<Type, IntermediaryType> TypeProcessing { get; set; } = new Dictionary<Type, IntermediaryType>();
 
-        public LinqlModelGenerator(Assembly Assembly)
+        protected List<IIgnoreTypePlugin> IgnoreTypePlugins { get; set; } = new List<IIgnoreTypePlugin>();
+
+        protected List<IPrimitiveTypePlugin> PrimitiveTypePlugins { get; set; } = new List<IPrimitiveTypePlugin>();
+
+        public LinqlModelGenerator(
+            Assembly Assembly
+            )
         {
             this.Assembly = Assembly;
+            this.IgnoreTypePlugins.Add(new DefaultIgnoreTypePlugin());
+            this.PrimitiveTypePlugins.Add(new DefaultPrimitiveTypePlugin());
         }
 
         public LinqlModelGenerator(string AssemblyPath)
@@ -60,6 +68,9 @@ namespace Linql.ModelGenerator.Backend
 
             string fullPath = Path.GetFullPath(assemblyPath);
             this.Assembly = Assembly.LoadFile(fullPath);
+            this.IgnoreTypePlugins.Add(new DefaultIgnoreTypePlugin());
+            this.PrimitiveTypePlugins.Add(new DefaultPrimitiveTypePlugin());
+
         }
 
         public IntermediaryModule Generate()
@@ -91,11 +102,11 @@ namespace Linql.ModelGenerator.Backend
                     type.BaseClass = this.GenerateType(Type.BaseType);
                 }
 
-                List<Type> interfaces = Type.GetInterfaces().Where(r => r.Assembly != typeof(IComparable).Assembly).ToList();
+                List<Type> interfaces = Type.GetInterfaces().Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreInterface(r))).ToList();
                 List<Type> baseTypeInterfaces = new List<Type>();
-                if(Type.BaseType != null)
+                if (Type.BaseType != null)
                 {
-                    baseTypeInterfaces.AddRange(Type.BaseType.GetInterfaces());
+                    baseTypeInterfaces.AddRange(Type.BaseType.GetInterfaces().Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreInterface(r))));
                 }
 
                 interfaces = interfaces
@@ -103,7 +114,7 @@ namespace Linql.ModelGenerator.Backend
                     .Except(interfaces.SelectMany(s => s.GetInterfaces())).ToList();
                 type.Interfaces = interfaces.Select(r => this.GenerateType(r)).ToList();
 
-                if (Type.IsPrimitive)
+                if (Type.IsPrimitive || this.PrimitiveTypePlugins.Any(s => s.IsPrimitiveType(Type)))
                 {
                     type.IsPrimitive = true;
                     type.TypeName = this.GetPrimitiveTypeName(Type);

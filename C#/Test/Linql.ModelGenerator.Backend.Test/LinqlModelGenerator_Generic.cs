@@ -90,6 +90,32 @@ namespace Linql.ModelGenerator.Backend.Test
 
         }
 
+        [Test]
+        public void GenericConstructed()
+        {
+            Type generic = typeof(GenericConstructed);
+            Type genericOne = typeof(GenericOne<object>);
+            string typeName = genericOne.Name.Split("`").FirstOrDefault();
+
+
+            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == generic.Name);
+            IntermediaryType genericOneType = this.Module.Types.FirstOrDefault(r => r.TypeName == typeName);
+
+
+            Assert.That(type, Is.Not.EqualTo(null));
+            Assert.That(type.IsClass, Is.True);
+            Assert.That(type.IsAbstract, Is.False);
+            Assert.That(type.IsInterface, Is.False);
+            Assert.That(type.IsGenericType, Is.False);
+
+            Assert.That(type.BaseClass.TypeName, Is.EqualTo(genericOneType.TypeName));
+            Assert.That(type.BaseClass.GenericArguments.Count(), Is.EqualTo(1));
+            Assert.That(type.BaseClass.GenericArguments[0].TypeName, Is.EqualTo("String"));
+
+        }
+
+
+
 
     }
 }
