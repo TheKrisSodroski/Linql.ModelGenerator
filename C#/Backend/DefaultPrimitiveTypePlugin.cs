@@ -6,14 +6,17 @@ namespace Linql.ModelGenerator.Backend
 {
     public class DefaultPrimitiveTypePlugin : IPrimitiveTypePlugin
     {
+        private static List<Type> AdditionalPrimitives = new List<Type>()
+            {
+                typeof(Decimal),
+                typeof(string),
+                typeof(object)
+            };
+
+
         public bool IsPrimitiveType(Type Type)
         {
-            if(Type == typeof(string))
-            {
-                return true;
-            }
-
-            return false;
+            return DefaultPrimitiveTypePlugin.AdditionalPrimitives.Contains(Type);
         }
     }
 }

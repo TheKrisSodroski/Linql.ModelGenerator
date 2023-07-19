@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Backend\Linql.ModelGenerator.Backend.csproj" />
     <ProjectReference Include="..\Test.Module1\Test.Module1.csproj" />
+    <ProjectReference Include="..\Test.Module2\Test.Module2.csproj" />
   </ItemGroup>
 
 </Project>

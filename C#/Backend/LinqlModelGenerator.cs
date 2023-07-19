@@ -1,5 +1,6 @@
 ﻿using Linql.ModelGenerator.Intermediary;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -94,7 +95,6 @@ namespace Linql.ModelGenerator.Backend
                 type.IsClass = Type.IsClass;
                 type.IsInterface = Type.IsInterface;
                 type.IsAbstract = Type.IsAbstract;
-
                 type.InternalPath = Type.Namespace;
 
                 if (Type.BaseType != null && Type.BaseType != typeof(object))
@@ -114,14 +114,38 @@ namespace Linql.ModelGenerator.Backend
                     .Except(interfaces.SelectMany(s => s.GetInterfaces())).ToList();
                 type.Interfaces = interfaces.Select(r => this.GenerateType(r)).ToList();
 
-                if (Type.IsPrimitive || this.PrimitiveTypePlugins.Any(s => s.IsPrimitiveType(Type)))
+                if (this.IsPrimitive(Type) || this.PrimitiveTypePlugins.Any(s => s.IsPrimitiveType(Type)))
                 {
+                    type.InternalPath = null;
                     type.IsPrimitive = true;
                     type.TypeName = this.GetPrimitiveTypeName(Type);
+                    type.BaseClass = null;
                 }
                 else
                 {
-                    type.TypeName = TypeName;
+                    if (this.IsArray(Type))
+                    {
+                        type.TypeName = "Array";
+                        type.InternalPath = null;
+                        type.BaseClass = null;
+                        type.GenericArguments = new List<IntermediaryType>() { this.GenerateType(Type.GetElementType()) };
+                    }
+                    else if (this.IsDictionary(Type))
+                    {
+                        type.TypeName = "Dictionary";
+                        type.InternalPath = null;
+                        type.BaseClass = null;
+                    }
+                    else if (this.IsList(Type))
+                    {
+                        type.TypeName = "List";
+                        type.InternalPath = null;
+                        type.BaseClass = null;
+                    }
+                    else
+                    {
+                        type.TypeName = TypeName;
+                    }
 
                     if (Type.IsGenericType)
                     {
@@ -139,6 +163,28 @@ namespace Linql.ModelGenerator.Backend
             {
                 return this.TypeProcessing[Type];
             }
+        }
+
+        protected bool IsList(Type Type)
+        {
+            return Type.GetInterface(nameof(IEnumerable)) != null && !this.IsArray(Type);
+        }
+
+        protected bool IsPrimitive(Type Type)
+        {
+
+            return Type.IsPrimitive;
+        }
+
+
+        protected bool IsArray(Type Type)
+        {
+            return Type.IsArray;
+        }
+
+        protected bool IsDictionary(Type Type)
+        {
+            return Type.IsGenericType && Type.GetGenericTypeDefinition() == typeof(Dictionary<,>);
         }
 
         protected string GetPrimitiveTypeName(Type Type)

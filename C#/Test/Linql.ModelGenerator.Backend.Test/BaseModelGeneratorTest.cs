@@ -9,12 +9,14 @@ namespace Linql.ModelGenerator.Backend.Test
 
         protected string ModelsPath { get; set; } = "../../../../";
 
+        protected virtual string ModuleName { get; set; } = "Test.Module1";
+
         protected IntermediaryModule Module { get; set; }
 
         [OneTimeSetUp]
         public void SetUp()
         {
-            LinqlModelGenerator generator = new LinqlModelGenerator(Path.Combine(this.ModelsPath, "Test.Module1"));
+            LinqlModelGenerator generator = new LinqlModelGenerator(Path.Combine(this.ModelsPath, this.ModuleName));
             this.Module = generator.Generate();
         }
 

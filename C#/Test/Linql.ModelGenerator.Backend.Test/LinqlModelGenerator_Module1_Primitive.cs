@@ -18,7 +18,7 @@ namespace Linql.ModelGenerator.Backend.Test
         }
 
         [Test]
-        public void PrimitiveClass()
+        public void PrimitiveClassTest()
         {
             IntermediaryType basicType = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(PrimitiveClass));
 
@@ -30,12 +30,17 @@ namespace Linql.ModelGenerator.Backend.Test
 
             basicType.Properties.ForEach(r =>
             {
-                Assert.That(r.Type.TypeName, Is.EqualTo(r.PropertyName));
+                if (r.PropertyName != nameof(PrimitiveClass.Object))
+                {
+                    Assert.That(r.Type.TypeName, Is.EqualTo(r.PropertyName));
+                }
+                Assert.That(r.Type.InternalPath, Is.EqualTo(null));
+
             });
         }
 
         [Test]
-        public void PrimitiveInterface()
+        public void PrimitiveInterfaceTest()
         {
             IntermediaryType basicInterface = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(IPrimitiveInterface));
 
@@ -47,12 +52,16 @@ namespace Linql.ModelGenerator.Backend.Test
 
             basicInterface.Properties.ForEach(r =>
             {
-                Assert.That(r.Type.TypeName, Is.EqualTo(r.PropertyName));
+                if (r.PropertyName != nameof(IPrimitiveInterface.Object))
+                {
+                    Assert.That(r.Type.TypeName, Is.EqualTo(r.PropertyName));
+                }
+                Assert.That(r.Type.InternalPath, Is.EqualTo(null));
             });
         }
 
         [Test]
-        public void PrimitiveAbstract()
+        public void PrimitiveAbstractTest()
         {
             IntermediaryType basicInterface = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(PrimitiveAbstract));
 
@@ -64,7 +73,11 @@ namespace Linql.ModelGenerator.Backend.Test
 
             basicInterface.Properties.ForEach(r =>
             {
-                Assert.That(r.Type.TypeName, Is.EqualTo(r.PropertyName));
+                if (r.PropertyName != nameof(PrimitiveAbstract.Object))
+                {
+                    Assert.That(r.Type.TypeName, Is.EqualTo(r.PropertyName));
+                }
+                Assert.That(r.Type.InternalPath, Is.EqualTo(null));
             });
         }
 
