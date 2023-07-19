@@ -11,7 +11,7 @@ Model Generation for Linql.
 
 | Language   | Frontend                             | Backend                              |
 | ---------- | ------------------------------------ | ------------------------------------ |
-| C#         | Planned                              | In Development                       |
+| C#         | Planned                              | [In Development](./c#)               |
 | Python     | Planned                              | Planned                              |
 | Typescript | Planned                              | Requires Linql Server Implementation |
 | Java       | Requires Linql Client Implementation | Requires Linql Server Implementation |
