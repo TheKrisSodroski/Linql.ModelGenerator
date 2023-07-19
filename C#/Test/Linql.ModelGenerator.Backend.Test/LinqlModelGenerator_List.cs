@@ -4,6 +4,7 @@ using System.Text.Json;
 using Test.Module1.Inheritance;
 using Test.Module1;
 using Test.Module1.Generics;
+using Test.Module2;
 
 namespace Linql.ModelGenerator.Backend.Test
 {
@@ -12,7 +13,7 @@ namespace Linql.ModelGenerator.Backend.Test
         protected override string ModuleName { get; set; } = "Test.Module2";
 
         [Test]
-        public void ListClass()
+        public void ListClassTest()
         {
         
             IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(ListClass));
