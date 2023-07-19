@@ -10,7 +10,7 @@ namespace Linql.ModelGenerator.Backend.Test
     {
 
         [Test]
-        public void Test_InheritedAbstract()
+        public void InheritedAbstract()
         {
             IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(InheritAbstract));
             IntermediaryType baseType = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(PrimitiveAbstract));
@@ -28,7 +28,7 @@ namespace Linql.ModelGenerator.Backend.Test
         }
 
         [Test]
-        public void Test_DoubleInheritedAbstract()
+        public void DoubleInheritedAbstract()
         {
             IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(DoubleInheritAbstract));
             IntermediaryType baseType = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(InheritAbstract));
@@ -45,7 +45,7 @@ namespace Linql.ModelGenerator.Backend.Test
         }
 
         [Test]
-        public void Test_TrippleInheritWithInterface()
+        public void TrippleInheritWithInterface()
         {
             IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(TripleInheritWithInterface));
             IntermediaryType baseType = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(DoubleInheritAbstract));
@@ -67,7 +67,7 @@ namespace Linql.ModelGenerator.Backend.Test
         }
 
         [Test]
-        public void Test_MultipleInterfaces()
+        public void MultipleInterfaces()
         {
             IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(MultipleInterfaces));
            
@@ -76,7 +76,7 @@ namespace Linql.ModelGenerator.Backend.Test
         }
 
         [Test]
-        public void Test_MultipleInterfacesNested()
+        public void MultipleInterfacesNested()
         {
             IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(MultipleInterfacesNested));
 

@@ -18,7 +18,7 @@ namespace Linql.ModelGenerator.Backend.Test
         }
 
         [Test]
-        public void Test_PrimitiveClass()
+        public void PrimitiveClass()
         {
             IntermediaryType basicType = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(PrimitiveClass));
 
@@ -35,7 +35,7 @@ namespace Linql.ModelGenerator.Backend.Test
         }
 
         [Test]
-        public void Test_PrimitiveInterface()
+        public void PrimitiveInterface()
         {
             IntermediaryType basicInterface = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(IPrimitiveInterface));
 
@@ -52,7 +52,7 @@ namespace Linql.ModelGenerator.Backend.Test
         }
 
         [Test]
-        public void Test_PrimitiveAbstract()
+        public void PrimitiveAbstract()
         {
             IntermediaryType basicInterface = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(PrimitiveAbstract));
 
