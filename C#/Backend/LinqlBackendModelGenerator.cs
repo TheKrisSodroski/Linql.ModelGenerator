@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Linql.ModelGenerator.Backend
 {
-    public class LinqlModelGenerator
+    public class LinqlBackendModelGenerator
     {
         public Assembly Assembly { get; set; }
 
@@ -20,7 +20,7 @@ namespace Linql.ModelGenerator.Backend
 
         protected List<IPrimitiveTypePlugin> PrimitiveTypePlugins { get; set; } = new List<IPrimitiveTypePlugin>();
 
-        public LinqlModelGenerator(
+        public LinqlBackendModelGenerator(
             Assembly Assembly
             )
         {
@@ -29,7 +29,7 @@ namespace Linql.ModelGenerator.Backend
             this.PrimitiveTypePlugins.Add(new DefaultPrimitiveTypePlugin());
         }
 
-        public LinqlModelGenerator(string AssemblyPath)
+        public LinqlBackendModelGenerator(string AssemblyPath)
         {
             string assemblyPath = AssemblyPath;
             if (!AssemblyPath.EndsWith(".dll"))
