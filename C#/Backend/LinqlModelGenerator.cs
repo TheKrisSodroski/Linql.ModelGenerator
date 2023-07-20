@@ -101,75 +101,73 @@ namespace Linql.ModelGenerator.Backend
                 }
                 this.TypeProcessing.Add(Type, type);
 
-                type.IsGenericType = Type.IsGenericType;
-                type.IsClass = Type.IsClass;
-                type.IsInterface = Type.IsInterface;
-                type.IsAbstract = Type.IsAbstract;
-                type.NameSpace = Type.Namespace;
                 type.Module = Type.Assembly.GetName().Name;
-
-                if (Type.BaseType != null && !this.IgnoreTypePlugins.Any(s => s.IgnoreType(Type.BaseType)))
-                {
-                    type.BaseClass = this.GenerateType(Type.BaseType);
-                }
-
-                List<Type> interfaces = Type.GetInterfaces().Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreInterface(r))).ToList();
-                List<Type> baseTypeInterfaces = new List<Type>();
-                if (Type.BaseType != null)
-                {
-                    baseTypeInterfaces.AddRange(Type.BaseType.GetInterfaces().Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreInterface(r))));
-                }
-
-                interfaces = interfaces
-                    .Except(baseTypeInterfaces)
-                    .Except(interfaces.SelectMany(s => s.GetInterfaces())).ToList();
-                type.Interfaces = interfaces.Select(r => this.GenerateType(r)).ToList();
 
 
                 if (this.IsPrimitive(Type) || this.PrimitiveTypePlugins.Any(s => s.IsPrimitiveType(Type)))
                 {
-                    type.NameSpace = null;
                     type.IsPrimitive = true;
                     type.TypeName = this.GetPrimitiveTypeName(Type);
-                    type.BaseClass = null;
+                    type.Module = null;
+                }
+                else if (this.IsArray(Type))
+                {
+                    type.TypeName = "Array";
+                    type.IsIntrinsic = true;
+                    type.Module = null;
+                    type.GenericArguments = new List<IntermediaryType>() { this.GenerateType(Type.GetElementType()) };
+                }
+                else if (this.IsDictionary(Type))
+                {
+                    type.TypeName = "Dictionary";
+                    type.IsIntrinsic = true;
+                    type.Module = null;
+
+                }
+                else if (this.IsList(Type))
+                {
+                    type.TypeName = "List";
+                    type.IsIntrinsic = true;
                     type.Module = null;
                 }
                 else
                 {
-                    if (this.IsArray(Type))
-                    {
-                        type.TypeName = "Array";
-                        type.NameSpace = null;
-                        type.BaseClass = null;
-                        type.Module = null;
-                        type.GenericArguments = new List<IntermediaryType>() { this.GenerateType(Type.GetElementType()) };
-                    }
-                    else if (this.IsDictionary(Type))
-                    {
-                        type.TypeName = "Dictionary";
-                        type.NameSpace = null;
-                        type.BaseClass = null;
-                        type.Module = null;
+                    type.TypeName = TypeName;
+                }
 
-                    }
-                    else if (this.IsList(Type))
-                    {
-                        type.TypeName = "List";
-                        type.NameSpace = null;
-                        type.BaseClass = null;
-                        type.Module = null;
+                if (Type.IsGenericType)
+                {
+                    type.TypeName = type.TypeName.Split('`').FirstOrDefault();
+                    type.GenericArguments = Type.GetGenericArguments().Select(r => this.GenerateType(r)).ToList();
+                }
 
-                    }
-                    else
+                type.IsGenericType = Type.IsGenericType;
+                type.IsClass = Type.IsClass;
+                type.IsInterface = Type.IsInterface;
+                type.IsAbstract = Type.IsAbstract;
+
+                if (this.TypeIsInModule(Type))
+                {
+
+                    type.NameSpace = Type.Namespace;
+
+                    if (Type.BaseType != null && !this.IgnoreTypePlugins.Any(s => s.IgnoreType(Type.BaseType)))
                     {
-                        type.TypeName = TypeName;
+                        type.BaseClass = this.GenerateType(Type.BaseType);
                     }
 
-                    if (Type.IsGenericType)
+                    List<Type> interfaces = Type.GetInterfaces().Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreInterface(r))).ToList();
+                    List<Type> baseTypeInterfaces = new List<Type>();
+                    if (Type.BaseType != null)
                     {
-                        type.TypeName = type.TypeName.Split('`').FirstOrDefault();
-                        type.GenericArguments = Type.GetGenericArguments().Select(r => this.GenerateType(r)).ToList();
+                        baseTypeInterfaces.AddRange(Type.BaseType.GetInterfaces().Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreInterface(r))));
                     }
+
+                    interfaces = interfaces
+                        .Except(baseTypeInterfaces)
+                        .Except(interfaces.SelectMany(s => s.GetInterfaces())).ToList();
+                    type.Interfaces = interfaces.Select(r => this.GenerateType(r)).ToList();
+
 
                     type.Properties = Type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).Select(r => this.GenerateProperty(r)).ToList();
 
@@ -182,7 +180,6 @@ namespace Linql.ModelGenerator.Backend
                             attr.Arguments = constructorInfo.GetParameters().Select(r => this.GenerateParameter(r)).ToList();
                         }
                     }
-
                 }
 
                 return type;
@@ -191,6 +188,11 @@ namespace Linql.ModelGenerator.Backend
             {
                 return this.TypeProcessing[Type];
             }
+        }
+
+        protected bool TypeIsInModule(Type Type)
+        {
+            return Type.Assembly == this.Assembly;
         }
 
         protected bool IsAttribute(Type Type)

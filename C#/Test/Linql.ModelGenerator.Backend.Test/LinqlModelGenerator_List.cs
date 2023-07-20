@@ -23,6 +23,7 @@ namespace Linql.ModelGenerator.Backend.Test
             Assert.That(type.IsAbstract, Is.False);
             Assert.That(type.IsInterface, Is.False);
             Assert.That(type.IsGenericType, Is.False);
+            Assert.That(type.IsIntrinsic, Is.False);
 
             List<IntermediaryProperty> listProperties = type.Properties.Where(r => r.Type.TypeName == "List").ToList();
             List<IntermediaryProperty> dictionaryProperties = type.Properties.Where(r => r.Type.TypeName == "Dictionary").ToList();
@@ -31,6 +32,12 @@ namespace Linql.ModelGenerator.Backend.Test
             Assert.That(listProperties.Count(), Is.EqualTo(2));
             Assert.That(dictionaryProperties.Count(), Is.EqualTo(1));
             Assert.That(arrayProperties.Count(), Is.EqualTo(1));
+
+            type.Properties.ForEach(r =>
+            {
+                Assert.That(r.Type.IsIntrinsic, Is.True);
+
+            });
         }
     }
 }
