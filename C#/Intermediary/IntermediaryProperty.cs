@@ -8,7 +8,7 @@ namespace Linql.ModelGenerator.Intermediary
     {
         public string PropertyName { get; set; }
 
-        public List<IntermediaryAttribute> Attributes { get; set; } = new List<IntermediaryAttribute>();
+        public List<IntermediaryAttributeInstance> Attributes { get; set; } = new List<IntermediaryAttributeInstance>();
 
         public IntermediaryType Type { get; set; }
 

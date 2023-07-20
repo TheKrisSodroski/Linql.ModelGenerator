@@ -70,6 +70,49 @@ namespace Linql.ModelGenerator.Backend.Test
 
         }
 
+        [Test]
+        public void AttributeInstanceTest()
+        {
+            List<string> attributes = new List<string>()
+            {
+                nameof(BasicAttribute),
+                nameof(AttributeWithConstructor),
+                nameof(AttributeWithDefaults)
+            };
+            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(AttributeInstanceClass));
+
+            Assert.That(type, Is.Not.EqualTo(null));
+            Assert.That(type.IsClass, Is.True);
+            Assert.That(type.IsAbstract, Is.False);
+            Assert.That(type.IsInterface, Is.False);
+            Assert.That(type.IsGenericType, Is.False);
+
+            IntermediaryProperty attrProp = type.Properties[0];
+
+            Assert.That(type.Attributes.Count(), Is.EqualTo(3));
+            Assert.That(attrProp.Attributes.Count(), Is.EqualTo(3));
+
+            type.Attributes.ForEach(r =>
+            {
+                Assert.That(attributes.Contains(r.TypeName), Is.True);
+            });
+
+            attrProp.Attributes.ForEach(r =>
+            {
+                Assert.That(attributes.Contains(r.TypeName), Is.True);
+            });
+
+            IntermediaryAttributeInstance typeAttr = type.Attributes.FirstOrDefault(r => r.TypeName == nameof(AttributeWithConstructor));
+            IntermediaryAttributeInstance propAttr = attrProp.Attributes.FirstOrDefault(r => r.TypeName == nameof(AttributeWithConstructor));
+
+            Assert.That(typeAttr.Arguments[nameof(AttributeWithConstructor.String)], Is.EqualTo("Class"));
+            Assert.That(typeAttr.Arguments[nameof(AttributeWithConstructor.Int)], Is.EqualTo(2));
+
+            Assert.That(propAttr.Arguments[nameof(AttributeWithConstructor.String)], Is.EqualTo("Property"));
+            Assert.That(propAttr.Arguments[nameof(AttributeWithConstructor.Int)], Is.EqualTo(2));
+
+        }
+
 
     }
 }

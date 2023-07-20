@@ -170,6 +170,7 @@ namespace Linql.ModelGenerator.Backend
 
                     type.Properties = Type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).Select(r => this.GenerateProperty(r)).ToList();
 
+                  
                     if (type is IntermediaryAttribute attr)
                     {
                         ConstructorInfo constructorInfo = Type.GetConstructors().FirstOrDefault();
@@ -178,6 +179,10 @@ namespace Linql.ModelGenerator.Backend
                         {
                             attr.Arguments = constructorInfo.GetParameters().Select(r => this.GenerateParameter(r)).ToList();
                         }
+                    }
+                    else
+                    {
+                        type.Attributes = Type.GetCustomAttributes().Select(r => this.GenerateAttributeInstance(r)).ToList();
                     }
                 }
 
@@ -242,7 +247,21 @@ namespace Linql.ModelGenerator.Backend
             IntermediaryProperty prop = new IntermediaryProperty();
             prop.PropertyName = Property.Name;
             prop.Type = this.GenerateType(Property.PropertyType);
+            prop.Attributes = Property.GetCustomAttributes().Select(r => this.GenerateAttributeInstance(r)).ToList();
             return prop;
+        }
+
+        protected IntermediaryAttributeInstance GenerateAttributeInstance(Attribute Attribute)
+        {
+            Type attrType = Attribute.GetType();
+            IntermediaryAttributeInstance attr = new IntermediaryAttributeInstance();
+            IntermediaryType type = this.GenerateType(attrType);
+
+            attr.TypeName = type.TypeName;
+            attr.Module = type.Module;
+            attr.Arguments = attrType.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).ToDictionary(r => r.Name, r => r.GetValue(Attribute));
+
+            return attr;
         }
 
         protected IntermediaryArgument GenerateParameter(ParameterInfo Parameter)
