@@ -20,7 +20,7 @@ namespace Linql.ModelGenerator.Backend.Test
             Assert.That(type.IsAbstract, Is.True);
             Assert.That(type.IsInterface, Is.False);
 
-            Assert.That(type.Properties.Count(), Is.EqualTo(0));
+            Assert.That(type.Properties, Is.EqualTo(null));
 
             Assert.That(type.BaseClass, Is.EqualTo(baseType));
 

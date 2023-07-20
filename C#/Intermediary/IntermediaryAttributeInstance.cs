@@ -10,7 +10,7 @@ namespace Linql.ModelGenerator.Intermediary
 
         public string Module { get; set; }
 
-        public Dictionary<string, object> Arguments { get; set; } = new Dictionary<string, object>();
+        public Dictionary<string, object> Arguments { get; set; }
 
         public override string ToString()
         {

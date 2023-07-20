@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Linql.ModelGenerator.Backend.Test
 {
@@ -45,6 +46,17 @@ namespace Linql.ModelGenerator.Backend.Test
             });
 
         }
+
+        [Test]
+        public void ModuleToJson()
+        {
+            Assert.DoesNotThrow(() =>
+            {
+                string json = JsonSerializer.Serialize(this.Module, this.JsonOptions);
+                File.WriteAllText($"{this.Module.ModuleName}.json", json);
+            });
+        }
+
 
 
 

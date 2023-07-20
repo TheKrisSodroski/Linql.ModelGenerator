@@ -5,7 +5,7 @@ namespace Linql.ModelGenerator.Intermediary
 {
     public class IntermediaryAttribute : IntermediaryType
     {
-        public List<IntermediaryArgument> Arguments { get; set; } = new List<IntermediaryArgument>();
+        public List<IntermediaryArgument> Arguments { get; set; }
 
         public override string ToString()
         {

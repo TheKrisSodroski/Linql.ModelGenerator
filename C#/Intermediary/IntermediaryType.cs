@@ -13,7 +13,7 @@ namespace Linql.ModelGenerator.Intermediary
 
         public IntermediaryType BaseClass { get; set; }
 
-        public List<IntermediaryType> Interfaces { get; set; } = new List<IntermediaryType>();
+        public List<IntermediaryType> Interfaces { get; set; }
 
         public bool IsClass { get; set; }
 
@@ -27,9 +27,9 @@ namespace Linql.ModelGenerator.Intermediary
 
         public bool IsPrimitive { get; set; }
 
-        public List<IntermediaryProperty> Properties { get; set; } = new List<IntermediaryProperty>();
+        public List<IntermediaryProperty> Properties { get; set; }
 
-        public List<IntermediaryAttributeInstance> Attributes { get; set; } = new List<IntermediaryAttributeInstance>();
+        public List<IntermediaryAttributeInstance> Attributes { get; set; }
 
         public string Module { get; set; }
 

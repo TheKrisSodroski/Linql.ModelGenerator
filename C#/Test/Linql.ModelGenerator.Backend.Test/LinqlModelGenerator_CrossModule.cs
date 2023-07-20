@@ -25,8 +25,19 @@ namespace Linql.ModelGenerator.Backend.Test
             Assert.That(type.IsGenericType, Is.False);
             Assert.That(type.IsIntrinsic, Is.False);
             Assert.That(type.BaseClass, Is.Not.EqualTo(null));
-            Assert.That(type.BaseClass.Properties.Count, Is.EqualTo(0));
+            Assert.That(type.BaseClass.Properties, Is.EqualTo(null));
 
         }
+
+        [Test]
+        public void CrossModuleToJson()
+        {
+            Assert.DoesNotThrow(() =>
+            {
+                string json = JsonSerializer.Serialize(this.Module, this.JsonOptions);
+                File.WriteAllText($"{this.Module.ModuleName}.json", json);
+            });
+        }
+
     }
 }
