@@ -10,7 +10,6 @@ namespace Linql.ModelGenerator.Backend.Test
 {
     public class LinqlModelGenerator_List : BaseModelGeneratorTest
     {
-        protected override string ModuleName { get; set; } = "Test.Module2";
 
         [Test]
         public void ListClassTest()

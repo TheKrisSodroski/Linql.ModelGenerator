@@ -168,7 +168,6 @@ namespace Linql.ModelGenerator.Backend
                         .Except(interfaces.SelectMany(s => s.GetInterfaces())).ToList();
                     type.Interfaces = interfaces.Select(r => this.GenerateType(r)).ToList();
 
-
                     type.Properties = Type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).Select(r => this.GenerateProperty(r)).ToList();
 
                     if (type is IntermediaryAttribute attr)
