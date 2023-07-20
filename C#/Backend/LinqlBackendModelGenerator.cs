@@ -304,7 +304,11 @@ namespace Linql.ModelGenerator.Backend
         {
             IntermediaryArgument arg = new IntermediaryArgument();
             arg.ArgumentName = Parameter.Name;
-            arg.DefaultValue = Parameter.DefaultValue;
+
+            if (Parameter.DefaultValue.GetType() != typeof(DBNull))
+            {
+                arg.DefaultValue = Parameter.DefaultValue;
+            }
             arg.Type = this.GenerateType(Parameter.ParameterType);
             return arg;
         }

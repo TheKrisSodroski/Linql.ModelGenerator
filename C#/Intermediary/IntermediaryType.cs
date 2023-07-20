@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace Linql.ModelGenerator.Intermediary
 {
+    [JsonDerivedType(typeof(IntermediaryAttribute), typeDiscriminator: nameof(IntermediaryAttribute))]
     public class IntermediaryType
     {
         public string TypeName { get; set; }
