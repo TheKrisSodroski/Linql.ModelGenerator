@@ -27,6 +27,11 @@ namespace Linql.ModelGenerator.Frontend
             }
 
             this.CreateProject(module, ProjectPath);
+
+            module.Types.ForEach(r =>
+            {
+                this.CreateType(module, ProjectPath, r);
+            });
         }
 
         protected void CreateProject(IntermediaryModule Module, string ProjectPath)
@@ -50,6 +55,14 @@ namespace Linql.ModelGenerator.Frontend
             writer.Flush();
             stream.Position = 0;
             return stream;
+        }
+
+        protected void CreateType(IntermediaryModule Module, string ProjectPath, IntermediaryType Type)
+        {
+            string fileText = "";
+            string directory = Path.Combine(ProjectPath, Module.ModuleName, Type.NameSpace.Replace($"{Module.ModuleName}.", String.Empty));
+            Directory.CreateDirectory(directory);
+            File.WriteAllText(Path.Combine(directory, $"{Type.TypeName}.cs"), fileText);
         }
     }
 }
