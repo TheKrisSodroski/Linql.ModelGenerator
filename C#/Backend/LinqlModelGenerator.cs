@@ -153,7 +153,7 @@ namespace Linql.ModelGenerator.Backend
 
                     if (Type.BaseType != null && !this.IgnoreTypePlugins.Any(s => s.IgnoreType(Type.BaseType)))
                     {
-                        type.BaseClass = this.GenerateType(Type.BaseType);
+                        type.BaseClass = this.GenerateReducedType(Type.BaseType);
                     }
 
                     List<Type> interfaces = Type.GetInterfaces().Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreInterface(r))).ToList();
@@ -167,7 +167,7 @@ namespace Linql.ModelGenerator.Backend
                         .Except(baseTypeInterfaces)
                         .Except(interfaces.SelectMany(s => s.GetInterfaces())).ToList();
                     
-                    type.Interfaces = interfaces.Select(r => this.GenerateType(r)).ToList();
+                    type.Interfaces = interfaces.Select(r => this.GenerateReducedType(r)).ToList();
 
                     type.Properties = Type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).Select(r => this.GenerateProperty(r)).ToList();
               
@@ -274,6 +274,17 @@ namespace Linql.ModelGenerator.Backend
             }
 
             return prop;
+        }
+
+        protected IntermediaryType GenerateReducedType(Type Type)
+        {
+            IntermediaryType fullType = this.GenerateType(Type);
+            IntermediaryType reducedType = new IntermediaryType();
+            reducedType.Module = fullType.Module;
+            reducedType.GenericArguments = fullType.GenericArguments;
+            reducedType.NameSpace = fullType.NameSpace;
+            reducedType.TypeName = fullType.TypeName;
+            return reducedType;
         }
 
         protected IntermediaryAttributeInstance GenerateAttributeInstance(Attribute Attribute)

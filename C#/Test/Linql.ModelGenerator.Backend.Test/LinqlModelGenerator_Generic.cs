@@ -82,10 +82,10 @@ namespace Linql.ModelGenerator.Backend.Test
 
             Assert.That(genericTypeArg.Interfaces.Count(), Is.EqualTo(1));
 
-            Assert.That(genericTypeArg.Interfaces[0], Is.EqualTo(genericConstraint1));
+            Assert.That(genericTypeArg.Interfaces[0].TypeName, Is.EqualTo(genericConstraint1.TypeName));
 
             Assert.That(genericTypeArg2.Interfaces, Is.EqualTo(null));
-            Assert.That(genericTypeArg2.BaseClass, Is.EqualTo(genericConstraint2));
+            Assert.That(genericTypeArg2.BaseClass.TypeName, Is.EqualTo(genericConstraint2.TypeName));
 
 
         }

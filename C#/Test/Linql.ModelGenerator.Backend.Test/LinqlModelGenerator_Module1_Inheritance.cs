@@ -22,7 +22,7 @@ namespace Linql.ModelGenerator.Backend.Test
 
             Assert.That(type.Properties, Is.EqualTo(null));
 
-            Assert.That(type.BaseClass, Is.EqualTo(baseType));
+            Assert.That(type.BaseClass.TypeName, Is.EqualTo(baseType.TypeName));
 
 
         }
@@ -40,7 +40,7 @@ namespace Linql.ModelGenerator.Backend.Test
 
             Assert.That(type.Properties.Count(), Is.EqualTo(1));
 
-            Assert.That(type.BaseClass, Is.EqualTo(baseType));
+            Assert.That(type.BaseClass.TypeName, Is.EqualTo(baseType.TypeName));
 
         }
 
@@ -59,10 +59,10 @@ namespace Linql.ModelGenerator.Backend.Test
             Assert.That(type.Properties.Count(), Is.EqualTo(1));
             Assert.That(type.Interfaces.Count(), Is.EqualTo(1));
 
-            Assert.That(type.Interfaces.Contains(primitiveInterface), Is.True);
+            Assert.That(type.Interfaces.Select(r => r.TypeName).Contains(primitiveInterface.TypeName), Is.True);
 
 
-            Assert.That(type.BaseClass, Is.EqualTo(baseType));
+            Assert.That(type.BaseClass.TypeName, Is.EqualTo(baseType.TypeName));
 
         }
 
