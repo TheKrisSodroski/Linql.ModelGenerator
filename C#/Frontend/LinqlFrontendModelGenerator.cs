@@ -150,12 +150,44 @@ namespace Linql.ModelGenerator.Frontend
                 });
             }
 
+            if(Type is IntermediaryAttribute attr)
+            {
+                List<string> arguments = new List<string>();
+
+                if (attr.Arguments != null)
+                {
+                    arguments = attr.Arguments.Select(r => this.BuildAttrArgument(r)).ToList();
+                }
+
+                fileText.Add($"\t\tpublic {attr.TypeName}({String.Join(", ", arguments)})");
+                fileText.Add("\t\t{");
+                fileText.Add("\t\t}");
+            }
+
             fileText.Add("\t}");
             fileText.Add("}");
 
             string compiledText = String.Join(Environment.NewLine, fileText);
 
             File.WriteAllText(filePath, compiledText);
+        }
+
+        private string BuildAttrArgument(IntermediaryArgument Arg)
+        {
+            string argString = $"{this.GetTypeName(Arg.Type)} {Arg.ArgumentName}";
+
+            if(Arg.DefaultValue != null && Arg.DefaultValue is JsonElement elem)
+            {
+                if(elem.ValueKind == JsonValueKind.String) 
+                {
+                    argString += $" = \"{elem.GetString()}\"";
+                }
+                else
+                {
+                    argString += $" = {elem.GetRawText()}";
+                }
+            }
+            return argString;
         }
 
         private List<string> ExtractImports(IntermediaryType Type)
@@ -184,6 +216,11 @@ namespace Linql.ModelGenerator.Frontend
             {
                 imports.AddRange(Type.Properties.Select(r => r.Type.NameSpace));
                 imports.AddRange(Type.Properties.SelectMany(r => this.ExtractImports(r.Type)));
+            }
+
+            if (Type is IntermediaryAttribute attr && attr.Arguments != null)
+            {
+                imports.AddRange(attr.Arguments.SelectMany(r => this.ExtractImports(r.Type)));
             }
 
             return imports.Where(r => r != null && r != Type.NameSpace).Distinct().ToList();
