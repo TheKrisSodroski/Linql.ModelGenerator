@@ -128,6 +128,13 @@ namespace Linql.ModelGenerator.Frontend
 
             classRegion += String.Join(", ", inheritedTypes);
 
+            if(Type.GenericArguments != null && Type.GenericArguments.Any(s => s.BaseClass != null || s.Interfaces != null))
+            {
+                List<string> genericConstraints = new List<string>();
+                genericConstraints = Type.GenericArguments.Select(r => this.BuildGenericConstraint(r)).ToList();
+                classRegion += $" {String.Join(" ", genericConstraints)}";
+            }
+
             fileText.Add(classRegion);
             fileText.Add("\t{");
 
@@ -188,6 +195,24 @@ namespace Linql.ModelGenerator.Frontend
                 }
             }
             return argString;
+        }
+
+        private string BuildGenericConstraint(IntermediaryType Type)
+        {
+            string constraint = $"where {Type.TypeName}: ";
+            List<string> constraints = new List<string>();
+
+            if(Type.BaseClass != null)
+            {
+                constraints.Add(this.BuildGenericType(Type.BaseClass));
+            }
+            if(Type.Interfaces != null)
+            {
+                constraints.AddRange(Type.Interfaces.Select(r => this.BuildGenericType(r)));
+            }
+
+            constraint += String.Join(", ", constraints);
+            return constraint;
         }
 
         private List<string> ExtractImports(IntermediaryType Type)
