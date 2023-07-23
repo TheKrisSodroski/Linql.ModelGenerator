@@ -35,6 +35,8 @@ namespace Linql.ModelGenerator.Intermediary
 
         public string Module { get; set; }
 
+        public string ModuleVersion { get; set; }
+
         public string NameSpace { get; set; }
 
         public override string ToString()

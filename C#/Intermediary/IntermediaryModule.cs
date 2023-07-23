@@ -9,6 +9,8 @@ namespace Linql.ModelGenerator.Intermediary
 
         public string ModuleName { get; set; }
 
+        public string Version { get; set; }
+
         public List<IntermediaryType> Types { get; set; } 
 
         public override string ToString()

@@ -47,6 +47,7 @@ namespace Linql.ModelGenerator.Backend
                     processStartInfo.CreateNoWindow = false;
                     process.StartInfo = processStartInfo;
                     process.Start();
+                    process.WaitForExit(1000);
 
                     string compiledPath = Path.Combine(assemblyPath, "bin", "Debug");
                     List<string> compiledDirectories = Directory.GetDirectories(compiledPath).ToList();
@@ -78,11 +79,20 @@ namespace Linql.ModelGenerator.Backend
         {
             IntermediaryModule module = new IntermediaryModule();
             module.BaseLanguage = "C#";
-            module.ModuleName = Assembly.GetName().Name;
-            module.Types = Assembly.GetTypes()
+            AssemblyName assemName = this.Assembly.GetName();
+            module.ModuleName = assemName.Name;
+
+            module.Version = this.GetAssemblyVersion(this.Assembly);
+            module.Types = this.Assembly.GetTypes()
                 .Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreType(r)))
                 .Select(r => this.GenerateType(r)).ToList();
             return module;
+        }
+
+        public string GetAssemblyVersion(Assembly Assembly)
+        {
+            AssemblyInformationalVersionAttribute version = Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            return version.InformationalVersion;
         }
 
         protected IntermediaryType GenerateType(Type Type)
@@ -190,6 +200,10 @@ namespace Linql.ModelGenerator.Backend
                         type.Attributes = Type.GetCustomAttributes().Select(r => this.GenerateAttributeInstance(r)).ToList();
                     }
                 }
+                else if(type.IsPrimitive == false && type.IsIntrinsic == false)
+                {
+                    type.ModuleVersion = this.GetAssemblyVersion(Type.Assembly);
+                }
 
                 if (type.Properties?.Count() == 0)
                 {
@@ -281,6 +295,7 @@ namespace Linql.ModelGenerator.Backend
             IntermediaryType fullType = this.GenerateType(Type);
             IntermediaryType reducedType = new IntermediaryType();
             reducedType.Module = fullType.Module;
+            reducedType.ModuleVersion = fullType.ModuleVersion;
             reducedType.GenericArguments = fullType.GenericArguments;
             reducedType.NameSpace = fullType.NameSpace;
             reducedType.TypeName = fullType.TypeName;
