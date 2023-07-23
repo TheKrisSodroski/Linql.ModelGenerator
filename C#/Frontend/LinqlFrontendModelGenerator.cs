@@ -117,17 +117,29 @@ namespace Linql.ModelGenerator.Frontend
 
             if(Type.BaseClass != null)
             {
-                inheritedTypes.Add(this.BuildInheriteddType(Type.BaseClass));
+                inheritedTypes.Add(this.BuildGenericType(Type.BaseClass));
             }
             if (Type.Interfaces != null)
             {
-                inheritedTypes.AddRange(Type.Interfaces.Select(r => this.BuildInheriteddType(r)));
+                inheritedTypes.AddRange(Type.Interfaces.Select(r => this.BuildGenericType(r)));
             }
 
             classRegion += String.Join(", ", inheritedTypes);
 
             fileText.Add(classRegion);
             fileText.Add("\t{");
+
+            if (Type.Properties != null)
+            {
+                List<string> properties = Type.Properties.Select(r => $"public {this.BuildGenericType(r.Type)} {r.PropertyName} {{get; set; }}").ToList();
+
+                properties.ForEach(r =>
+                {
+                    fileText.Add($"\t\t{r}");
+                    fileText.Add(Environment.NewLine);
+                });
+            }
+
             fileText.Add("\t}");
             fileText.Add("}");
 
@@ -136,9 +148,9 @@ namespace Linql.ModelGenerator.Frontend
             File.WriteAllText(filePath, compiledText);
         }
 
-        private string BuildInheriteddType(IntermediaryType Type)
+        private string BuildGenericType(IntermediaryType Type)
         {
-            string type = Type.TypeName;
+            string type = this.GetTypeName(Type);
 
             if (Type.GenericArguments != null && Type.GenericArguments.Count > 0)
             {
@@ -152,11 +164,11 @@ namespace Linql.ModelGenerator.Frontend
 
         private string GetTypeName(IntermediaryType Type)
         {
-            if (Type.IsPrimitive)
-            {
-                List<Type> types = typeof(string).Assembly.GetTypes().ToList();
-                Type foundType = types.FirstOrDefault(r => r.Name == Type.TypeName);
+            List<Type> types = typeof(string).Assembly.GetTypes().ToList();
+            Type foundType = types.FirstOrDefault(r => r.Name == Type.TypeName);
 
+            if (Type.IsPrimitive && foundType != null)
+            {
                 if (LinqlFrontendModelGenerator.Aliases.ContainsKey(foundType))
                 {
                     return LinqlFrontendModelGenerator.Aliases[foundType];
