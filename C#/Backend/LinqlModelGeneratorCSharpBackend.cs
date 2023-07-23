@@ -81,15 +81,21 @@ namespace Linql.ModelGenerator.Backend
             module.BaseLanguage = "C#";
             AssemblyName assemName = this.Assembly.GetName();
             module.ModuleName = assemName.Name;
-
             module.Version = this.GetAssemblyVersion(this.Assembly);
-            module.Types = this.Assembly.GetTypes()
-                .Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreType(r)))
-                .Select(r => this.GenerateType(r)).ToList();
+
+            module.Types = this.GenerateTypes();
             return module;
         }
 
-        public string GetAssemblyVersion(Assembly Assembly)
+        protected List<IntermediaryType> GenerateTypes()
+        {
+            List<Type> typesToGenerate = this.Assembly.GetTypes().ToList();
+            return typesToGenerate 
+              .Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreType(r)))
+              .Select(r => this.GenerateType(r)).ToList();
+        }
+
+        protected string GetAssemblyVersion(Assembly Assembly)
         {
             AssemblyInformationalVersionAttribute version = Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
             return version.InformationalVersion;
@@ -320,7 +326,7 @@ namespace Linql.ModelGenerator.Backend
             IntermediaryArgument arg = new IntermediaryArgument();
             arg.ArgumentName = Parameter.Name;
 
-            if (Parameter.DefaultValue.GetType() != typeof(DBNull))
+            if (Parameter.DefaultValue != null && Parameter.DefaultValue.GetType() != typeof(DBNull))
             {
                 arg.DefaultValue = Parameter.DefaultValue;
             }
