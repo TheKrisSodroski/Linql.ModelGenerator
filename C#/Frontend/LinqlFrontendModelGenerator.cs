@@ -152,11 +152,16 @@ namespace Linql.ModelGenerator.Frontend
         {
             string type = this.GetTypeName(Type);
 
-            if (Type.GenericArguments != null && Type.GenericArguments.Count > 0)
+            if (type != "Array" && Type.GenericArguments != null && Type.GenericArguments.Count > 0)
             {
                 type += "<";
                 string generics = String.Join(", ", Type.GenericArguments.Select(r => this.GetTypeName(r)));
                 type += generics + ">";
+            }
+            else if(type == "Array")
+            {
+                string generics = String.Join(", ", Type.GenericArguments.Select(r => this.GetTypeName(r)));
+                type = generics + "[]";
             }
 
             return type;
