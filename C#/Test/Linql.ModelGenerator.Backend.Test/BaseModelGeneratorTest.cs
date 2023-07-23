@@ -19,7 +19,7 @@ namespace Linql.ModelGenerator.Backend.Test
         [OneTimeSetUp]
         public void SetUp()
         {
-            LinqlBackendModelGenerator generator = new LinqlBackendModelGenerator(Path.Combine(this.ModelsPath, this.ModuleName));
+            LinqlModelGeneratorCSharpBackend generator = new LinqlModelGeneratorCSharpBackend(Path.Combine(this.ModelsPath, this.ModuleName));
             this.Module = generator.Generate();
         }
 

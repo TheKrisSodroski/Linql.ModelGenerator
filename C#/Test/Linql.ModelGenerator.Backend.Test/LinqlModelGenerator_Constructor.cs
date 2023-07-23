@@ -12,7 +12,7 @@ namespace Linql.ModelGenerator.Backend.Test
         {
             Assert.DoesNotThrow(() =>
             {
-                LinqlBackendModelGenerator generator = new LinqlBackendModelGenerator(Path.Combine(this.ModelsPath, "Test.Module1"));
+                LinqlModelGeneratorCSharpBackend generator = new LinqlModelGeneratorCSharpBackend(Path.Combine(this.ModelsPath, "Test.Module1"));
             });
            
         }
@@ -22,7 +22,7 @@ namespace Linql.ModelGenerator.Backend.Test
         {
             Assert.DoesNotThrow(() =>
             {
-                LinqlBackendModelGenerator generator = new LinqlBackendModelGenerator(Path.Combine(this.ModelsPath, "Test.Module1", "bin", "Debug", "netstandard2.0", "Test.Module1.dll"));
+                LinqlModelGeneratorCSharpBackend generator = new LinqlModelGeneratorCSharpBackend(Path.Combine(this.ModelsPath, "Test.Module1", "bin", "Debug", "netstandard2.0", "Test.Module1.dll"));
             });
 
         }
@@ -32,7 +32,7 @@ namespace Linql.ModelGenerator.Backend.Test
         {
             Assert.Throws<FileNotFoundException>(() =>
             {
-                LinqlBackendModelGenerator generator = new LinqlBackendModelGenerator(Path.Combine(this.ModelsPath, "Test.Module1", "bin", "Debug", "netstandard2.0", "Test.Module.dll"));
+                LinqlModelGeneratorCSharpBackend generator = new LinqlModelGeneratorCSharpBackend(Path.Combine(this.ModelsPath, "Test.Module1", "bin", "Debug", "netstandard2.0", "Test.Module.dll"));
             });
 
         }
@@ -42,7 +42,7 @@ namespace Linql.ModelGenerator.Backend.Test
         {
             Assert.Throws<FileNotFoundException>(() =>
             {
-                LinqlBackendModelGenerator generator = new LinqlBackendModelGenerator(Path.Combine(this.ModelsPath, "Test.Module1", "bin"));
+                LinqlModelGeneratorCSharpBackend generator = new LinqlModelGeneratorCSharpBackend(Path.Combine(this.ModelsPath, "Test.Module1", "bin"));
             });
 
         }

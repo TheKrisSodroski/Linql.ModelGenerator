@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Backend\Linql.ModelGenerator.Backend.csproj" />
-    <ProjectReference Include="..\..\Frontend\Linql.ModelGenerator.Frontend.csproj" />
+    <ProjectReference Include="..\..\Backend\Linql.ModelGenerator.CSharp.Backend.csproj" />
+    <ProjectReference Include="..\..\Frontend\Linql.ModelGenerator.CSharp.Frontend.csproj" />
     <ProjectReference Include="..\Test.Module1\Test.Module1.csproj" />
     <ProjectReference Include="..\Test.Module2\Test.Module2.csproj" />
   </ItemGroup>

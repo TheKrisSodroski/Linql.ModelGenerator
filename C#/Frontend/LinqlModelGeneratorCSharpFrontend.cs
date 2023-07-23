@@ -11,7 +11,7 @@ using Linql.ModelGenerator.Intermediary;
 
 namespace Linql.ModelGenerator.Frontend
 {
-    public partial class LinqlFrontendModelGenerator
+    public partial class LinqlModelGeneratorCSharpFrontend
     {
         public string IntermediaryJson { get; set; }
 
@@ -19,7 +19,7 @@ namespace Linql.ModelGenerator.Frontend
 
         IntermediaryModule Module { get; set; }
 
-        public LinqlFrontendModelGenerator(string IntermediaryJson, string ProjectPath = null) 
+        public LinqlModelGeneratorCSharpFrontend(string IntermediaryJson, string ProjectPath = null) 
         {
             this.IntermediaryJson = IntermediaryJson;
             if (ProjectPath == null)
@@ -277,9 +277,9 @@ namespace Linql.ModelGenerator.Frontend
 
             if (Type.IsPrimitive && foundType != null)
             {
-                if (LinqlFrontendModelGenerator.Aliases.ContainsKey(foundType))
+                if (LinqlModelGeneratorCSharpFrontend.Aliases.ContainsKey(foundType))
                 {
-                    return LinqlFrontendModelGenerator.Aliases[foundType];
+                    return LinqlModelGeneratorCSharpFrontend.Aliases[foundType];
                 }
 
                 return foundType.Name;

@@ -19,17 +19,17 @@ namespace Linql.ModelGenerator.Frontend.Test
 
         protected JsonSerializerOptions JsonOptions { get; set; } = new JsonSerializerOptions() { WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
 
-        protected LinqlFrontendModelGenerator Generator { get; set; }
+        protected LinqlModelGeneratorCSharpFrontend Generator { get; set; }
 
         protected bool Clean { get; set; } = false;
 
         [OneTimeSetUp]
         public void SetUp()
         {
-            LinqlBackendModelGenerator generator = new LinqlBackendModelGenerator(Path.Combine(this.ModelsPath, this.ModuleName));
+            LinqlModelGeneratorCSharpBackend generator = new LinqlModelGeneratorCSharpBackend(Path.Combine(this.ModelsPath, this.ModuleName));
             this.Module = generator.Generate();
             this.ModuleJson = JsonSerializer.Serialize(this.Module, this.JsonOptions);
-            this.Generator = new LinqlFrontendModelGenerator(this.ModuleJson);
+            this.Generator = new LinqlModelGeneratorCSharpFrontend(this.ModuleJson);
         }
 
         [OneTimeTearDown]

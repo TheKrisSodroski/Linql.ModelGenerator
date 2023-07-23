@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Linql.ModelGenerator.Frontend
 {
-    public partial class LinqlFrontendModelGenerator
+    public partial class LinqlModelGeneratorCSharpFrontend
     {
         protected List<string> Usings { get; set; } = new List<string>()
         {
