@@ -11,10 +11,7 @@ namespace Linql.ModelGenerator.Frontend.Test
         [Test]
         public async Task Generate()
         {
-
-            LinqlFrontendModelGenerator generator = new LinqlFrontendModelGenerator();
-            await generator.Generate(this.ModuleJson);
-
+            this.Generator.Generate(this.ModuleJson);
         }
     }
 }

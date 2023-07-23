@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -9,60 +11,164 @@ using Linql.ModelGenerator.Intermediary;
 
 namespace Linql.ModelGenerator.Frontend
 {
-    public class LinqlFrontendModelGenerator
+    public partial class LinqlFrontendModelGenerator
     {
-        public LinqlFrontendModelGenerator() { }
+        public string IntermediaryJson { get; set; }
 
-        public async Task Generate(string IntermediaryJson, string ProjectPath = null)
+        public string ProjectPath { get; set; } 
+
+        IntermediaryModule Module { get; set; }
+
+        public LinqlFrontendModelGenerator(string IntermediaryJson, string ProjectPath = null) 
         {
-            if(ProjectPath == null)
+            this.IntermediaryJson = IntermediaryJson;
+            if (ProjectPath == null)
             {
-                ProjectPath = Environment.CurrentDirectory;
+                this.ProjectPath = Environment.CurrentDirectory;
             }
-            IntermediaryModule module = null;
-
-            using (Stream stream = this.GenerateStreamFromString(IntermediaryJson))
+            else
             {
-                module = await JsonSerializer.DeserializeAsync<IntermediaryModule>(stream);
+                this.ProjectPath = ProjectPath;
             }
+            this.Module = JsonSerializer.Deserialize<IntermediaryModule>(this.IntermediaryJson);
+        }
 
-            this.CreateProject(module, ProjectPath);
+        public void Generate(string IntermediaryJson, string ProjectPath = null)
+        {
+            this.CreateProject();
 
-            module.Types.ForEach(r =>
+            this.Module.Types.ForEach(r =>
             {
-                this.CreateType(module, ProjectPath, r);
+                this.CreateType(r);
             });
         }
 
-        protected void CreateProject(IntermediaryModule Module, string ProjectPath)
+        protected void CreateProject()
         {
             Process process = new Process();
             ProcessStartInfo processStartInfo = new ProcessStartInfo("dotnet");
-            processStartInfo.Arguments = $"new classlib -o {Module.ModuleName}";
-            processStartInfo.WorkingDirectory = ProjectPath;
+            processStartInfo.Arguments = $"new classlib -o {this.Module.ModuleName}";
+            processStartInfo.WorkingDirectory = this.ProjectPath;
             processStartInfo.CreateNoWindow = false;
             process.StartInfo = processStartInfo;
             process.Start();
 
-            File.Delete(Path.Combine(ProjectPath, Module.ModuleName, "Class1.cs"));
+            process.WaitForExit(1000);
+
+            File.Delete(Path.Combine(this.ProjectPath, this.Module.ModuleName, "Class1.cs"));
         }
 
-        private Stream GenerateStreamFromString(string s)
+        public void Clean()
         {
-            var stream = new MemoryStream();
-            var writer = new StreamWriter(stream);
-            writer.Write(s);
-            writer.Flush();
-            stream.Position = 0;
-            return stream;
+            Directory.Delete(Path.Combine(this.ProjectPath, this.Module.ModuleName), true);
         }
 
-        protected void CreateType(IntermediaryModule Module, string ProjectPath, IntermediaryType Type)
+        protected void CreateType(IntermediaryType Type)
         {
-            string fileText = "";
-            string directory = Path.Combine(ProjectPath, Module.ModuleName, Type.NameSpace.Replace($"{Module.ModuleName}.", String.Empty));
+            List<string> fileText = this.Usings.ToList();
+            string folder = Type.NameSpace.Replace($"{this.Module.ModuleName}", String.Empty).TrimStart('.');
+            string directory = Path.Combine(this.ProjectPath, this.Module.ModuleName, folder);
+          
             Directory.CreateDirectory(directory);
-            File.WriteAllText(Path.Combine(directory, $"{Type.TypeName}.cs"), fileText);
+
+            string filePath = Path.Combine(directory, $"{Type.TypeName}.cs");
+
+
+            List<string> imports = this.Usings.ToList();
+            
+            fileText.Add("");
+            fileText.Add($"namespace {Type.NameSpace}");
+            fileText.Add("{");
+
+            string classType = null;
+
+            if (Type.IsInterface)
+            {
+                classType = "interface";
+            }
+            else if (Type.IsAbstract)
+            {
+                classType = "abstract class";
+            }
+            else if (Type.IsClass)
+            {
+                classType = "class";
+            }
+            else
+            {
+                throw new Exception($"Unable to determine class type for Type {Type.TypeName}");
+            }
+
+            string classRegion = $"\tpublic {classType} {this.GetTypeName(Type)}";
+
+            if(Type.IsGenericType)
+            {
+                classRegion += "<";
+                string generics = String.Join(", ", Type.GenericArguments.Select(r => this.GetTypeName(r)));
+                classRegion += generics + ">";
+            }
+
+            if(Type.BaseClass != null || Type.Interfaces?.Count > 0)
+            {
+                classRegion += ": ";
+            }
+
+            List<string> inheritedTypes = new List<string>();
+
+            if(Type.BaseClass != null)
+            {
+                inheritedTypes.Add(this.BuildInheriteddType(Type.BaseClass));
+            }
+            if (Type.Interfaces != null)
+            {
+                inheritedTypes.AddRange(Type.Interfaces.Select(r => this.BuildInheriteddType(r)));
+            }
+
+            classRegion += String.Join(", ", inheritedTypes);
+
+            fileText.Add(classRegion);
+            fileText.Add("\t{");
+            fileText.Add("\t}");
+            fileText.Add("}");
+
+            string compiledText = String.Join(Environment.NewLine, fileText);
+
+            File.WriteAllText(filePath, compiledText);
+        }
+
+        private string BuildInheriteddType(IntermediaryType Type)
+        {
+            string type = Type.TypeName;
+
+            if (Type.GenericArguments != null && Type.GenericArguments.Count > 0)
+            {
+                type += "<";
+                string generics = String.Join(", ", Type.GenericArguments.Select(r => this.GetTypeName(r)));
+                type += generics + ">";
+            }
+
+            return type;
+        }
+
+        private string GetTypeName(IntermediaryType Type)
+        {
+            if (Type.IsPrimitive)
+            {
+                List<Type> types = typeof(string).Assembly.GetTypes().ToList();
+                Type foundType = types.FirstOrDefault(r => r.Name == Type.TypeName);
+
+                if (LinqlFrontendModelGenerator.Aliases.ContainsKey(foundType))
+                {
+                    return LinqlFrontendModelGenerator.Aliases[foundType];
+                }
+
+                return foundType.Name;
+
+            }
+            else
+            {
+                return Type.TypeName;
+            }
         }
     }
 }
