@@ -47,7 +47,7 @@ namespace Linql.ModelGenerator.Frontend
         {
             Process process = new Process();
             ProcessStartInfo processStartInfo = new ProcessStartInfo("dotnet");
-            processStartInfo.Arguments = $"new classlib -o {this.Module.ModuleName}";
+            processStartInfo.Arguments = $"new classlib -o {this.Module.ModuleName} -f netstandard2.0";
             processStartInfo.WorkingDirectory = this.ProjectPath;
             processStartInfo.CreateNoWindow = false;
             process.StartInfo = processStartInfo;
@@ -74,8 +74,10 @@ namespace Linql.ModelGenerator.Frontend
             string filePath = Path.Combine(directory, $"{Type.TypeName}.cs");
 
 
-            List<string> imports = this.Usings.ToList();
-            
+            List<string> additionalImports = this.ExtractImports(Type);
+
+            fileText.AddRange(additionalImports.Select(r => $"using {r};"));
+
             fileText.Add("");
             fileText.Add($"namespace {Type.NameSpace}");
             fileText.Add("{");
@@ -131,8 +133,16 @@ namespace Linql.ModelGenerator.Frontend
 
             if (Type.Properties != null)
             {
-                List<string> properties = Type.Properties.Select(r => $"public {this.BuildGenericType(r.Type)} {r.PropertyName} {{get; set; }}").ToList();
+                List<string> properties = new List<string>();
 
+                if (Type.IsInterface)
+                {
+                    properties = Type.Properties.Select(r => $"{this.BuildGenericType(r.Type)} {r.PropertyName} {{ get; set; }}").ToList();
+                }
+                else
+                {
+                    properties = Type.Properties.Select(r => $"public {this.BuildGenericType(r.Type)} {r.PropertyName} {{ get; set; }}").ToList();
+                }
                 properties.ForEach(r =>
                 {
                     fileText.Add($"\t\t{r}");
@@ -146,6 +156,37 @@ namespace Linql.ModelGenerator.Frontend
             string compiledText = String.Join(Environment.NewLine, fileText);
 
             File.WriteAllText(filePath, compiledText);
+        }
+
+        private List<string> ExtractImports(IntermediaryType Type)
+        {
+            List<string> imports = new List<string>();
+
+            if(Type.GenericArguments != null)
+            {
+                imports.AddRange(Type.GenericArguments.Select(r => r.NameSpace));
+                imports.AddRange(Type.GenericArguments.SelectMany(r => this.ExtractImports(r)));
+            }
+
+            if(Type.BaseClass != null)
+            {
+                imports.Add(Type.BaseClass.NameSpace);
+                imports.AddRange(this.ExtractImports(Type.BaseClass));
+            }
+
+            if(Type.Interfaces != null)
+            {
+                imports.AddRange(Type.Interfaces.Select(r => r.NameSpace));
+                imports.AddRange(Type.Interfaces.SelectMany(r => this.ExtractImports(r)));
+            }
+
+            if(Type.Properties != null)
+            {
+                imports.AddRange(Type.Properties.Select(r => r.Type.NameSpace));
+                imports.AddRange(Type.Properties.SelectMany(r => this.ExtractImports(r.Type)));
+            }
+
+            return imports.Where(r => r != null && r != Type.NameSpace).Distinct().ToList();
         }
 
         private string BuildGenericType(IntermediaryType Type)
