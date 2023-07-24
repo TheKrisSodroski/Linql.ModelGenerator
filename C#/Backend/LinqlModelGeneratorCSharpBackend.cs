@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Linql.ModelGenerator.Backend
+namespace Linql.ModelGenerator.CSharp.Backend
 {
     public class LinqlModelGeneratorCSharpBackend
     {

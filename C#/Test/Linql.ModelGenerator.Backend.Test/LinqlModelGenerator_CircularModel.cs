@@ -3,7 +3,7 @@ using NUnit.Framework;
 using System.Text.Json;
 using Test.CircularModel;
 
-namespace Linql.ModelGenerator.Backend.Test
+namespace Linql.ModelGenerator.CSharp.Backend.Test
 {
     public class LinqlModelGenerator_CircularModel : BaseModelGeneratorTest
     {

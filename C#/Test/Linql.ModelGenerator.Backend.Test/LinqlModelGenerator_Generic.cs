@@ -5,7 +5,7 @@ using Test.Module1.Inheritance;
 using Test.Module1;
 using Test.Module1.Generics;
 
-namespace Linql.ModelGenerator.Backend.Test
+namespace Linql.ModelGenerator.CSharp.Backend.Test
 {
     public class LinqlModelGenerator_Generic : BaseModelGeneratorTest
     {

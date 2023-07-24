@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Linql.ModelGenerator.Frontend
+namespace Linql.ModelGenerator.CSharp.Frontend
 {
     public partial class LinqlModelGeneratorCSharpFrontend
     {

@@ -6,7 +6,7 @@ using Test.Module1;
 using Test.Module1.Generics;
 using Test.Module2;
 
-namespace Linql.ModelGenerator.Backend.Test
+namespace Linql.ModelGenerator.CSharp.Backend.Test
 {
     public class LinqlModelGenerator_CrossModule : BaseModelGeneratorTest
     {

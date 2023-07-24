@@ -3,7 +3,7 @@ using NUnit.Framework;
 using System.Text.Json;
 using Test.Module1;
 
-namespace Linql.ModelGenerator.Frontend.Test
+namespace Linql.ModelGenerator.CSharp.Frontend.Test
 {
     public class LinqlModelGenerator_Module1 : BaseModelGeneratorTest
     {

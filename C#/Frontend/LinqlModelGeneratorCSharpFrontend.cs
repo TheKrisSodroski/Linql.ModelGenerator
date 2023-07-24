@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Linql.ModelGenerator.Intermediary;
 
-namespace Linql.ModelGenerator.Frontend
+namespace Linql.ModelGenerator.CSharp.Frontend
 {
     public partial class LinqlModelGeneratorCSharpFrontend
     {

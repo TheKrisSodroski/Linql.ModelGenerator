@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Linql.ModelGenerator.Backend
+namespace Linql.ModelGenerator.CSharp.Backend
 {
     public interface IIgnoreTypePlugin
     {

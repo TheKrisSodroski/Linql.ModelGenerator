@@ -4,7 +4,7 @@ using System.Text.Json;
 using Test.Module1;
 using Test.Module1.Inheritance;
 
-namespace Linql.ModelGenerator.Backend.Test
+namespace Linql.ModelGenerator.CSharp.Backend.Test
 {
     public class LinqlModelGenerator_Module1_Inheritance : BaseModelGeneratorTest
     {

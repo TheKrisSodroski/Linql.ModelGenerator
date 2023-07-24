@@ -6,3 +6,4 @@
 **/bin
 
 **/obj
+/Typescript/.vs/Linql.ModelGenerator.Typescript

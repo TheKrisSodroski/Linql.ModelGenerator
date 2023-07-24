@@ -1,10 +1,10 @@
-using Linql.ModelGenerator.Backend;
+using Linql.ModelGenerator.CSharp.Backend;
 using Linql.ModelGenerator.Intermediary;
 using NUnit.Framework;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Linql.ModelGenerator.Frontend.Test
+namespace Linql.ModelGenerator.CSharp.Frontend.Test
 {
     public abstract class BaseModelGeneratorTest
     {
