@@ -13,7 +13,7 @@ Model Generation for Linql.
 | ---------- | ------------------------------------ | ------------------------------------ |
 | C#         | [In Alpha](./C%23/)                  | [In Alpha](./C%23/)                  |
 | Python     | Planned                              | Planned                              |
-| Typescript | Development starting                 | Requires Linql Server Implementation |
+| Typescript | [In Development](./Typescript/)      | Requires Linql Server Implementation |
 | Java       | Requires Linql Client Implementation | Requires Linql Server Implementation |
 
 ## Support
