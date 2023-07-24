@@ -36,7 +36,7 @@ namespace Linql.ModelGenerator.Frontend
             this.Module = JsonSerializer.Deserialize<IntermediaryModule>(this.IntermediaryJson);
         }
 
-        public void Generate(string IntermediaryJson, string ProjectPath = null)
+        public void Generate()
         {
             this.CreateProject();
 
