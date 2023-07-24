@@ -19,6 +19,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Module2", "Test\Test.M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Linql.ModelGenerator.CSharp.Frontend.Test", "Test\Linql.ModelGenerator.Frontend.Test\Linql.ModelGenerator.CSharp.Frontend.Test.csproj", "{5023D2C7-12A1-44A3-9575-26F71776E1D9}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.CircularModel", "Test\Test.CircularModel\Test.CircularModel.csproj", "{5D72907E-F274-4206-A735-BAB1CF0560E7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{5023D2C7-12A1-44A3-9575-26F71776E1D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5023D2C7-12A1-44A3-9575-26F71776E1D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5023D2C7-12A1-44A3-9575-26F71776E1D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D72907E-F274-4206-A735-BAB1CF0560E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D72907E-F274-4206-A735-BAB1CF0560E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D72907E-F274-4206-A735-BAB1CF0560E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D72907E-F274-4206-A735-BAB1CF0560E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -62,6 +68,7 @@ Global
 		{664117D1-119E-41FF-A68B-E4E6932AE205} = {ECB9C651-7280-46CF-88D6-DA466C00B264}
 		{8B8228F0-5E4B-4E5E-8398-693B9F1C5BF3} = {ECB9C651-7280-46CF-88D6-DA466C00B264}
 		{5023D2C7-12A1-44A3-9575-26F71776E1D9} = {ECB9C651-7280-46CF-88D6-DA466C00B264}
+		{5D72907E-F274-4206-A735-BAB1CF0560E7} = {ECB9C651-7280-46CF-88D6-DA466C00B264}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3A65EC2D-A66B-4038-AC1F-12A62D096273}

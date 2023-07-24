@@ -47,7 +47,7 @@ namespace Linql.ModelGenerator.Backend
                     processStartInfo.CreateNoWindow = false;
                     process.StartInfo = processStartInfo;
                     process.Start();
-                    process.WaitForExit(1000);
+                    process.WaitForExit();
 
                     string compiledPath = Path.Combine(assemblyPath, "bin", "Debug");
                     List<string> compiledDirectories = Directory.GetDirectories(compiledPath).ToList();
@@ -285,7 +285,7 @@ namespace Linql.ModelGenerator.Backend
         {
             IntermediaryProperty prop = new IntermediaryProperty();
             prop.PropertyName = Property.Name;
-            prop.Type = this.GenerateType(Property.PropertyType);
+            prop.Type = this.GenerateReducedType(Property.PropertyType);
             prop.Attributes = Property.GetCustomAttributes().Select(r => this.GenerateAttributeInstance(r)).ToList();
 
             if(prop.Attributes.Count() == 0)
@@ -299,12 +299,23 @@ namespace Linql.ModelGenerator.Backend
         protected IntermediaryType GenerateReducedType(Type Type)
         {
             IntermediaryType fullType = this.GenerateType(Type);
+            return this.GenerateReducedType(fullType);
+        }
+
+        protected IntermediaryType GenerateReducedType(IntermediaryType FullType)
+        {
             IntermediaryType reducedType = new IntermediaryType();
-            reducedType.Module = fullType.Module;
-            reducedType.ModuleVersion = fullType.ModuleVersion;
-            reducedType.GenericArguments = fullType.GenericArguments;
-            reducedType.NameSpace = fullType.NameSpace;
-            reducedType.TypeName = fullType.TypeName;
+            reducedType.Module = FullType.Module;
+            reducedType.ModuleVersion = FullType.ModuleVersion;
+
+            if (FullType.GenericArguments != null)
+            {
+                reducedType.GenericArguments = FullType.GenericArguments.Select(r => this.GenerateReducedType(r)).ToList();
+            }
+            reducedType.IsPrimitive = FullType.IsPrimitive;
+            reducedType.IsIntrinsic = FullType.IsIntrinsic;
+            reducedType.NameSpace = FullType.NameSpace;
+            reducedType.TypeName = FullType.TypeName;
             return reducedType;
         }
 
