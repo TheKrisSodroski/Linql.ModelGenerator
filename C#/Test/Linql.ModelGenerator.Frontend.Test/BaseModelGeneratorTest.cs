@@ -21,7 +21,7 @@ namespace Linql.ModelGenerator.Frontend.Test
 
         protected LinqlModelGeneratorCSharpFrontend Generator { get; set; }
 
-        protected bool Clean { get; set; } = true;
+        protected bool Clean { get; set; } = false;
 
         [OneTimeSetUp]
         public void SetUp()
