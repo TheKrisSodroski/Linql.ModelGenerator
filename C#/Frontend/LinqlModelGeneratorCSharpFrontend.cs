@@ -134,6 +134,12 @@ namespace Linql.ModelGenerator.Frontend
                 throw new Exception($"Unable to determine class type for Type {Type.TypeName}");
             }
 
+            if(Type.Attributes != null)
+            {
+                List<string> attrs = Type.Attributes.Select(r => $"\t{this.BuildAttributeInstance(r)}").ToList();
+                fileText.AddRange(attrs);
+            }
+
             string classRegion = $"\tpublic {classType} {this.GetTypeName(Type)}";
 
             if(Type.IsGenericType)
@@ -143,7 +149,7 @@ namespace Linql.ModelGenerator.Frontend
                 classRegion += generics + ">";
             }
 
-            if(Type.BaseClass != null || Type.Interfaces?.Count > 0)
+            if(Type.BaseClass != null || Type.Interfaces?.Count > 0 || Type is IntermediaryAttribute)
             {
                 classRegion += ": ";
             }
@@ -153,6 +159,10 @@ namespace Linql.ModelGenerator.Frontend
             if(Type.BaseClass != null)
             {
                 inheritedTypes.Add(this.BuildGenericType(Type.BaseClass));
+            }
+            if(Type is IntermediaryAttribute)
+            {
+                inheritedTypes.Add("Attribute");
             }
             if (Type.Interfaces != null)
             {
@@ -177,16 +187,17 @@ namespace Linql.ModelGenerator.Frontend
 
                 if (Type.IsInterface)
                 {
-                    properties = Type.Properties.Select(r => $"{this.BuildGenericType(r.Type)} {r.PropertyName} {{ get; set; }}").ToList();
+                    properties = Type.Properties.Select(r => this.BuildProperty(r)).ToList();
                 }
                 else
                 {
-                    properties = Type.Properties.Select(r => $"public {this.BuildGenericType(r.Type)} {r.PropertyName} {{ get; set; }}").ToList();
+                    properties = Type.Properties.Select(r => this.BuildProperty(r, "public")).ToList();
                 }
+
                 properties.ForEach(r =>
                 {
-                    fileText.Add($"\t\t{r}");
-                    fileText.Add(Environment.NewLine);
+                    fileText.Add(r);
+                    //fileText.Add(Environment.NewLine);
                 });
             }
 
@@ -210,6 +221,56 @@ namespace Linql.ModelGenerator.Frontend
             string compiledText = String.Join(Environment.NewLine, fileText);
 
             File.WriteAllText(filePath, compiledText);
+        }
+
+        private string BuildProperty(IntermediaryProperty Property, string Modifier = null)
+        {
+            List<string> propertyText = new List<string>();
+
+            if(Property.Attributes != null)
+            {
+                List<string> attrs = Property.Attributes.Select(r => $"\t\t{this.BuildAttributeInstance(r)}").ToList();
+                propertyText.AddRange(attrs);
+            }
+
+            if (!String.IsNullOrEmpty(Modifier))
+            {
+                propertyText.Add($"\t\t{Modifier} {this.BuildGenericType(Property.Type)} {Property.PropertyName} {{ get; set; }}");
+            }
+            else
+            {
+                propertyText.Add($"\t\t{this.BuildGenericType(Property.Type)} {Property.PropertyName} {{ get; set; }}");
+            }
+
+            return String.Join(Environment.NewLine, propertyText);
+        }
+
+        private string BuildAttributeInstance(IntermediaryAttributeInstance Attr)
+        {
+            string attrInsides = Attr.TypeName;
+
+            if(Attr.Arguments != null && Attr.Arguments.Count() > 0)
+            {
+                List<string> args = Attr.Arguments.Select(r =>
+                {
+                    if (r.Value is JsonElement elem)
+                    {
+                        if(elem.ValueKind == JsonValueKind.String)
+                        {
+                            return $"\"{elem.ToString()}\"";
+                        }
+                        else
+                        {
+                            return elem.GetRawText();
+                        }
+                    }
+                    return "";
+                }).ToList();
+
+                attrInsides += $"({String.Join(", ", args)})";
+            }
+
+            return $"[{attrInsides}]";
         }
 
         private string BuildAttrArgument(IntermediaryArgument Arg)
@@ -258,7 +319,12 @@ namespace Linql.ModelGenerator.Frontend
                 imports.AddRange(Type.GenericArguments.SelectMany(r => this.ExtractImports(r)));
             }
 
-            if(Type.BaseClass != null)
+            if(Type.Attributes != null)
+            {
+                imports.AddRange(Type.Attributes.Select(r => r.NameSpace));
+            }
+
+            if (Type.BaseClass != null)
             {
                 imports.Add(Type.BaseClass.NameSpace);
                 imports.AddRange(this.ExtractImports(Type.BaseClass));
@@ -274,6 +340,8 @@ namespace Linql.ModelGenerator.Frontend
             {
                 imports.AddRange(Type.Properties.Select(r => r.Type.NameSpace));
                 imports.AddRange(Type.Properties.SelectMany(r => this.ExtractImports(r.Type)));
+                List<IntermediaryAttributeInstance> attrs = Type.Properties.Where(r => r.Attributes != null).SelectMany(r => r.Attributes).ToList();
+                imports.AddRange(attrs.Select(r => r.NameSpace));
             }
 
             if (Type is IntermediaryAttribute attr && attr.Arguments != null)

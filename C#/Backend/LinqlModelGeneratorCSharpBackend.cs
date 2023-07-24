@@ -326,6 +326,7 @@ namespace Linql.ModelGenerator.Backend
             IntermediaryType type = this.GenerateType(attrType);
 
             attr.TypeName = type.TypeName;
+            attr.NameSpace = type.NameSpace;
             attr.Module = type.Module;
             attr.Arguments = attrType.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).ToDictionary(r => r.Name, r => r.GetValue(Attribute));
 
