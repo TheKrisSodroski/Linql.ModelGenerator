@@ -86,7 +86,7 @@ namespace Linql.ModelGenerator.Frontend
             process.StartInfo = processStartInfo;
             process.Start();
 
-            process.WaitForExit(1000);
+            process.WaitForExit();
 
             File.Delete(Path.Combine(this.ProjectPath, this.Module.ModuleName, "Class1.cs"));
         }
