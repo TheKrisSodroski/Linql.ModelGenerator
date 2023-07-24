@@ -7,6 +7,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Linql.ModelGenerator.Intermediary;
 
 namespace Linql.ModelGenerator.Frontend
@@ -43,10 +44,36 @@ namespace Linql.ModelGenerator.Frontend
 
             additionalModules.Remove(this.Module.ModuleName);
 
+            if (additionalModules.Count > 0)
+            {
+                this.AddAdditionalModules(additionalModules);
+            }
+
             this.Module.Types.ForEach(r =>
             {
                 this.CreateType(r);
             });
+        }
+
+        protected void AddAdditionalModules(Dictionary<string, string> AdditionalModules)
+        {
+            XElement itemGroup = new XElement("ItemGroup");
+            AdditionalModules.Select(r =>
+            {
+                XElement package = new XElement("PackageReference");
+                package.SetAttributeValue("Include", r.Key);
+                package.SetAttributeValue("Version", r.Value);
+                return package;
+            }).ToList()
+                .ForEach(r => itemGroup.Add(r));
+           
+
+            string projectPath = Path.Combine(this.ProjectPath, this.Module.ModuleName, $"{this.Module.ModuleName}.csproj");
+
+            XDocument doc = XDocument.Load(projectPath);
+            doc.Element("Project").Add(itemGroup);
+            string xmlDoc = doc.ToString();
+            File.WriteAllText(projectPath, xmlDoc);
         }
 
         protected void CreateProject()
@@ -288,7 +315,7 @@ namespace Linql.ModelGenerator.Frontend
 
             if (Type.BaseClass != null)
             {
-                additionalModules[Type.Module] = Type.ModuleVersion;
+                additionalModules[Type.BaseClass.Module] = Type.BaseClass.ModuleVersion;
                 additionalModules.Merge(this.ExtractAdditionalModules(Type.BaseClass));
             }
 
