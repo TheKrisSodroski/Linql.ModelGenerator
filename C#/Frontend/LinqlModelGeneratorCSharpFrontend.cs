@@ -19,6 +19,8 @@ namespace Linql.ModelGenerator.Frontend
 
         IntermediaryModule Module { get; set; }
 
+        private HashSet<IntermediaryType> ImportCache = new HashSet<IntermediaryType>();
+
         public LinqlModelGeneratorCSharpFrontend(string IntermediaryJson, string ProjectPath = null) 
         {
             this.IntermediaryJson = IntermediaryJson;
@@ -36,6 +38,10 @@ namespace Linql.ModelGenerator.Frontend
         public void Generate(string IntermediaryJson, string ProjectPath = null)
         {
             this.CreateProject();
+
+            Dictionary<string, string> additionalModules = this.ExtractAdditionalModules(this.Module);
+
+            additionalModules.Remove(this.Module.ModuleName);
 
             this.Module.Types.ForEach(r =>
             {
@@ -249,6 +255,66 @@ namespace Linql.ModelGenerator.Frontend
             }
 
             return imports.Where(r => r != null && r != Type.NameSpace).Distinct().ToList();
+        }
+
+        private Dictionary<string, string> ExtractAdditionalModules(IntermediaryModule Module)
+        {
+            Dictionary<string, string> additionalModules = new Dictionary<string, string>();
+
+            Module.Types.ForEach(r =>
+            {
+                additionalModules.Merge(this.ExtractAdditionalModules(r));
+            });
+
+            return additionalModules;
+        }
+
+        private Dictionary<string, string> ExtractAdditionalModules(IntermediaryType Type)
+        {
+            if (this.ImportCache.Contains(Type))
+            {
+                return new Dictionary<string, string>();
+            }
+
+            Dictionary<string, string> additionalModules = new Dictionary<string, string>();
+
+            if (Type.GenericArguments != null)
+            {
+                Type.GenericArguments.Where(r => r.Module != null).ToList().ForEach(r => additionalModules[r.Module] = r.ModuleVersion);
+                List<Dictionary<string, string>> otherModules = Type.GenericArguments.Select(r => this.ExtractAdditionalModules(r)).ToList();
+
+                otherModules.ForEach(r => additionalModules.Merge(r));
+            }
+
+            if (Type.BaseClass != null)
+            {
+                additionalModules[Type.Module] = Type.ModuleVersion;
+                additionalModules.Merge(this.ExtractAdditionalModules(Type.BaseClass));
+            }
+
+            if (Type.Interfaces != null)
+            {
+                Type.Interfaces.Where(r => r.Module != null).ToList().ForEach(r => additionalModules[r.Module] = r.ModuleVersion);
+                List<Dictionary<string, string>> otherModules = Type.Interfaces.Select(r => this.ExtractAdditionalModules(r)).ToList();
+                otherModules.ForEach(r => additionalModules.Merge(r));
+            }
+
+            if (Type.Properties != null)
+            {
+                Type.Properties.Where(r => r.Type.Module != null).ToList().ForEach(r => additionalModules[r.Type.Module] = r.Type.ModuleVersion);
+                List<Dictionary<string, string>> otherModules = Type.Properties.Select(r => this.ExtractAdditionalModules(r.Type)).ToList();
+                otherModules.ForEach(r => additionalModules.Merge(r));
+            }
+
+            if (Type is IntermediaryAttribute attr && attr.Arguments != null)
+            {
+                attr.Arguments.Where(r => r.Type.Module != null).ToList().ForEach(r => additionalModules[r.Type.Module] = r.Type.ModuleVersion);
+                List<Dictionary<string, string>> otherModules = attr.Arguments.Select(r => this.ExtractAdditionalModules(r.Type)).ToList();
+                otherModules.ForEach(r => additionalModules.Merge(r));
+            }
+
+            this.ImportCache.Add(Type);
+            return additionalModules;
         }
 
         private string BuildGenericType(IntermediaryType Type)

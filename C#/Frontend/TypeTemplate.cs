@@ -36,4 +36,18 @@ namespace Linql.ModelGenerator.Frontend
 
 
     }
+
+    public static class DictionaryHelper
+    {
+        public static void Merge(this Dictionary<string, string> Input, Dictionary<string, string> DictionaryToMerge)
+        {
+            foreach(var key in DictionaryToMerge)
+            {
+                if (!Input.ContainsKey(key.Key))
+                {
+                    Input.Add(key.Key, key.Value);
+                }
+            }
+        }
+    }
 }
