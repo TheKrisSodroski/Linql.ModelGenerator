@@ -52,10 +52,10 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 this.AddAdditionalModules(additionalModules);
             }
 
-            //this.Module.Types.ForEach(r =>
-            //{
-            //    this.CreateType(r);
-            //});
+            this.Module.Types.ForEach(r =>
+            {
+                this.CreateType(r);
+            });
         }
 
         protected void AddAdditionalModules(Dictionary<string, string> AdditionalModules)
@@ -143,7 +143,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             string filePath = Path.Combine(directory, $"{Type.TypeName}.cs");
 
 
-            List<string> additionalImports = this.ExtractImports(Type);
+            List<TypescriptImport> additionalImports = this.ExtractImports(Type);
 
             fileText.AddRange(additionalImports.Select(r => $"using {r};"));
 
@@ -256,7 +256,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             string compiledText = String.Join(Environment.NewLine, fileText);
 
-            File.WriteAllText(filePath, compiledText);
+            //File.WriteAllText(filePath, compiledText);
         }
 
         private string BuildProperty(IntermediaryProperty Property, string Modifier = null)
@@ -345,39 +345,40 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             return constraint;
         }
 
-        private List<string> ExtractImports(IntermediaryType Type)
+        private List<TypescriptImport> ExtractImports(IntermediaryType Type)
         {
-            List<string> imports = new List<string>();
+            List<TypescriptImport> imports = new List<TypescriptImport>();
 
             if(Type.GenericArguments != null)
             {
-                imports.AddRange(Type.GenericArguments.Select(r => r.NameSpace));
+               
+                imports.AddRange(Type.GenericArguments.Select(r => new TypescriptImport(r.TypeName, r.Module, r.NameSpace)));
                 imports.AddRange(Type.GenericArguments.SelectMany(r => this.ExtractImports(r)));
             }
 
             if(Type.Attributes != null)
             {
-                imports.AddRange(Type.Attributes.Select(r => r.NameSpace));
+                imports.AddRange(Type.Attributes.Select(r => new TypescriptImport(r.TypeName, r.Module, r.NameSpace)));
             }
 
             if (Type.BaseClass != null)
             {
-                imports.Add(Type.BaseClass.NameSpace);
+                imports.Add(new TypescriptImport(Type.BaseClass.TypeName, Type.BaseClass.Module, Type.BaseClass.NameSpace));
                 imports.AddRange(this.ExtractImports(Type.BaseClass));
             }
 
             if(Type.Interfaces != null)
             {
-                imports.AddRange(Type.Interfaces.Select(r => r.NameSpace));
+                imports.AddRange(Type.Interfaces.Select(r => new TypescriptImport(r.TypeName, r.Module, r.NameSpace)));
                 imports.AddRange(Type.Interfaces.SelectMany(r => this.ExtractImports(r)));
             }
 
             if(Type.Properties != null)
             {
-                imports.AddRange(Type.Properties.Select(r => r.Type.NameSpace));
+                imports.AddRange(Type.Properties.Select(r => new TypescriptImport(r.Type.TypeName, r.Type.Module, r.Type.NameSpace)));
                 imports.AddRange(Type.Properties.SelectMany(r => this.ExtractImports(r.Type)));
                 List<IntermediaryAttributeInstance> attrs = Type.Properties.Where(r => r.Attributes != null).SelectMany(r => r.Attributes).ToList();
-                imports.AddRange(attrs.Select(r => r.NameSpace));
+                imports.AddRange(attrs.Select(r => new TypescriptImport(r.TypeName, r.Module, r.NameSpace)));
             }
 
             if (Type is IntermediaryAttribute attr && attr.Arguments != null)
@@ -385,7 +386,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 imports.AddRange(attr.Arguments.SelectMany(r => this.ExtractImports(r.Type)));
             }
 
-            return imports.Where(r => r != null && r != Type.NameSpace).Distinct().ToList();
+            return imports;
         }
 
         private Dictionary<string, string> ExtractAdditionalModules(IntermediaryModule Module)
