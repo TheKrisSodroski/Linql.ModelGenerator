@@ -12,22 +12,22 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         private static readonly Dictionary<Type, string> Aliases =
         new Dictionary<Type, string>()
         {
-            { typeof(byte), "byte" },
-            { typeof(sbyte), "sbyte" },
-            { typeof(short), "short" },
-            { typeof(ushort), "ushort" },
-            { typeof(int), "int" },
-            { typeof(uint), "uint" },
-            { typeof(long), "long" },
-            { typeof(ulong), "ulong" },
-            { typeof(float), "float" },
-            { typeof(double), "double" },
-            { typeof(decimal), "decimal" },
-            { typeof(object), "object" },
-            { typeof(bool), "bool" },
-            { typeof(char), "char" },
+            { typeof(byte), "any" },
+            { typeof(sbyte), "any" },
+            { typeof(short), "number" },
+            { typeof(ushort), "number" },
+            { typeof(int), "number" },
+            { typeof(uint), "number" },
+            { typeof(long), "bigint" },
+            { typeof(ulong), "bigint" },
+            { typeof(float), "number" },
+            { typeof(double), "number" },
+            { typeof(decimal), "number" },
+            { typeof(object), "any" },
+            { typeof(bool), "boolean" },
+            { typeof(char), "string" },
             { typeof(string), "string" },
-            { typeof(void), "void" }
+            { typeof(void), "any" }
         };
 
         protected string GetAngularAppPath()
