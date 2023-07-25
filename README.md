@@ -26,8 +26,8 @@ If Linql resonates with you, `please consider supporting the project, as the ent
 0x50373B51Cb601827CcC1Dc5472251031d2fdBF89
 ```
 
-### Open Collective
-We also have an [Open Collective](https://opencollective.com/linql) if you wish to `sponsor`, `receive individualized support`, and `prioritize features`. 
+### Github Sponsor
+You can also [sponsor me on my profile](https://github.com/TheKrisSodroski) if you wish to `receive individualized support`, `prioritize features`, or `advertise your support for Linql`. 
 
 ### Hire Me
 

@@ -8,12 +8,6 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 {
     public partial class LinqlModelGeneratorTypescriptFrontend
     {
-        protected List<string> Usings { get; set; } = new List<string>()
-        {
-            "using System;",
-            "using System.Collections.Generic;",
-            "using System.Text;"
-        };
 
         private static readonly Dictionary<Type, string> Aliases =
         new Dictionary<Type, string>()

@@ -132,10 +132,21 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             Directory.Delete(Path.Combine(this.ProjectPath, this.Module.ModuleName), true);
         }
 
+        protected string GetImportPath(TypescriptImport Import)
+        {
+            return Import.NameSpace.Replace($"{this.Module.ModuleName}", String.Empty).TrimStart('.');
+        }
+
+        protected string GetImportPath(IntermediaryType Import)
+        {
+            return Import.NameSpace.Replace($"{this.Module.ModuleName}", String.Empty).TrimStart('.');
+        }
+
+
         protected void CreateType(IntermediaryType Type)
         {
-            List<string> fileText = this.Usings.ToList();
-            string folder = Type.NameSpace.Replace($"{this.Module.ModuleName}", String.Empty).TrimStart('.');
+            List<string> fileText = new List<string>();
+            string folder = this.GetImportPath(Type);
             string directory = Path.Combine(this.ProjectPath, this.Module.ModuleName, folder);
           
             Directory.CreateDirectory(directory);
@@ -143,9 +154,24 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             string filePath = Path.Combine(directory, $"{Type.TypeName}.cs");
 
 
-            List<TypescriptImport> additionalImports = this.ExtractImports(Type);
+            List<TypescriptImport> imports = this.ExtractImports(Type);
 
-            fileText.AddRange(additionalImports.Select(r => $"using {r};"));
+            List<string> importStatements = imports.Select(r =>
+            {
+                if(r.ModuleName == this.Module.ModuleName)
+                {
+                    return $"import {{ {r.TypeName} }} from 'src/lib/{this.GetImportPath(r)}/{r.TypeName}';";
+                }
+                else if(!String.IsNullOrEmpty(r.NameSpace))
+                {
+
+                }
+            });
+
+            fileText.AddRange(imports.Select(r => 
+            {
+                
+            }));
 
             fileText.Add("");
             fileText.Add($"namespace {Type.NameSpace}");
