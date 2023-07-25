@@ -27,7 +27,7 @@ If Linql resonates with you, `please consider supporting the project, as the ent
 ```
 
 ### Github Sponsor
-You can also [sponsor me on my profile](https://github.com/TheKrisSodroski) if you wish to `receive individualized support`, `prioritize features`, or `advertise your support for Linql`. 
+You can also [sponsor me on my profile](https://github.com/TheKrisSodroski) or by using the [sponsorship button](https://github.com/sponsors/TheKrisSodroski) in this repo if you wish to `receive individualized support`, `prioritize features`, or `advertise your support for Linql`. 
 
 ### Hire Me
 
