@@ -179,7 +179,6 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             string filePath = Path.Combine(directory, $"{Type.TypeName}.ts");
 
-
             List<TypescriptImport> imports = this.ExtractImports(Type);
             List<TypescriptImport> localImports = imports.Where(r => !String.IsNullOrEmpty(r.ModuleName) && r.ModuleName == this.Module.ModuleName).ToList();
 
@@ -233,27 +232,32 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 classRegion += generics + ">";
             }
 
-            //if(Type.BaseClass != null || Type.Interfaces?.Count > 0 || Type is IntermediaryAttribute)
-            //{
-            //    classRegion += ": ";
-            //}
+            if (Type.BaseClass != null || Type.Interfaces?.Count > 0)
+            {
+                classRegion += " ";
+            }
 
-            //List<string> inheritedTypes = new List<string>();
+            List<string> inheritedTypes = new List<string>();
 
-            //if(Type.BaseClass != null)
-            //{
-            //    inheritedTypes.Add(this.BuildGenericType(Type.BaseClass));
-            //}
+            if (Type.BaseClass != null)
+            {
+                inheritedTypes.Add($"extends {this.BuildGenericType(Type.BaseClass)}");
+            }
             //if(Type is IntermediaryAttribute)
             //{
             //    inheritedTypes.Add("Attribute");
             //}
-            //if (Type.Interfaces != null)
-            //{
-            //    inheritedTypes.AddRange(Type.Interfaces.Select(r => this.BuildGenericType(r)));
-            //}
+            if (Type.Interfaces != null)
+            {
+                string modifier = "implements";
+                if (Type.IsInterface)
+                {
+                    modifier = "extends";
+                }
+                inheritedTypes.Add($"{modifier} {String.Join(", ", Type.Interfaces.Select(r => this.BuildGenericType(r)))}");
+            }
 
-            //classRegion += String.Join(", ", inheritedTypes);
+            classRegion += String.Join(" ", inheritedTypes);
 
             //if(Type.GenericArguments != null && Type.GenericArguments.Any(s => s.BaseClass != null || s.Interfaces != null))
             //{
