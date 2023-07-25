@@ -132,50 +132,72 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             Directory.Delete(Path.Combine(this.ProjectPath, this.Module.ModuleName), true);
         }
 
-        protected string GetImportPath(TypescriptImport Import)
+        protected string GetNamespaceDirectory(string NameSpace)
         {
-            return Import.NameSpace.Replace($"{this.Module.ModuleName}", String.Empty).TrimStart('.');
+            string folder = NameSpace.Replace($"{this.Module.ModuleName}", String.Empty).TrimStart('.');
+            return folder;
         }
 
-        protected string GetImportPath(IntermediaryType Import)
+        protected string GetRelativeImport(string NameSpace1, string Namespace2)
         {
-            return Import.NameSpace.Replace($"{this.Module.ModuleName}", String.Empty).TrimStart('.');
+            string folder1 = "C:/";
+            string folder2 = folder1;
+
+            string namespaceFolder1 = this.GetNamespaceDirectory(NameSpace1);
+            string namespaceFolder2 = this.GetNamespaceDirectory(Namespace2);
+
+            if (!String.IsNullOrEmpty(namespaceFolder1))
+            {
+                folder1 += namespaceFolder1 + "/";
+            }
+            if (!String.IsNullOrEmpty(namespaceFolder2))
+            {
+                folder2 += namespaceFolder2 + "/";
+            }
+
+            Uri path1 = new Uri(folder1);
+            Uri path2= new Uri(folder2);
+            Uri diff = path1.MakeRelativeUri(path2);
+            string relativePath = diff.OriginalString;
+
+            if (String.IsNullOrEmpty(relativePath))
+            {
+                relativePath = "./";
+            }
+
+            return relativePath;
         }
 
 
         protected void CreateType(IntermediaryType Type)
         {
             List<string> fileText = new List<string>();
-            string folder = this.GetImportPath(Type);
-            string directory = Path.Combine(this.ProjectPath, this.Module.ModuleName, folder);
+            string folder = this.GetNamespaceDirectory(Type.NameSpace);
+            string directory = Path.Combine(this.GetAngularLibPath(), folder);
           
             Directory.CreateDirectory(directory);
 
-            string filePath = Path.Combine(directory, $"{Type.TypeName}.cs");
+            string filePath = Path.Combine(directory, $"{Type.TypeName}.ts");
 
 
             List<TypescriptImport> imports = this.ExtractImports(Type);
+            List<TypescriptImport> localImports = imports.Where(r => !String.IsNullOrEmpty(r.ModuleName) && r.ModuleName == this.Module.ModuleName).ToList();
 
-            List<string> importStatements = imports.Select(r =>
+            List<IGrouping<string, TypescriptImport>> moduleImports = imports.Except(localImports).Where(r => !String.IsNullOrEmpty(r.ModuleName)).GroupBy(r => r.ModuleName).ToList();
+
+            List<string> importStatements = localImports.Select(r =>  $"import {{ {r.TypeName} }} from '{Path.Combine(this.GetRelativeImport(Type.NameSpace, r.NameSpace), r.TypeName)}';").Distinct().ToList();
+
+            moduleImports.ForEach(r =>
             {
-                if(r.ModuleName == this.Module.ModuleName)
-                {
-                    return $"import {{ {r.TypeName} }} from 'src/lib/{this.GetImportPath(r)}/{r.TypeName}';";
-                }
-                else if(!String.IsNullOrEmpty(r.NameSpace))
-                {
-
-                }
+                List<string> typesToImport = r.Select(s => s.TypeName).Distinct().ToList();
+                string typeImportString = String.Join(", ", typesToImport);
+                importStatements.Add($"import {{ {typeImportString} }} from '{this.GetAngularLibraryName(r.Key)}';");
             });
 
-            fileText.AddRange(imports.Select(r => 
-            {
-                
-            }));
+            importStatements = importStatements.Select(r => r.Replace("\\", "/")).ToList();
 
+            fileText.AddRange(importStatements);
             fileText.Add("");
-            fileText.Add($"namespace {Type.NameSpace}");
-            fileText.Add("{");
 
             string classType = null;
 
@@ -196,13 +218,13 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 throw new Exception($"Unable to determine class type for Type {Type.TypeName}");
             }
 
-            if(Type.Attributes != null)
-            {
-                List<string> attrs = Type.Attributes.Select(r => $"\t{this.BuildAttributeInstance(r)}").ToList();
-                fileText.AddRange(attrs);
-            }
+            //if(Type.Attributes != null)
+            //{
+            //    List<string> attrs = Type.Attributes.Select(r => $"\t{this.BuildAttributeInstance(r)}").ToList();
+            //    fileText.AddRange(attrs);
+            //}
 
-            string classRegion = $"\tpublic {classType} {this.GetTypeName(Type)}";
+            string classRegion = $"export {classType} {this.GetTypeName(Type)}";
 
             if(Type.IsGenericType)
             {
@@ -211,78 +233,77 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 classRegion += generics + ">";
             }
 
-            if(Type.BaseClass != null || Type.Interfaces?.Count > 0 || Type is IntermediaryAttribute)
-            {
-                classRegion += ": ";
-            }
+            //if(Type.BaseClass != null || Type.Interfaces?.Count > 0 || Type is IntermediaryAttribute)
+            //{
+            //    classRegion += ": ";
+            //}
 
-            List<string> inheritedTypes = new List<string>();
+            //List<string> inheritedTypes = new List<string>();
 
-            if(Type.BaseClass != null)
-            {
-                inheritedTypes.Add(this.BuildGenericType(Type.BaseClass));
-            }
-            if(Type is IntermediaryAttribute)
-            {
-                inheritedTypes.Add("Attribute");
-            }
-            if (Type.Interfaces != null)
-            {
-                inheritedTypes.AddRange(Type.Interfaces.Select(r => this.BuildGenericType(r)));
-            }
+            //if(Type.BaseClass != null)
+            //{
+            //    inheritedTypes.Add(this.BuildGenericType(Type.BaseClass));
+            //}
+            //if(Type is IntermediaryAttribute)
+            //{
+            //    inheritedTypes.Add("Attribute");
+            //}
+            //if (Type.Interfaces != null)
+            //{
+            //    inheritedTypes.AddRange(Type.Interfaces.Select(r => this.BuildGenericType(r)));
+            //}
 
-            classRegion += String.Join(", ", inheritedTypes);
+            //classRegion += String.Join(", ", inheritedTypes);
 
-            if(Type.GenericArguments != null && Type.GenericArguments.Any(s => s.BaseClass != null || s.Interfaces != null))
-            {
-                List<string> genericConstraints = new List<string>();
-                genericConstraints = Type.GenericArguments.Select(r => this.BuildGenericConstraint(r)).ToList();
-                classRegion += $" {String.Join(" ", genericConstraints)}";
-            }
+            //if(Type.GenericArguments != null && Type.GenericArguments.Any(s => s.BaseClass != null || s.Interfaces != null))
+            //{
+            //    List<string> genericConstraints = new List<string>();
+            //    genericConstraints = Type.GenericArguments.Select(r => this.BuildGenericConstraint(r)).ToList();
+            //    classRegion += $" {String.Join(" ", genericConstraints)}";
+            //}
 
             fileText.Add(classRegion);
-            fileText.Add("\t{");
+            fileText.Add("{");
 
-            if (Type.Properties != null)
-            {
-                List<string> properties = new List<string>();
+            //if (Type.Properties != null)
+            //{
+            //    List<string> properties = new List<string>();
 
-                if (Type.IsInterface)
-                {
-                    properties = Type.Properties.Select(r => this.BuildProperty(r)).ToList();
-                }
-                else
-                {
-                    properties = Type.Properties.Select(r => this.BuildProperty(r, "public")).ToList();
-                }
+            //    if (Type.IsInterface)
+            //    {
+            //        properties = Type.Properties.Select(r => this.BuildProperty(r)).ToList();
+            //    }
+            //    else
+            //    {
+            //        properties = Type.Properties.Select(r => this.BuildProperty(r, "public")).ToList();
+            //    }
 
-                properties.ForEach(r =>
-                {
-                    fileText.Add(r);
-                    //fileText.Add(Environment.NewLine);
-                });
-            }
+            //    properties.ForEach(r =>
+            //    {
+            //        fileText.Add(r);
+            //        //fileText.Add(Environment.NewLine);
+            //    });
+            //}
 
-            if(Type is IntermediaryAttribute attr)
-            {
-                List<string> arguments = new List<string>();
+            //if(Type is IntermediaryAttribute attr)
+            //{
+            //    List<string> arguments = new List<string>();
 
-                if (attr.Arguments != null)
-                {
-                    arguments = attr.Arguments.Select(r => this.BuildAttrArgument(r)).ToList();
-                }
+            //    if (attr.Arguments != null)
+            //    {
+            //        arguments = attr.Arguments.Select(r => this.BuildAttrArgument(r)).ToList();
+            //    }
 
-                fileText.Add($"\t\tpublic {attr.TypeName}({String.Join(", ", arguments)})");
-                fileText.Add("\t\t{");
-                fileText.Add("\t\t}");
-            }
+            //    fileText.Add($"\t\tpublic {attr.TypeName}({String.Join(", ", arguments)})");
+            //    fileText.Add("\t\t{");
+            //    fileText.Add("\t\t}");
+            //}
 
-            fileText.Add("\t}");
             fileText.Add("}");
 
             string compiledText = String.Join(Environment.NewLine, fileText);
 
-            //File.WriteAllText(filePath, compiledText);
+            File.WriteAllText(filePath, compiledText);
         }
 
         private string BuildProperty(IntermediaryProperty Property, string Modifier = null)

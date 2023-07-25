@@ -21,7 +21,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend.Test
 
         protected LinqlModelGeneratorTypescriptFrontend Generator { get; set; }
 
-        protected bool Clean { get; set; } = true;
+        protected bool Clean { get; set; } = false;
 
         [OneTimeSetUp]
         public void SetUp()

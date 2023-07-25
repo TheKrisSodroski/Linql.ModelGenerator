@@ -146,6 +146,11 @@ namespace Linql.ModelGenerator.CSharp.Backend
                     type.IsIntrinsic = true;
                     type.Module = null;
                 }
+                else if(Type.IsGenericParameter == true)
+                {
+                    type.Module = null;
+                    type.TypeName = TypeName;
+                }
                 else
                 {
                     type.TypeName = TypeName;
@@ -164,7 +169,6 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
                 if (this.TypeIsInModule(Type))
                 {
-
                     type.NameSpace = Type.Namespace;
 
                     if (Type.BaseType != null && !this.IgnoreTypePlugins.Any(s => s.IgnoreType(Type.BaseType)))
