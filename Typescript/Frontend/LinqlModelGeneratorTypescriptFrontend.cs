@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Linql.ModelGenerator.Intermediary;
@@ -19,6 +20,8 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         public string ProjectPath { get; set; } 
 
         IntermediaryModule Module { get; set; }
+
+        public bool SkipInstall { get; set; } = true;
 
         private HashSet<IntermediaryType> ImportCache = new HashSet<IntermediaryType>();
 
@@ -49,47 +52,80 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 this.AddAdditionalModules(additionalModules);
             }
 
-            this.Module.Types.ForEach(r =>
-            {
-                this.CreateType(r);
-            });
+            //this.Module.Types.ForEach(r =>
+            //{
+            //    this.CreateType(r);
+            //});
         }
 
         protected void AddAdditionalModules(Dictionary<string, string> AdditionalModules)
         {
-            XElement itemGroup = new XElement("ItemGroup");
-            AdditionalModules.Select(r =>
-            {
-                XElement package = new XElement("PackageReference");
-                package.SetAttributeValue("Include", r.Key);
-                package.SetAttributeValue("Version", r.Value);
-                return package;
-            }).ToList()
-                .ForEach(r => itemGroup.Add(r));
+            string projectFolder = this.GetAngularLibRoot();
+            string packageJsonFile = Path.Combine(projectFolder, "package.json");
+            string packageJsonText = File.ReadAllText(packageJsonFile);
+            JsonNode packageJson = JsonNode.Parse(packageJsonText);
            
+            JsonNode root = packageJson.Root;
+            root["version"] = this.Module.Version;
 
-            string projectPath = Path.Combine(this.ProjectPath, this.Module.ModuleName, $"{this.Module.ModuleName}.csproj");
+            root["peerDependencies"] = new JsonObject();
+            root["devDependencies"] = new JsonObject();
 
-            XDocument doc = XDocument.Load(projectPath);
-            doc.Element("Project").Add(itemGroup);
-            string xmlDoc = doc.ToString();
-            File.WriteAllText(projectPath, xmlDoc);
+            JsonNode peerDependencies = root["peerDependencies"];
+            JsonNode devDependencies = root["devDependencies"];
+
+            foreach(var dep in AdditionalModules)
+            {
+                peerDependencies[this.GetAngularLibraryName(dep.Key)] = dep.Value;
+                devDependencies[this.GetAngularLibraryName(dep.Key)] = dep.Value;
+            }
+            
+            File.WriteAllText(packageJsonFile, root.ToJsonString(new JsonSerializerOptions() { WriteIndented = true }));
         }
 
         protected void CreateProject()
         {
-            Process process = new Process();
-            ProcessStartInfo processStartInfo = new ProcessStartInfo("dotnet");
-            processStartInfo.Arguments = $"new classlib -o {this.Module.ModuleName} -f netstandard2.0";
-            processStartInfo.WorkingDirectory = this.ProjectPath;
-            processStartInfo.CreateNoWindow = false;
-            process.StartInfo = processStartInfo;
-            process.Start();
+            Process ngNewProcess = new Process();
+            ProcessStartInfo ngNew = new ProcessStartInfo("Powershell.exe");
+            ngNew.Arguments = $"ng new {this.Module.ModuleName}";
 
-            process.WaitForExit();
+            if (this.SkipInstall)
+            {
+                ngNew.Arguments += " --skip-install";
+            }
 
-            File.Delete(Path.Combine(this.ProjectPath, this.Module.ModuleName, "Class1.cs"));
+            ngNew.WorkingDirectory = this.ProjectPath;
+            ngNew.CreateNoWindow = false;
+            ngNewProcess.StartInfo = ngNew;
+            ngNewProcess.Start();
+
+            ngNewProcess.WaitForExit();
+
+            string libraryName = this.GetAngularLibraryName(this.Module.ModuleName);
+
+            Process ngNewLibrary = new Process();
+            ProcessStartInfo ngLibrary = new ProcessStartInfo("Powershell.exe");
+            ngLibrary.Arguments = $"ng generate library {libraryName}";
+
+            if (this.SkipInstall)
+            {
+                ngLibrary.Arguments += " --skip-install";
+            }
+
+            ngLibrary.WorkingDirectory = this.GetAngularAppPath();
+            ngLibrary.CreateNoWindow = false;
+            ngNewLibrary.StartInfo = ngLibrary;
+            ngNewLibrary.Start();
+
+            ngNewLibrary.WaitForExit();
+
+            string srcDirectory = this.GetAngularSrcPath();
+            string libDirectory = this.GetAngularLibPath();
+
+            File.WriteAllText(Path.Combine(srcDirectory, "public-api.ts"), $"// Public API Surface of {libraryName}");
+            Directory.GetFiles(libDirectory).ToList().ForEach(r => File.Delete(r));
         }
+
 
         public void Clean()
         {

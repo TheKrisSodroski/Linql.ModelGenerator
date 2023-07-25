@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Linql.ModelGenerator.Typesc
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{ECB9C651-7280-46CF-88D6-DA466C00B264}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Linql.ModelGenerator.Typescript.Frontend.Test", "Test\Linql.ModelGenerator.Frontend.Test\Linql.ModelGenerator.Typescript.Frontend.Test.csproj", "{5023D2C7-12A1-44A3-9575-26F71776E1D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Linql.ModelGenerator.Typescript.Frontend.Test", "Test\Linql.ModelGenerator.Typescript.Frontend.Test\Linql.ModelGenerator.Typescript.Frontend.Test.csproj", "{5023D2C7-12A1-44A3-9575-26F71776E1D9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Linql.ModelGenerator.Intermediary", "..\C#\Intermediary\Linql.ModelGenerator.Intermediary.csproj", "{004BA6E0-52D3-4271-8FC8-2BBD0636CA17}"
 EndProject

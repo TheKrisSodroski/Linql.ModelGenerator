@@ -69,7 +69,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
             }
 
             string fullPath = Path.GetFullPath(assemblyPath);
-            this.Assembly = Assembly.LoadFile(fullPath);
+            this.Assembly = Assembly.LoadFrom(fullPath);
             this.IgnoreTypePlugins.Add(new DefaultIgnoreTypePlugin());
             this.PrimitiveTypePlugins.Add(new DefaultPrimitiveTypePlugin());
 

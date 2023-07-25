@@ -9,7 +9,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend.Test
     public abstract class BaseModelGeneratorTest
     {
 
-        protected string ModelsPath { get; set; } = "../../../../";
+        protected string ModelsPath { get; set; } = "../../../../../../C#/Test";
 
         protected virtual string ModuleName { get; set; } = "Test.Module1";
 
@@ -21,7 +21,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend.Test
 
         protected LinqlModelGeneratorTypescriptFrontend Generator { get; set; }
 
-        protected bool Clean { get; set; } = false;
+        protected bool Clean { get; set; } = true;
 
         [OneTimeSetUp]
         public void SetUp()

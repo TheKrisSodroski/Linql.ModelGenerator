@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Linql.ModelGenerator.Typescript.Frontend
@@ -34,6 +36,34 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             { typeof(void), "void" }
         };
 
+        protected string GetAngularAppPath()
+        {
+            return Path.Combine(this.ProjectPath, this.Module.ModuleName);
+        }
+
+        protected string GetAngularLibRoot()
+        {
+            return Path.Combine(this.ProjectPath, this.Module.ModuleName, "projects", this.GetAngularLibraryName(this.Module.ModuleName));
+        }
+
+        protected string GetAngularSrcPath()
+        {
+            return Path.Combine(this.GetAngularLibRoot(), "src");
+        }
+
+        protected string GetAngularLibPath()
+        {
+            return Path.Combine(this.GetAngularSrcPath(), "lib");
+        }
+
+        protected string GetAngularLibraryName(string ModuleName)
+        {
+            string module = ModuleName;
+            List<string> split = module.ToLower().Split('.').ToList();
+            string endPart = String.Join("-", split.Skip(1));
+            string first = split.First();
+            return $"{first}.{endPart}";
+        }
 
     }
 
