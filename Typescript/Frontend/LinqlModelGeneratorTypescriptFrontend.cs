@@ -198,7 +198,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             List<IGrouping<string, TypescriptImport>> moduleImports = imports.Except(localImports).Where(r => !String.IsNullOrEmpty(r.ModuleName)).GroupBy(r => r.ModuleName).ToList();
 
-            List<string> importStatements = localImports.Select(r => $"import {{ {r.TypeName} }} from '{Path.Combine(this.GetRelativeImport(Type.NameSpace, r.NameSpace), r.TypeName)}';").Distinct().ToList();
+            List<string> importStatements = localImports.Select(r => $"import {{ {r.TypeName}{r.AttributeSuffix} }} from '{Path.Combine(this.GetRelativeImport(Type.NameSpace, r.NameSpace), r.TypeName)}';").Distinct().ToList();
 
             moduleImports.ForEach(r =>
             {
@@ -220,142 +220,212 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             if (Type is IntermediaryAttribute attr)
             {
-                string attributeSymbol = $"{attr.TypeName}AttributeKey";
-                fileText.Add($"export const {attributeSymbol}: Symbol = Symbol('{attr.TypeName}')");
-                fileText.Add("");
-
-                List<string> arguments = new List<string>();
-                List<string> metadataArguments = new List<string>();
-                if(attr.Arguments != null)
-                {
-                    arguments = attr.Arguments.Select(r => this.BuildAttrArgument(r)).ToList();
-                    metadataArguments = attr.Arguments.Select(r => r.ArgumentName).ToList();
-                }
-
-                fileText.Add($"export function {attr.TypeName}({String.Join(", ", arguments)})");
-                fileText.Add("{");
-                fileText.Add($"\treturn Reflect.metadata({attributeSymbol}, [{String.Join(", ", metadataArguments)}]);");
-                fileText.Add("}");
-                fileText.Add("");
-                fileText.Add($"export function get{attr.TypeName}(target: any, propertyKey: string)");
-                fileText.Add("{");
-                fileText.Add($"\treturn Reflect.getMetadata({attributeSymbol}, target, propertyKey);");
-                fileText.Add("}");
-
+                this.BuildAttributeClass(attr, fileText);
             }
             else
             {
-                string classType = null;
-
-                if (Type.IsInterface)
-                {
-                    classType = "interface";
-                }
-                else if (Type.IsAbstract)
-                {
-                    classType = "abstract class";
-                }
-                else if (Type.IsClass)
-                {
-                    classType = "class";
-                }
-                else
-                {
-                    throw new Exception($"Unable to determine class type for Type {Type.TypeName}");
-                }
-
-                //if (Type.Attributes != null)
-                //{
-                //    List<string> attrs = Type.Attributes.Select(r => $"{this.BuildAttributeInstance(r)}").ToList();
-                //    fileText.AddRange(attrs);
-                //}
-
-                string classRegion = $"export {classType} {this.GetTypeName(Type)}";
-
-                if (Type.IsGenericType)
-                {
-                    classRegion += "<";
-                    string generics = String.Join(", ", Type.GenericArguments.Select(r => this.GetGenericArgumentDefinition(r)));
-                    classRegion += generics + ">";
-                }
-
-                if (Type.BaseClass != null || Type.Interfaces?.Count > 0)
-                {
-                    classRegion += " ";
-                }
-
-                List<string> inheritedTypes = new List<string>();
-
-                if (Type.BaseClass != null)
-                {
-                    inheritedTypes.Add($"extends {this.BuildGenericType(Type.BaseClass)}");
-                }
-                //if(Type is IntermediaryAttribute)
-                //{
-                //    inheritedTypes.Add("Attribute");
-                //}
-                if (Type.Interfaces != null)
-                {
-                    string modifier = "implements";
-                    if (Type.IsInterface)
-                    {
-                        modifier = "extends";
-                    }
-                    inheritedTypes.Add($"{modifier} {String.Join(", ", Type.Interfaces.Select(r => this.BuildGenericType(r)))}");
-                }
-
-                classRegion += String.Join(" ", inheritedTypes);
-
-                //if(Type.GenericArguments != null && Type.GenericArguments.Any(s => s.BaseClass != null || s.Interfaces != null))
-                //{
-                //    List<string> genericConstraints = new List<string>();
-                //    genericConstraints = Type.GenericArguments.Select(r => this.BuildGenericConstraint(r)).ToList();
-                //    classRegion += $" {String.Join(" ", genericConstraints)}";
-                //}
-
-                fileText.Add(classRegion);
-                fileText.Add("{");
-
-                if (Type.Properties != null)
-                {
-                    List<string> properties = new List<string>();
-
-                    if (Type.IsInterface)
-                    {
-                        properties = Type.Properties.Select(r => this.BuildProperty(r)).ToList();
-                    }
-                    else
-                    {
-                        properties = Type.Properties.Select(r => this.BuildProperty(r, "public")).ToList();
-                    }
-
-                    properties.ForEach(r =>
-                    {
-                        fileText.Add(r);
-                        //fileText.Add(Environment.NewLine);
-                    });
-                }
-
-                //if(Type is IntermediaryAttribute attr)
-                //{
-                //    List<string> arguments = new List<string>();
-
-                //    if (attr.Arguments != null)
-                //    {
-                //        arguments = attr.Arguments.Select(r => this.BuildAttrArgument(r)).ToList();
-                //    }
-
-                //    fileText.Add($"\t\tpublic {attr.TypeName}({String.Join(", ", arguments)})");
-                //    fileText.Add("\t\t{");
-                //    fileText.Add("\t\t}");
-                //}
-
-                fileText.Add("}");
+                this.BuildTypeClass(Type, fileText);
             }
 
             string compiledText = String.Join(Environment.NewLine, fileText);
 
             File.WriteAllText(filePath, compiledText);
+        }
+
+        private void BuildTypeClass(IntermediaryType Type, List<string> fileText)
+        {
+            string classType = null;
+
+            if (Type.IsInterface)
+            {
+                classType = "interface";
+            }
+            else if (Type.IsAbstract)
+            {
+                classType = "abstract class";
+            }
+            else if (Type.IsClass)
+            {
+                classType = "class";
+            }
+            else
+            {
+                throw new Exception($"Unable to determine class type for Type {Type.TypeName}");
+            }
+
+            if (Type.Attributes != null)
+            {
+                List<string> attrs = Type.Attributes.Select(r => $"{this.BuildAttributeInstance(r, "Class")}").ToList();
+                fileText.AddRange(attrs);
+            }
+
+            string classRegion = $"export {classType} {this.GetTypeName(Type)}";
+
+            if (Type.IsGenericType)
+            {
+                classRegion += "<";
+                string generics = String.Join(", ", Type.GenericArguments.Select(r => this.GetGenericArgumentDefinition(r)));
+                classRegion += generics + ">";
+            }
+
+            if (Type.BaseClass != null || Type.Interfaces?.Count > 0)
+            {
+                classRegion += " ";
+            }
+
+            List<string> inheritedTypes = new List<string>();
+
+            if (Type.BaseClass != null)
+            {
+                inheritedTypes.Add($"extends {this.BuildGenericType(Type.BaseClass)}");
+            }
+            if (Type.Interfaces != null)
+            {
+                string modifier = "implements";
+                if (Type.IsInterface)
+                {
+                    modifier = "extends";
+                }
+                inheritedTypes.Add($"{modifier} {String.Join(", ", Type.Interfaces.Select(r => this.BuildGenericType(r)))}");
+            }
+
+            classRegion += String.Join(" ", inheritedTypes);
+
+            //if(Type.GenericArguments != null && Type.GenericArguments.Any(s => s.BaseClass != null || s.Interfaces != null))
+            //{
+            //    List<string> genericConstraints = new List<string>();
+            //    genericConstraints = Type.GenericArguments.Select(r => this.BuildGenericConstraint(r)).ToList();
+            //    classRegion += $" {String.Join(" ", genericConstraints)}";
+            //}
+
+            fileText.Add(classRegion);
+            fileText.Add("{");
+
+            if (Type.Properties != null)
+            {
+                List<string> properties = new List<string>();
+
+                if (Type.IsInterface)
+                {
+                    properties = Type.Properties.Select(r => this.BuildProperty(r)).ToList();
+                }
+                else
+                {
+                    properties = Type.Properties.Select(r => this.BuildProperty(r, "public")).ToList();
+                }
+
+                properties.ForEach(r =>
+                {
+                    fileText.Add(r);
+                });
+            }
+
+            fileText.Add("}");
+        }
+
+        private List<string> BuildMetadataAttributeInstance(IntermediaryAttribute Attribute)
+        {
+            List<string> classArgs = new List<string>();
+            classArgs.Add("\tconst attrInstance = \n\t{");
+            if (Attribute.Arguments != null)
+            {
+                classArgs.Add(String.Join($",{Environment.NewLine}", Attribute.Arguments.Select(r =>
+                {
+                    return $"\t\t{r.ArgumentName}: {r.ArgumentName}";
+                })));
+            }
+            classArgs.Add($"\t}} as {Attribute.TypeName};");
+            return classArgs;
+        }
+
+
+        private void BuildAttributeClass(IntermediaryAttribute attr, List<string> fileText)
+        {
+            fileText.Add("type constructorType = { new(...args: any[]): {} };");
+            fileText.Add("");
+
+            this.BuildTypeClass(attr, fileText);
+            bool isClassAttribute = this.IsClassAttribute(attr);
+            bool isPropertyAttribute = this.IsPropertyAttribute(attr);
+            fileText.Add("");
+
+            string attributeSymbol = $"{attr.TypeName}AttributeKey";
+
+            if (isPropertyAttribute)
+            {
+                fileText.Add($"export const {attributeSymbol}: Symbol = Symbol('{attr.TypeName}')");
+                fileText.Add("");
+            }
+
+            if (isClassAttribute)
+            {
+                List<string> arguments = new List<string>();
+                if (attr.Arguments != null)
+                {
+                    arguments = attr.Arguments.Select(r => this.BuildAttrArgument(r)).ToList();
+                }
+                fileText.Add($"export function {attr.TypeName}Class({String.Join(", ", arguments)})");
+                fileText.Add("{");
+
+                List<string> classArgs = this.BuildMetadataAttributeInstance(attr);
+                fileText.AddRange(classArgs);
+
+                fileText.Add($"\treturn function {attr.TypeName}Class<T extends constructorType>(constructor: T)");
+                fileText.Add("\t{");
+                fileText.Add($"\t\tconstructor.prototype.{attr.TypeName} = attrInstance;");
+                fileText.Add("\t}");
+                fileText.Add("}");
+                fileText.Add("");
+            }
+
+            if (isPropertyAttribute)
+            {
+                List<string> arguments = new List<string>();
+                List<string> metadataArguments = new List<string>();
+                if (attr.Arguments != null)
+                {
+                    arguments = attr.Arguments.Select(r => this.BuildAttrArgument(r)).ToList();
+                }
+
+                fileText.Add($"export function {attr.TypeName}Prop({String.Join(", ", arguments)})");
+                fileText.Add("{");
+                List<string> classArgs = this.BuildMetadataAttributeInstance(attr);
+                fileText.AddRange(classArgs);
+                fileText.Add($"\treturn Reflect.metadata({attributeSymbol}, attrInstance);");
+                fileText.Add("}");
+                fileText.Add("");
+            }
+
+            if(isPropertyAttribute && isClassAttribute)
+            {
+                fileText.Add($"export function get{attr.TypeName}<T extends object | constructorType, Property extends keyof T & string>(target: T, propertyKey?: Property)");
+                fileText.Add("{");
+                fileText.Add("\tif((target as constructorType).prototype && !propertyKey)");
+                fileText.Add("\t{");
+                fileText.Add($"\t\treturn (target as constructorType).prototype.{attr.TypeName} as {attr.TypeName};");
+                fileText.Add("\t}");
+                fileText.Add("\telse if(propertyKey)");
+                fileText.Add("\t{");
+                fileText.Add($"\t\treturn Reflect.getMetadata({attributeSymbol}, target, propertyKey) as {attr.TypeName};");
+                fileText.Add("\t}");
+                fileText.Add("\treturn null;");
+                fileText.Add("}");
+            }
+            else if (isClassAttribute)
+            {
+                fileText.Add($"export function get{attr.TypeName}<T extends constructorType>(constructor: constructorType)");
+                fileText.Add("{");
+                fileText.Add($"\treturn constructor.prototype.{attr.TypeName} as {attr.TypeName};");
+                fileText.Add("}");
+
+            }
+            else if (isPropertyAttribute)
+            {
+                fileText.Add($"export function get{attr.TypeName}<T extends object, Property extends keyof T & string>(target: T, propertyKey: Property)");
+                fileText.Add("{");
+                fileText.Add($"\treturn Reflect.getMetadata({attributeSymbol}, target, propertyKey) as {attr.TypeName};");
+                fileText.Add("}");
+            }
         }
 
         private string BuildProperty(IntermediaryProperty Property, string Modifier = null)
@@ -364,7 +434,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             if (Property.Attributes != null)
             {
-                List<string> attrs = Property.Attributes.Select(r => $"\t{this.BuildAttributeInstance(r)}").ToList();
+                List<string> attrs = Property.Attributes.Select(r => $"\t{this.BuildAttributeInstance(r, "Prop")}").ToList();
                 propertyText.AddRange(attrs);
             }
 
@@ -380,9 +450,9 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             return String.Join(Environment.NewLine, propertyText);
         }
 
-        private string BuildAttributeInstance(IntermediaryAttributeInstance Attr)
+        private string BuildAttributeInstance(IntermediaryAttributeInstance Attr, string Suffix = "")
         {
-            string attrInsides = Attr.TypeName;
+            string attrInsides = $"{Attr.TypeName}{Suffix}";
             List<string> args = new List<string>();
             if (Attr.Arguments != null && Attr.Arguments.Count() > 0)
             {
@@ -425,23 +495,6 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             return argString;
         }
 
-        private string BuildGenericConstraint(IntermediaryType Type)
-        {
-            string constraint = $"where {Type.TypeName}: ";
-            List<string> constraints = new List<string>();
-
-            if (Type.BaseClass != null)
-            {
-                constraints.Add(this.BuildGenericType(Type.BaseClass));
-            }
-            if (Type.Interfaces != null)
-            {
-                constraints.AddRange(Type.Interfaces.Select(r => this.BuildGenericType(r)));
-            }
-
-            constraint += String.Join(", ", constraints);
-            return constraint;
-        }
 
         private List<TypescriptImport> ExtractImports(IntermediaryType Type)
         {
@@ -456,7 +509,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             if (Type.Attributes != null)
             {
-                imports.AddRange(Type.Attributes.Select(r => new TypescriptImport(r.TypeName, r.Module, r.NameSpace)));
+                imports.AddRange(Type.Attributes.Select(r => new TypescriptImport(r.TypeName, r.Module, r.NameSpace, "Class")));
             }
 
             if (Type.BaseClass != null)
@@ -476,7 +529,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 imports.AddRange(Type.Properties.Select(r => new TypescriptImport(r.Type.TypeName, r.Type.Module, r.Type.NameSpace)));
                 imports.AddRange(Type.Properties.SelectMany(r => this.ExtractImports(r.Type)));
                 List<IntermediaryAttributeInstance> attrs = Type.Properties.Where(r => r.Attributes != null).SelectMany(r => r.Attributes).ToList();
-                imports.AddRange(attrs.Select(r => new TypescriptImport(r.TypeName, r.Module, r.NameSpace)));
+                imports.AddRange(attrs.Select(r => new TypescriptImport(r.TypeName, r.Module, r.NameSpace, "Prop")));
             }
 
             if (Type is IntermediaryAttribute attr && attr.Arguments != null)

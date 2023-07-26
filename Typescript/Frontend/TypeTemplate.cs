@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Linql.ModelGenerator.Intermediary;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -29,6 +30,29 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             { typeof(string), "string" },
             { typeof(void), "any" }
         };
+
+        private static readonly List<string> ClassAttributes = new List<string>()
+            {
+                Enum.GetName(typeof(AttributeTargets), AttributeTargets.All),
+                Enum.GetName(typeof(AttributeTargets), AttributeTargets.Class)
+            };
+
+        private static readonly List<string> PropertyAttributes = new List<string>()
+            {
+                Enum.GetName(typeof(AttributeTargets), AttributeTargets.All),
+                Enum.GetName(typeof(AttributeTargets), AttributeTargets.Property)
+            };
+
+        private bool IsClassAttribute(IntermediaryAttribute Attr)
+        {
+            return Attr.Targets.Any(s => LinqlModelGeneratorTypescriptFrontend.ClassAttributes.Contains(s));
+        }
+
+        private bool IsPropertyAttribute(IntermediaryAttribute Attr)
+        {
+            return Attr.Targets.Any(s => LinqlModelGeneratorTypescriptFrontend.PropertyAttributes.Contains(s));
+        }
+
 
         protected string GetAngularAppPath()
         {
@@ -65,7 +89,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
     {
         public static void Merge(this Dictionary<string, string> Input, Dictionary<string, string> DictionaryToMerge)
         {
-            foreach(var key in DictionaryToMerge)
+            foreach (var key in DictionaryToMerge)
             {
                 if (!Input.ContainsKey(key.Key))
                 {

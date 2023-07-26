@@ -12,11 +12,14 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
         public string NameSpace { get; set; }
 
-        public TypescriptImport(string TypeName, string ModuleName, string NameSpace) 
+        public string AttributeSuffix { get; set; }
+
+        public TypescriptImport(string TypeName, string ModuleName, string NameSpace, string AttributeSuffix = "") 
         {
             this.TypeName = TypeName;
             this.ModuleName = ModuleName;
             this.NameSpace = NameSpace;
+            this.AttributeSuffix = AttributeSuffix;
         }
     }
 }
