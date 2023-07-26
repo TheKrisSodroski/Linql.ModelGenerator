@@ -106,7 +106,6 @@ namespace Linql.ModelGenerator.CSharp.Frontend
 
             string filePath = Path.Combine(directory, $"{Type.TypeName}.cs");
 
-
             List<string> additionalImports = this.ExtractImports(Type);
 
             fileText.AddRange(additionalImports.Select(r => $"using {r};"));
@@ -132,6 +131,12 @@ namespace Linql.ModelGenerator.CSharp.Frontend
             else
             {
                 throw new Exception($"Unable to determine class type for Type {Type.TypeName}");
+            }
+
+            if(Type is IntermediaryAttribute attrTarget)
+            {
+                List<string> usage = attrTarget.Targets.Select(r => $"{nameof(AttributeTargets)}.{r}").ToList();
+                fileText.Add($"\t[AttributeUsage({String.Join("| ", usage)})]");
             }
 
             if(Type.Attributes != null)
@@ -162,7 +167,7 @@ namespace Linql.ModelGenerator.CSharp.Frontend
             }
             if(Type is IntermediaryAttribute)
             {
-                inheritedTypes.Add("Attribute");
+                inheritedTypes.Add(nameof(Attribute));
             }
             if (Type.Interfaces != null)
             {

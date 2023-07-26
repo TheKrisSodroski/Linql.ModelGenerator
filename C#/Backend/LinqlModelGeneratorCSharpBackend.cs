@@ -90,7 +90,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
         protected List<IntermediaryType> GenerateTypes()
         {
             List<Type> typesToGenerate = this.Assembly.GetTypes().ToList();
-            return typesToGenerate 
+            return typesToGenerate
               .Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreType(r)))
               .Select(r => this.GenerateType(r)).ToList();
         }
@@ -146,7 +146,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
                     type.IsIntrinsic = true;
                     type.Module = null;
                 }
-                else if(Type.IsGenericParameter == true)
+                else if (Type.IsGenericParameter == true)
                 {
                     type.Module = null;
                     type.TypeName = TypeName;
@@ -186,20 +186,35 @@ namespace Linql.ModelGenerator.CSharp.Backend
                     interfaces = interfaces
                         .Except(baseTypeInterfaces)
                         .Except(interfaces.SelectMany(s => s.GetInterfaces())).ToList();
-                    
+
                     type.Interfaces = interfaces.Select(r => this.GenerateReducedType(r)).ToList();
 
                     type.Properties = Type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).Select(r => this.GenerateProperty(r)).ToList();
-              
+
                     if (type is IntermediaryAttribute attr)
                     {
                         ConstructorInfo constructorInfo = Type.GetConstructors().FirstOrDefault();
+
+                        List<AttributeUsageAttribute> attrUsage = Type.GetCustomAttributes(typeof(AttributeUsageAttribute)).Cast<AttributeUsageAttribute>().ToList();
+
+                        if (attrUsage.Count == 0)
+                        {
+                            attr.Targets = new List<string>()
+                            {
+                                Enum.GetName(typeof(AttributeTargets), AttributeTargets.Class),
+                                Enum.GetName(typeof(AttributeTargets), AttributeTargets.Property),                            
+                            };
+                        }
+                        else
+                        {
+                            attr.Targets = attrUsage.Select(r => Enum.GetName(typeof(AttributeTargets), r.ValidOn)).ToList();
+                        }
 
                         if (constructorInfo != null)
                         {
                             attr.Arguments = constructorInfo.GetParameters().Select(r => this.GenerateParameter(r)).ToList();
 
-                            if(attr.Arguments?.Count() == 0)
+                            if (attr.Arguments?.Count() == 0)
                             {
                                 attr.Arguments = null;
                             }
@@ -210,7 +225,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
                         type.Attributes = Type.GetCustomAttributes().Select(r => this.GenerateAttributeInstance(r)).ToList();
                     }
                 }
-                else if(type.IsPrimitive == false && type.IsIntrinsic == false)
+                else if (type.IsPrimitive == false && type.IsIntrinsic == false)
                 {
                     type.ModuleVersion = this.GetAssemblyVersion(Type.Assembly);
                 }
@@ -223,7 +238,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
                 {
                     type.Interfaces = null;
                 }
-                if(type.Attributes?.Count() == 0)
+                if (type.Attributes?.Count() == 0)
                 {
                     type.Attributes = null;
                 }
@@ -292,7 +307,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
             prop.Type = this.GenerateReducedType(Property.PropertyType);
             prop.Attributes = Property.GetCustomAttributes().Select(r => this.GenerateAttributeInstance(r)).ToList();
 
-            if(prop.Attributes.Count() == 0)
+            if (prop.Attributes.Count() == 0)
             {
                 prop.Attributes = null;
             }

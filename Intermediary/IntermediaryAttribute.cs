@@ -7,6 +7,8 @@ namespace Linql.ModelGenerator.Intermediary
     {
         public List<IntermediaryArgument> Arguments { get; set; }
 
+        public List<string> Targets { get; set; }
+
         public override string ToString()
         {
             return $"[{base.ToString()}]";
