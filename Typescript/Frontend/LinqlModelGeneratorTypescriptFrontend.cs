@@ -228,7 +228,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             if(Type.IsGenericType)
             {
                 classRegion += "<";
-                string generics = String.Join(", ", Type.GenericArguments.Select(r => this.GetTypeName(r)));
+                string generics = String.Join(", ", Type.GenericArguments.Select(r => this.GetGenericArgumentDefinition(r)));
                 classRegion += generics + ">";
             }
 
@@ -269,25 +269,25 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             fileText.Add(classRegion);
             fileText.Add("{");
 
-            //if (Type.Properties != null)
-            //{
-            //    List<string> properties = new List<string>();
+            if (Type.Properties != null)
+            {
+                List<string> properties = new List<string>();
 
-            //    if (Type.IsInterface)
-            //    {
-            //        properties = Type.Properties.Select(r => this.BuildProperty(r)).ToList();
-            //    }
-            //    else
-            //    {
-            //        properties = Type.Properties.Select(r => this.BuildProperty(r, "public")).ToList();
-            //    }
+                if (Type.IsInterface)
+                {
+                    properties = Type.Properties.Select(r => this.BuildProperty(r)).ToList();
+                }
+                else
+                {
+                    properties = Type.Properties.Select(r => this.BuildProperty(r, "public")).ToList();
+                }
 
-            //    properties.ForEach(r =>
-            //    {
-            //        fileText.Add(r);
-            //        //fileText.Add(Environment.NewLine);
-            //    });
-            //}
+                properties.ForEach(r =>
+                {
+                    fileText.Add(r);
+                    //fileText.Add(Environment.NewLine);
+                });
+            }
 
             //if(Type is IntermediaryAttribute attr)
             //{
@@ -314,19 +314,19 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         {
             List<string> propertyText = new List<string>();
 
-            if(Property.Attributes != null)
-            {
-                List<string> attrs = Property.Attributes.Select(r => $"\t\t{this.BuildAttributeInstance(r)}").ToList();
-                propertyText.AddRange(attrs);
-            }
+            //if(Property.Attributes != null)
+            //{
+            //    List<string> attrs = Property.Attributes.Select(r => $"\t\t{this.BuildAttributeInstance(r)}").ToList();
+            //    propertyText.AddRange(attrs);
+            //}
 
             if (!String.IsNullOrEmpty(Modifier))
             {
-                propertyText.Add($"\t\t{Modifier} {this.BuildGenericType(Property.Type)} {Property.PropertyName} {{ get; set; }}");
+                propertyText.Add($"\t{Modifier} {Property.PropertyName}!: {this.BuildGenericType(Property.Type)};");
             }
             else
             {
-                propertyText.Add($"\t\t{this.BuildGenericType(Property.Type)} {Property.PropertyName} {{ get; set; }}");
+                propertyText.Add($"\t{Property.PropertyName}: {this.BuildGenericType(Property.Type)};");
             }
 
             return String.Join(Environment.NewLine, propertyText);
@@ -504,23 +504,49 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         {
             string type = this.GetTypeName(Type);
 
-            if (type != "Array" && Type.GenericArguments != null && Type.GenericArguments.Count > 0)
+
+            if (type != "Dictionary" && Type.GenericArguments != null && Type.GenericArguments.Count > 0)
             {
                 type += "<";
                 string generics = String.Join(", ", Type.GenericArguments.Select(r => this.GetTypeName(r)));
                 type += generics + ">";
             }
-            else if(type == "Array")
+            else if(type == "Dictionary")
             {
-                string generics = String.Join(", ", Type.GenericArguments.Select(r => this.GetTypeName(r)));
-                type = generics + "[]";
+                List<string> dictionaryTypes = Type.GenericArguments.Select(r => this.GetTypeName(r)).ToList();
+                type = $"{{ [key: {dictionaryTypes[0]}]: {dictionaryTypes[1]} }}";
             }
 
             return type;
         }
 
+        private string GetGenericArgumentDefinition(IntermediaryType Type)
+        {
+            string typeName = this.GetTypeName(Type);
+            List<string> inheritedTypes = new List<string>();
+
+            if(Type.BaseClass != null || Type.Interfaces != null)
+            {
+                typeName += " ";
+            }
+
+            if (Type.BaseClass != null)
+            {
+                inheritedTypes.Add($"extends {this.BuildGenericType(Type.BaseClass)}");
+            }
+            if (Type.Interfaces != null)
+            {
+                string modifier = "extends";
+                inheritedTypes.Add($"{modifier} {String.Join(", ", Type.Interfaces.Select(r => this.BuildGenericType(r)))}");
+            }
+
+            typeName += String.Join(" ", inheritedTypes);
+            return typeName;
+        }
+
         private string GetTypeName(IntermediaryType Type)
         {
+            List<string> arrayTypes = new List<string>() { "List", "Array" };
             List<Type> types = typeof(string).Assembly.GetTypes().ToList();
             Type foundType = types.FirstOrDefault(r => r.Name == Type.TypeName);
 
@@ -533,6 +559,10 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
                 return foundType.Name;
 
+            }
+            else if (arrayTypes.Contains(Type.TypeName))
+            {
+                return "Array";
             }
             else
             {
