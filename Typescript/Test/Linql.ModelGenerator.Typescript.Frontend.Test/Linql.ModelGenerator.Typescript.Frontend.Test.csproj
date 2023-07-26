@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\C#\Backend\Linql.ModelGenerator.CSharp.Backend.csproj" />
-    <ProjectReference Include="..\..\..\C#\Intermediary\Linql.ModelGenerator.Intermediary.csproj" />
+    <ProjectReference Include="..\..\..\Intermediary\Linql.ModelGenerator.Intermediary.csproj" />
     <ProjectReference Include="..\..\Frontend\Linql.ModelGenerator.Typescript.Frontend.csproj" />
   </ItemGroup>
 

@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Intermediary\Linql.ModelGenerator.Intermediary.csproj" />
+    <ProjectReference Include="..\..\Intermediary\Linql.ModelGenerator.Intermediary.csproj" />
   </ItemGroup>
 
 </Project>
