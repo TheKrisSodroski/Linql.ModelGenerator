@@ -17,7 +17,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
     {
         public string IntermediaryJson { get; set; }
 
-        public string ProjectPath { get; set; } 
+        public string ProjectPath { get; set; }
 
         IntermediaryModule Module { get; set; }
 
@@ -25,7 +25,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
         private HashSet<IntermediaryType> ImportCache = new HashSet<IntermediaryType>();
 
-        public LinqlModelGeneratorTypescriptFrontend(string IntermediaryJson, string ProjectPath = null) 
+        public LinqlModelGeneratorTypescriptFrontend(string IntermediaryJson, string ProjectPath = null)
         {
             this.IntermediaryJson = IntermediaryJson;
             if (ProjectPath == null)
@@ -47,10 +47,8 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             additionalModules.Remove(this.Module.ModuleName);
 
-            if (additionalModules.Count > 0)
-            {
-                this.AddAdditionalModules(additionalModules);
-            }
+            this.AddAdditionalModules(additionalModules);
+
 
             this.Module.Types.ForEach(r =>
             {
@@ -66,7 +64,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             string packageJsonFile = Path.Combine(projectFolder, "package.json");
             string packageJsonText = File.ReadAllText(packageJsonFile);
             JsonNode packageJson = JsonNode.Parse(packageJsonText);
-           
+
             JsonNode root = packageJson.Root;
             root["version"] = this.Module.Version;
 
@@ -76,12 +74,12 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             JsonNode peerDependencies = root["peerDependencies"];
             JsonNode devDependencies = root["devDependencies"];
 
-            foreach(var dep in AdditionalModules)
+            foreach (var dep in AdditionalModules)
             {
                 peerDependencies[this.GetAngularLibraryName(dep.Key)] = dep.Value;
                 devDependencies[this.GetAngularLibraryName(dep.Key)] = dep.Value;
             }
-            
+
             File.WriteAllText(packageJsonFile, root.ToJsonString(new JsonSerializerOptions() { WriteIndented = true }));
         }
 
@@ -175,7 +173,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             }
 
             Uri path1 = new Uri(folder1);
-            Uri path2= new Uri(folder2);
+            Uri path2 = new Uri(folder2);
             Uri diff = path1.MakeRelativeUri(path2);
             string relativePath = diff.OriginalString;
 
@@ -202,7 +200,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             List<IGrouping<string, TypescriptImport>> moduleImports = imports.Except(localImports).Where(r => !String.IsNullOrEmpty(r.ModuleName)).GroupBy(r => r.ModuleName).ToList();
 
-            List<string> importStatements = localImports.Select(r =>  $"import {{ {r.TypeName} }} from '{Path.Combine(this.GetRelativeImport(Type.NameSpace, r.NameSpace), r.TypeName)}';").Distinct().ToList();
+            List<string> importStatements = localImports.Select(r => $"import {{ {r.TypeName} }} from '{Path.Combine(this.GetRelativeImport(Type.NameSpace, r.NameSpace), r.TypeName)}';").Distinct().ToList();
 
             moduleImports.ForEach(r =>
             {
@@ -243,7 +241,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             string classRegion = $"export {classType} {this.GetTypeName(Type)}";
 
-            if(Type.IsGenericType)
+            if (Type.IsGenericType)
             {
                 classRegion += "<";
                 string generics = String.Join(", ", Type.GenericArguments.Select(r => this.GetGenericArgumentDefinition(r)));
@@ -354,13 +352,13 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         {
             string attrInsides = Attr.TypeName;
 
-            if(Attr.Arguments != null && Attr.Arguments.Count() > 0)
+            if (Attr.Arguments != null && Attr.Arguments.Count() > 0)
             {
                 List<string> args = Attr.Arguments.Select(r =>
                 {
                     if (r.Value is JsonElement elem)
                     {
-                        if(elem.ValueKind == JsonValueKind.String)
+                        if (elem.ValueKind == JsonValueKind.String)
                         {
                             return $"\"{elem.ToString()}\"";
                         }
@@ -382,9 +380,9 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         {
             string argString = $"{this.GetTypeName(Arg.Type)} {Arg.ArgumentName}";
 
-            if(Arg.DefaultValue != null && Arg.DefaultValue is JsonElement elem)
+            if (Arg.DefaultValue != null && Arg.DefaultValue is JsonElement elem)
             {
-                if(elem.ValueKind == JsonValueKind.String) 
+                if (elem.ValueKind == JsonValueKind.String)
                 {
                     argString += $" = \"{elem.GetString()}\"";
                 }
@@ -401,11 +399,11 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             string constraint = $"where {Type.TypeName}: ";
             List<string> constraints = new List<string>();
 
-            if(Type.BaseClass != null)
+            if (Type.BaseClass != null)
             {
                 constraints.Add(this.BuildGenericType(Type.BaseClass));
             }
-            if(Type.Interfaces != null)
+            if (Type.Interfaces != null)
             {
                 constraints.AddRange(Type.Interfaces.Select(r => this.BuildGenericType(r)));
             }
@@ -418,14 +416,14 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         {
             List<TypescriptImport> imports = new List<TypescriptImport>();
 
-            if(Type.GenericArguments != null)
+            if (Type.GenericArguments != null)
             {
-               
+
                 imports.AddRange(Type.GenericArguments.Select(r => new TypescriptImport(r.TypeName, r.Module, r.NameSpace)));
                 imports.AddRange(Type.GenericArguments.SelectMany(r => this.ExtractImports(r)));
             }
 
-            if(Type.Attributes != null)
+            if (Type.Attributes != null)
             {
                 imports.AddRange(Type.Attributes.Select(r => new TypescriptImport(r.TypeName, r.Module, r.NameSpace)));
             }
@@ -436,13 +434,13 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 imports.AddRange(this.ExtractImports(Type.BaseClass));
             }
 
-            if(Type.Interfaces != null)
+            if (Type.Interfaces != null)
             {
                 imports.AddRange(Type.Interfaces.Select(r => new TypescriptImport(r.TypeName, r.Module, r.NameSpace)));
                 imports.AddRange(Type.Interfaces.SelectMany(r => this.ExtractImports(r)));
             }
 
-            if(Type.Properties != null)
+            if (Type.Properties != null)
             {
                 imports.AddRange(Type.Properties.Select(r => new TypescriptImport(r.Type.TypeName, r.Type.Module, r.Type.NameSpace)));
                 imports.AddRange(Type.Properties.SelectMany(r => this.ExtractImports(r.Type)));
@@ -529,7 +527,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 string generics = String.Join(", ", Type.GenericArguments.Select(r => this.GetTypeName(r)));
                 type += generics + ">";
             }
-            else if(type == "Dictionary")
+            else if (type == "Dictionary")
             {
                 List<string> dictionaryTypes = Type.GenericArguments.Select(r => this.GetTypeName(r)).ToList();
                 type = $"{{ [key: {dictionaryTypes[0]}]: {dictionaryTypes[1]} }}";
@@ -543,7 +541,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             string typeName = this.GetTypeName(Type);
             List<string> inheritedTypes = new List<string>();
 
-            if(Type.BaseClass != null || Type.Interfaces != null)
+            if (Type.BaseClass != null || Type.Interfaces != null)
             {
                 typeName += " ";
             }
