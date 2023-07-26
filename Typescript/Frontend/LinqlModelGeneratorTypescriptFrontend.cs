@@ -56,6 +56,8 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             {
                 this.CreateType(r);
             });
+
+            this.WritePublicApi();
         }
 
         protected void AddAdditionalModules(Dictionary<string, string> AdditionalModules)
@@ -126,6 +128,23 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             Directory.GetFiles(libDirectory).ToList().ForEach(r => File.Delete(r));
         }
 
+        protected void WritePublicApi()
+        {
+            string srcDirectory = this.GetAngularSrcPath();
+            string publicApiFile = Path.Combine(srcDirectory, "public-api.ts");
+            List<string> publicApiText = File.ReadAllLines(publicApiFile).ToList();
+
+            this.Module.Types.ForEach(r =>
+            {
+                string folder = this.GetNamespaceDirectory(r.NameSpace);
+                string directory = Path.Combine("src", "lib", folder);
+                string relativePath = this.GetRelativeImport("src", directory);
+                publicApiText.Add($"export * from './{relativePath}{r.TypeName}';");
+            });
+
+            File.WriteAllLines(publicApiFile, publicApiText);
+        }
+
 
         public void Clean()
         {
@@ -174,10 +193,9 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             List<string> fileText = new List<string>();
             string folder = this.GetNamespaceDirectory(Type.NameSpace);
             string directory = Path.Combine(this.GetAngularLibPath(), folder);
-          
+            string filePath = Path.Combine(directory, $"{Type.TypeName}.ts");
             Directory.CreateDirectory(directory);
 
-            string filePath = Path.Combine(directory, $"{Type.TypeName}.ts");
 
             List<TypescriptImport> imports = this.ExtractImports(Type);
             List<TypescriptImport> localImports = imports.Where(r => !String.IsNullOrEmpty(r.ModuleName) && r.ModuleName == this.Module.ModuleName).ToList();
