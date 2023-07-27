@@ -25,6 +25,8 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
         private HashSet<IntermediaryType> ImportCache = new HashSet<IntermediaryType>();
 
+        public List<IntermediaryType> AnyCasts = new List<IntermediaryType>();
+
         public LinqlModelGeneratorTypescriptFrontend(string IntermediaryJson, string ProjectPath = null)
         {
             this.IntermediaryJson = IntermediaryJson;
@@ -42,6 +44,9 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         public void Generate()
         {
             this.CreateProject();
+
+            List<IntermediaryProperty> properties = this.Module.Types.Where(r => r.Properties != null).SelectMany(r => r.Properties).ToList();
+            properties.Where(r => r.Type != null).ToList().ForEach(r => this.ReplaceAnyOverrides(r.Type));
 
             Dictionary<string, string> additionalModules = this.ExtractAdditionalModules(this.Module);
 
@@ -63,6 +68,23 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             });
 
             this.WritePublicApi();
+        }
+
+        protected void ReplaceAnyOverrides(IntermediaryType Type)
+        {
+            bool isAny = this.IsAnyType(Type);
+
+            if(isAny == true)
+            {
+                Type.Module = null;
+                Type.TypeName = "object";
+                Type.IsPrimitive = true;
+                Type.NameSpace = null;
+            }
+            else if (Type.GenericArguments != null) 
+            {
+                Type.GenericArguments.ForEach(r => this.ReplaceAnyOverrides(r));
+            }
         }
 
         protected void AddAdditionalModules(Dictionary<string, string> AdditionalModules)
@@ -692,5 +714,11 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 return Type.TypeName;
             }
         }
+
+        private bool IsAnyType(IntermediaryType Type)
+        {
+            return this.AnyCasts.Any(s => s.TypeName == Type.TypeName && s.Module == Type.Module);
+        }
+
     }
 }

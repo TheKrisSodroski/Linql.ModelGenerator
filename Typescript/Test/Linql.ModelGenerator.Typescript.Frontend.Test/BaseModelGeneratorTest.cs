@@ -30,6 +30,17 @@ namespace Linql.ModelGenerator.Typescript.Frontend.Test
             this.Module = generator.Generate();
             this.ModuleJson = JsonSerializer.Serialize(this.Module, this.JsonOptions);
             this.Generator = new LinqlModelGeneratorTypescriptFrontend(this.ModuleJson);
+
+            List<IntermediaryType> anyCasts = new List<IntermediaryType>();
+            IntermediaryType geo = new IntermediaryType() { TypeName = "Geography", Module = "System.Spatial" };
+            IntermediaryType geometry = new IntermediaryType() { TypeName = "Geometry", Module = "System.Spatial" };
+            anyCasts.AddRange(
+                new List<IntermediaryType>() 
+                { 
+                    geo, 
+                    geometry 
+                });
+            this.Generator.AnyCasts = anyCasts;
         }
 
         [OneTimeTearDown]
