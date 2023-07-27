@@ -59,7 +59,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
                         compiledDirectory = compiledDirectories.FirstOrDefault();
                     }
 
-                    assemblyPath = Path.Combine(compiledDirectory, $"{moduleName}.dll");
+                    assemblyPath = Path.Combine(compiledDirectory, "publish", $"{moduleName}.dll");
                 }
                 else
                 {

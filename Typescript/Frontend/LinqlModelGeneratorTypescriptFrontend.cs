@@ -679,6 +679,10 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 return foundType.Name;
 
             }
+            else if(Type.TypeName == "object")
+            {
+                return "any";
+            }
             else if (arrayTypes.Contains(Type.TypeName))
             {
                 return "Array";
