@@ -208,7 +208,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             List<IGrouping<string, TypescriptImport>> localImportsMapping = localImports.GroupBy(r => Path.Combine(this.GetRelativeImport(Type.NameSpace, r.NameSpace), r.TypeName)).ToList();
 
-            List<string> importStatements = localImportsMapping.Select(r => $"import {{ {String.Join(", ", r.Select(s => $"{s.TypeName}{s.AttributeSuffix}"))} }} from '{r.Key}';").Distinct().ToList();
+            List<string> importStatements = localImportsMapping.Select(r => $"import {{ {String.Join(", ", r.Select(s => $"{s.TypeName}{s.AttributeSuffix}").Distinct())} }} from '{r.Key}';").Distinct().ToList();
 
             moduleImports.ForEach(r =>
             {
@@ -627,12 +627,12 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             if (type != "Dictionary" && Type.GenericArguments != null && Type.GenericArguments.Count > 0)
             {
                 type += "<";
-                string generics = String.Join(", ", Type.GenericArguments.Select(r => this.GetTypeName(r)));
+                string generics = String.Join(", ", Type.GenericArguments.Select(r => this.BuildGenericType(r)));
                 type += generics + ">";
             }
             else if (type == "Dictionary")
             {
-                List<string> dictionaryTypes = Type.GenericArguments.Select(r => this.GetTypeName(r)).ToList();
+                List<string> dictionaryTypes = Type.GenericArguments.Select(r => this.BuildGenericType(r)).ToList();
                 type = $"{{ [key: {dictionaryTypes[0]}]: {dictionaryTypes[1]} }}";
             }
 

@@ -430,12 +430,12 @@ namespace Linql.ModelGenerator.CSharp.Frontend
             if (type != "Array" && Type.GenericArguments != null && Type.GenericArguments.Count > 0)
             {
                 type += "<";
-                string generics = String.Join(", ", Type.GenericArguments.Select(r => this.GetTypeName(r)));
+                string generics = String.Join(", ", Type.GenericArguments.Select(r => this.BuildGenericType(r)));
                 type += generics + ">";
             }
             else if(type == "Array")
             {
-                string generics = String.Join(", ", Type.GenericArguments.Select(r => this.GetTypeName(r)));
+                string generics = String.Join(", ", Type.GenericArguments.Select(r => this.BuildGenericType(r)));
                 type = generics + "[]";
             }
 
