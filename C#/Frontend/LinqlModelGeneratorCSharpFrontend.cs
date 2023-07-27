@@ -189,20 +189,11 @@ namespace Linql.ModelGenerator.CSharp.Frontend
             if (Type.Properties != null)
             {
                 List<string> properties = new List<string>();
-
-                if (Type.IsInterface)
-                {
-                    properties = Type.Properties.Select(r => this.BuildProperty(r)).ToList();
-                }
-                else
-                {
-                    properties = Type.Properties.Select(r => this.BuildProperty(r, "public")).ToList();
-                }
+                properties = Type.Properties.Select(r => this.BuildProperty(Type, r)).ToList();
 
                 properties.ForEach(r =>
                 {
                     fileText.Add(r);
-                    //fileText.Add(Environment.NewLine);
                 });
             }
 
@@ -228,9 +219,10 @@ namespace Linql.ModelGenerator.CSharp.Frontend
             File.WriteAllText(filePath, compiledText);
         }
 
-        private string BuildProperty(IntermediaryProperty Property, string Modifier = null)
+        private string BuildProperty(IntermediaryType Type, IntermediaryProperty Property)
         {
             List<string> propertyText = new List<string>();
+            string modifier = "";
 
             if(Property.Attributes != null)
             {
@@ -238,9 +230,22 @@ namespace Linql.ModelGenerator.CSharp.Frontend
                 propertyText.AddRange(attrs);
             }
 
-            if (!String.IsNullOrEmpty(Modifier))
+            if (!Type.IsInterface)
             {
-                propertyText.Add($"\t\t{Modifier} {this.BuildGenericType(Property.Type)} {Property.PropertyName} {{ get; set; }}");
+                modifier = "public";
+                if (Property.Overriden)
+                {
+                    modifier = $"{modifier} override";
+                }
+                else if (Property.Virtual)
+                {
+                    modifier = $"{modifier} virtual";
+                }
+            }
+
+            if (!String.IsNullOrEmpty(modifier))
+            {
+                propertyText.Add($"\t\t{modifier} {this.BuildGenericType(Property.Type)} {Property.PropertyName} {{ get; set; }}");
             }
             else
             {

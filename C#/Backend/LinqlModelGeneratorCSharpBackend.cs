@@ -306,6 +306,8 @@ namespace Linql.ModelGenerator.CSharp.Backend
             prop.PropertyName = Property.Name;
             prop.Type = this.GenerateReducedType(Property.PropertyType);
             prop.Attributes = Property.GetCustomAttributes().Select(r => this.GenerateAttributeInstance(r)).ToList();
+            prop.Overriden = Property.GetGetMethod().GetBaseDefinition().DeclaringType != Property.DeclaringType;
+            prop.Virtual = Property.GetGetMethod().IsVirtual;
 
             if (prop.Attributes.Count() == 0)
             {

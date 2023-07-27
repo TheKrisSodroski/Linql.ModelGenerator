@@ -12,6 +12,10 @@ namespace Linql.ModelGenerator.Intermediary
 
         public IntermediaryType Type { get; set; }
 
+        public bool Overriden { get; set; }
+
+        public bool Virtual { get; set; }
+
         public override string ToString()
         {
             return $"{this.PropertyName} - {this.Type.ToString()}";
