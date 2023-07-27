@@ -98,7 +98,13 @@ namespace Linql.ModelGenerator.CSharp.Backend
         protected string GetAssemblyVersion(Assembly Assembly)
         {
             AssemblyInformationalVersionAttribute version = Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-            return version.InformationalVersion;
+            string informationVersion = version.InformationalVersion;
+
+            if (informationVersion.Split('.').Count() > 3)
+            {
+                informationVersion = String.Join(".", informationVersion.Split('.').Take(3));
+            }
+            return informationVersion;
         }
 
         protected IntermediaryType GenerateType(Type Type)
@@ -166,11 +172,10 @@ namespace Linql.ModelGenerator.CSharp.Backend
                 type.IsClass = Type.IsClass;
                 type.IsInterface = Type.IsInterface;
                 type.IsAbstract = Type.IsAbstract;
+                type.NameSpace = Type.Namespace;
 
                 if (this.TypeIsInModule(Type))
                 {
-                    type.NameSpace = Type.Namespace;
-
                     if (Type.BaseType != null && !this.IgnoreTypePlugins.Any(s => s.IgnoreType(Type.BaseType)))
                     {
                         type.BaseClass = this.GenerateReducedType(Type.BaseType);
