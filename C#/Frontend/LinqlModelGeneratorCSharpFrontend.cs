@@ -222,13 +222,14 @@ namespace Linql.ModelGenerator.CSharp.Frontend
         private string BuildProperty(IntermediaryType Type, IntermediaryProperty Property)
         {
             List<string> propertyText = new List<string>();
-            string modifier = "";
-
+          
             if(Property.Attributes != null)
             {
                 List<string> attrs = Property.Attributes.Select(r => $"\t\t{this.BuildAttributeInstance(r)}").ToList();
                 propertyText.AddRange(attrs);
             }
+            
+            string modifier = "";
 
             if (!Type.IsInterface)
             {

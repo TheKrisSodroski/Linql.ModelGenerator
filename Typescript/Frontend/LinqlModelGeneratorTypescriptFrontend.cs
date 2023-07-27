@@ -301,13 +301,6 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             classRegion += String.Join(" ", inheritedTypes);
 
-            //if(Type.GenericArguments != null && Type.GenericArguments.Any(s => s.BaseClass != null || s.Interfaces != null))
-            //{
-            //    List<string> genericConstraints = new List<string>();
-            //    genericConstraints = Type.GenericArguments.Select(r => this.BuildGenericConstraint(r)).ToList();
-            //    classRegion += $" {String.Join(" ", genericConstraints)}";
-            //}
-
             fileText.Add(classRegion);
             fileText.Add("{");
 
@@ -317,11 +310,11 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
                 if (Type.IsInterface)
                 {
-                    properties = Type.Properties.Select(r => this.BuildProperty(r)).ToList();
+                    properties = Type.Properties.Select(r => this.BuildProperty(Type, r)).ToList();
                 }
                 else
                 {
-                    properties = Type.Properties.Select(r => this.BuildProperty(r, "public")).ToList();
+                    properties = Type.Properties.Select(r => this.BuildProperty(Type, r)).ToList();
                 }
 
                 properties.ForEach(r =>
@@ -438,9 +431,14 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             }
         }
 
-        private string BuildProperty(IntermediaryProperty Property, string Modifier = null)
+        private string BuildProperty(IntermediaryType Type, IntermediaryProperty Property)
         {
             List<string> propertyText = new List<string>();
+
+            if (!Type.IsInterface)
+            {
+
+            }
 
             if (Property.Attributes != null)
             {
@@ -448,9 +446,20 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 propertyText.AddRange(attrs);
             }
 
-            if (!String.IsNullOrEmpty(Modifier))
+            string modifier = "";
+
+            if (!Type.IsInterface)
             {
-                propertyText.Add($"\t{Modifier} {Property.PropertyName}!: {this.BuildGenericType(Property.Type)};");
+                modifier = "public";
+                if (Property.Overriden)
+                {
+                    modifier = $"{modifier} override";
+                }
+            }
+
+            if (!String.IsNullOrEmpty(modifier))
+            {
+                propertyText.Add($"\t{modifier} {Property.PropertyName}!: {this.BuildGenericType(Property.Type)};");
             }
             else
             {
