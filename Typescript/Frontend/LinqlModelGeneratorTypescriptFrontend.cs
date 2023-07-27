@@ -19,7 +19,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
         public string ProjectPath { get; set; }
 
-        IntermediaryModule Module { get; set; }
+        public IntermediaryModule Module { get; set; }
 
         public bool SkipInstall { get; set; } = true;
 
