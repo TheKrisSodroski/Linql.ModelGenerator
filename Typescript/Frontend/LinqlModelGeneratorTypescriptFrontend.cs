@@ -49,6 +49,14 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             this.AddAdditionalModules(additionalModules);
 
+            this.Module.Types.GroupBy(r => new { r.TypeName, r.NameSpace }).Where(r => r.Count() > 1).ToList().ForEach(r =>
+            {
+                r.ToList().ForEach(s =>
+                {
+                    s.TypeName = $"{s.TypeName}{s.GenericArguments.Count}";
+                });
+            });
+
             this.Module.Types.ForEach(r =>
             {
                 this.CreateType(r);
