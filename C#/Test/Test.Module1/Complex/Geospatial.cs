@@ -13,5 +13,7 @@ namespace Test.Module1.Complex
 
         public Geometry Geometry { get; set; }
 
+        public GenericOne<Geography> NestedGeography { get; set; }
+
     }
 }
