@@ -33,8 +33,6 @@ namespace Linql.ModelGenerator.CSharp.Frontend
             { typeof(string), "string" },
             { typeof(void), "void" }
         };
-
-
     }
 
     public static class DictionaryHelper

@@ -42,7 +42,6 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 Enum.GetName(typeof(AttributeTargets), AttributeTargets.All),
                 Enum.GetName(typeof(AttributeTargets), AttributeTargets.Property)
             };
-
         private bool IsClassAttribute(CoreAttribute Attr)
         {
             return Attr.Targets.Any(s => LinqlModelGeneratorTypescriptFrontend.ClassAttributes.Contains(s));

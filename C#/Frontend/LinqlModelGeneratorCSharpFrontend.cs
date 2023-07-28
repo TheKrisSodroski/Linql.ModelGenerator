@@ -12,63 +12,12 @@ using Linql.ModelGenerator.Core;
 
 namespace Linql.ModelGenerator.CSharp.Frontend
 {
-    public partial class LinqlModelGeneratorCSharpFrontend
+    public partial class LinqlModelGeneratorCSharpFrontend : LinqlFrontendModelGenerator
     {
-        public string CoreJson { get; set; }
+        public LinqlModelGeneratorCSharpFrontend(string CoreJson, string ProjectPath = null) : base(CoreJson, ProjectPath) { }
+        public LinqlModelGeneratorCSharpFrontend(CoreModule Module, string ProjectPath = null) : base(Module, ProjectPath) { }
 
-        public string ProjectPath { get; set; } 
-
-        public CoreModule Module { get; set; }
-
-        private HashSet<CoreType> ImportCache = new HashSet<CoreType>();
-
-        public LinqlModelGeneratorCSharpFrontend(string CoreJson, string ProjectPath = null) 
-        {
-            this.CoreJson = CoreJson;
-            if (ProjectPath == null)
-            {
-                this.ProjectPath = Environment.CurrentDirectory;
-            }
-            else
-            {
-                this.ProjectPath = ProjectPath;
-            }
-            this.Module = JsonSerializer.Deserialize<CoreModule>(this.CoreJson);
-        }
-
-        public LinqlModelGeneratorCSharpFrontend(CoreModule Module, string ProjectPath = null)
-        {
-            if (ProjectPath == null)
-            {
-                this.ProjectPath = Environment.CurrentDirectory;
-            }
-            else
-            {
-                this.ProjectPath = ProjectPath;
-            }
-            this.Module = Module;
-        }
-
-        public void Generate()
-        {
-            this.CreateProject();
-
-            Dictionary<string, string> additionalModules = this.ExtractAdditionalModules(this.Module);
-
-            additionalModules.Remove(this.Module.ModuleName);
-
-            if (additionalModules.Count > 0)
-            {
-                this.AddAdditionalModules(additionalModules);
-            }
-
-            this.Module.Types.ForEach(r =>
-            {
-                this.CreateType(r);
-            });
-        }
-
-        protected void AddAdditionalModules(Dictionary<string, string> AdditionalModules)
+        protected override void AddAdditionalModules(Dictionary<string, string> AdditionalModules)
         {
             XElement itemGroup = new XElement("ItemGroup");
             AdditionalModules.Select(r =>
@@ -89,7 +38,7 @@ namespace Linql.ModelGenerator.CSharp.Frontend
             File.WriteAllText(projectPath, xmlDoc);
         }
 
-        protected void CreateProject()
+        protected override void CreateProject()
         {
             Process process = new Process();
             ProcessStartInfo processStartInfo = new ProcessStartInfo("dotnet");
@@ -104,12 +53,7 @@ namespace Linql.ModelGenerator.CSharp.Frontend
             File.Delete(Path.Combine(this.ProjectPath, this.Module.ModuleName, "Class1.cs"));
         }
 
-        public void Clean()
-        {
-            Directory.Delete(Path.Combine(this.ProjectPath, this.Module.ModuleName), true);
-        }
-
-        protected void CreateType(CoreType Type)
+        protected override void CreateType(CoreType Type)
         {
             List<string> fileText = this.Usings.ToList();
             string folder = Type.NameSpace.Replace($"{this.Module.ModuleName}", String.Empty).TrimStart('.');
@@ -389,7 +333,7 @@ namespace Linql.ModelGenerator.CSharp.Frontend
             return imports.Where(r => r != null && r != Type.NameSpace).Distinct().ToList();
         }
 
-        private Dictionary<string, string> ExtractAdditionalModules(CoreModule Module)
+        protected override Dictionary<string, string> ExtractAdditionalModules(CoreModule Module)
         {
             Dictionary<string, string> additionalModules = new Dictionary<string, string>();
 

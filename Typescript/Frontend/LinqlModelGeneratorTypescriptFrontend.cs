@@ -13,60 +13,19 @@ using Linql.ModelGenerator.Core;
 
 namespace Linql.ModelGenerator.Typescript.Frontend
 {
-    public partial class LinqlModelGeneratorTypescriptFrontend
+    public partial class LinqlModelGeneratorTypescriptFrontend : LinqlFrontendModelGenerator
     {
-        public string CoreJson { get; set; }
-
-        public string ProjectPath { get; set; }
-
-        public CoreModule Module { get; set; }
-
         public bool SkipInstall { get; set; } = true;
-
-        private HashSet<CoreType> ImportCache = new HashSet<CoreType>();
 
         public List<CoreType> AnyCasts = new List<CoreType>();
 
-        public LinqlModelGeneratorTypescriptFrontend(string CoreJson, string ProjectPath = null)
+        public LinqlModelGeneratorTypescriptFrontend(string CoreJson, string ProjectPath = null) : base(CoreJson, ProjectPath) { }
+        public LinqlModelGeneratorTypescriptFrontend(CoreModule Module, string ProjectPath = null) : base(Module, ProjectPath) { }
+
+
+        public override void Generate()
         {
-            this.CoreJson = CoreJson;
-            if (ProjectPath == null)
-            {
-                this.ProjectPath = Environment.CurrentDirectory;
-            }
-            else
-            {
-                this.ProjectPath = ProjectPath;
-            }
-            this.Module = JsonSerializer.Deserialize<CoreModule>(this.CoreJson);
-        }
-
-        public LinqlModelGeneratorTypescriptFrontend(CoreModule Module, string ProjectPath = null)
-        {
-            if (ProjectPath == null)
-            {
-                this.ProjectPath = Environment.CurrentDirectory;
-            }
-            else
-            {
-                this.ProjectPath = ProjectPath;
-            }
-            this.Module = Module;
-        }
-
-        public void Generate()
-        {
-            this.CreateProject();
-
-            List<CoreProperty> properties = this.Module.Types.Where(r => r.Properties != null).SelectMany(r => r.Properties).ToList();
-            properties.Where(r => r.Type != null).ToList().ForEach(r => this.ReplaceAnyOverrides(r.Type));
-
-            Dictionary<string, string> additionalModules = this.ExtractAdditionalModules(this.Module);
-
-            additionalModules.Remove(this.Module.ModuleName);
-
-            this.AddAdditionalModules(additionalModules);
-
+            //Generic names in typescript can't have duplicate names.
             this.Module.Types.GroupBy(r => new { r.TypeName, r.NameSpace }).Where(r => r.Count() > 1).ToList().ForEach(r =>
             {
                 r.ToList().ForEach(s =>
@@ -75,11 +34,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 });
             });
 
-            this.Module.Types.ForEach(r =>
-            {
-                this.CreateType(r);
-            });
-
+            base.Generate();
             this.WritePublicApi();
         }
 
@@ -100,7 +55,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             }
         }
 
-        protected void AddAdditionalModules(Dictionary<string, string> AdditionalModules)
+        protected override void AddAdditionalModules(Dictionary<string, string> AdditionalModules)
         {
             string projectFolder = this.GetAngularLibRoot();
             string packageJsonFile = Path.Combine(projectFolder, "package.json");
@@ -125,7 +80,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             File.WriteAllText(packageJsonFile, root.ToJsonString(new JsonSerializerOptions() { WriteIndented = true }));
         }
 
-        protected void CreateProject()
+        protected override void CreateProject()
         {
             Process ngNewProcess = new Process();
             ProcessStartInfo ngNew = new ProcessStartInfo("Powershell.exe");
@@ -185,12 +140,6 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             File.WriteAllLines(publicApiFile, publicApiText);
         }
 
-
-        public void Clean()
-        {
-            Directory.Delete(Path.Combine(this.ProjectPath, this.Module.ModuleName), true);
-        }
-
         protected string GetNamespaceDirectory(string NameSpace)
         {
             string folder = NameSpace.Replace($"{this.Module.ModuleName}", String.Empty).TrimStart('.');
@@ -228,7 +177,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         }
 
 
-        protected void CreateType(CoreType Type)
+        protected override void CreateType(CoreType Type)
         {
             List<string> fileText = new List<string>();
             string folder = this.GetNamespaceDirectory(Type.NameSpace);
@@ -614,7 +563,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             return imports;
         }
 
-        private Dictionary<string, string> ExtractAdditionalModules(CoreModule Module)
+        protected override Dictionary<string, string> ExtractAdditionalModules(CoreModule Module)
         {
             Dictionary<string, string> additionalModules = new Dictionary<string, string>();
 
