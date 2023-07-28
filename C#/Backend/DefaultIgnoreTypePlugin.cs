@@ -14,11 +14,6 @@ namespace Linql.ModelGenerator.CSharp.Backend
             };
 
 
-        public bool IgnoreInterface(Type Type)
-        {
-            return DefaultIgnoreTypePlugin.AssembliesToIgnore.Contains(Type.Assembly);
-        }
-
         public bool IgnoreType(Type Type)
         {
             return DefaultIgnoreTypePlugin.AssembliesToIgnore.Contains(Type.Assembly);

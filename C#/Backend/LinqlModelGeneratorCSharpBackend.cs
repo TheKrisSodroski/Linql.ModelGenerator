@@ -75,7 +75,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
         }
 
-        public CoreModule Generate()
+        public virtual CoreModule Generate()
         {
             CoreModule module = new CoreModule();
             module.BaseLanguage = "C#";
@@ -87,7 +87,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
             return module;
         }
 
-        protected List<CoreType> GenerateTypes()
+        protected virtual List<CoreType> GenerateTypes()
         {
             List<Type> typesToGenerate = this.Assembly.GetTypes().ToList();
             return typesToGenerate
@@ -191,11 +191,11 @@ namespace Linql.ModelGenerator.CSharp.Backend
                         type.BaseClass = this.GenerateReducedType(Type.BaseType);
                     }
 
-                    List<Type> interfaces = Type.GetInterfaces().Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreInterface(r))).ToList();
+                    List<Type> interfaces = Type.GetInterfaces().Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreType(r))).ToList();
                     List<Type> baseTypeInterfaces = new List<Type>();
                     if (Type.BaseType != null)
                     {
-                        baseTypeInterfaces.AddRange(Type.BaseType.GetInterfaces().Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreInterface(r))));
+                        baseTypeInterfaces.AddRange(Type.BaseType.GetInterfaces().Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreType(r))));
                     }
 
                     interfaces = interfaces

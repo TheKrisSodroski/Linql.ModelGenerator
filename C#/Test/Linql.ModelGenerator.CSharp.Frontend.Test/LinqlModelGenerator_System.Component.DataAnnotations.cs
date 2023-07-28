@@ -27,11 +27,6 @@ namespace Linql.ModelGenerator.CSharp.Frontend.Test
 
     public class EFIgnoreTypes : IIgnoreTypePlugin
     {
-        public bool IgnoreInterface(Type Type)
-        {
-            return false;
-        }
-
         public bool IgnoreType(Type Type)
         {
             List<Type> typesICareAbout = new List<Type>()
