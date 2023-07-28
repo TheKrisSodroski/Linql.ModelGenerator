@@ -18,7 +18,7 @@ namespace Linql.ModelGenerator.CSharp.Frontend
 
         public string ProjectPath { get; set; } 
 
-        IntermediaryModule Module { get; set; }
+        public IntermediaryModule Module { get; set; }
 
         private HashSet<IntermediaryType> ImportCache = new HashSet<IntermediaryType>();
 
@@ -34,6 +34,19 @@ namespace Linql.ModelGenerator.CSharp.Frontend
                 this.ProjectPath = ProjectPath;
             }
             this.Module = JsonSerializer.Deserialize<IntermediaryModule>(this.IntermediaryJson);
+        }
+
+        public LinqlModelGeneratorCSharpFrontend(IntermediaryModule Module, string ProjectPath = null)
+        {
+            if (ProjectPath == null)
+            {
+                this.ProjectPath = Environment.CurrentDirectory;
+            }
+            else
+            {
+                this.ProjectPath = ProjectPath;
+            }
+            this.Module = Module;
         }
 
         public void Generate()
@@ -128,6 +141,10 @@ namespace Linql.ModelGenerator.CSharp.Frontend
             {
                 classType = "class";
             }
+            else if(Type is IntermediaryEnum Enum)
+            {
+                classType = "enum";
+            }
             else
             {
                 throw new Exception($"Unable to determine class type for Type {Type.TypeName}");
@@ -165,7 +182,7 @@ namespace Linql.ModelGenerator.CSharp.Frontend
             {
                 inheritedTypes.Add(this.BuildGenericType(Type.BaseClass));
             }
-            if(Type is IntermediaryAttribute)
+            if(Type is IntermediaryAttribute && Type.BaseClass == null)
             {
                 inheritedTypes.Add(nameof(Attribute));
             }
@@ -209,6 +226,15 @@ namespace Linql.ModelGenerator.CSharp.Frontend
                 fileText.Add($"\t\tpublic {attr.TypeName}({String.Join(", ", arguments)})");
                 fileText.Add("\t\t{");
                 fileText.Add("\t\t}");
+            }
+            else if(Type is IntermediaryEnum Enum && Enum.Values != null)
+            {
+                List<string> valueStatements = new List<string>();
+                Enum.Values.Keys.ToList().ForEach(r =>
+                {
+                    valueStatements.Add($"\t\t{r} = {Enum.Values[r]}");
+                });
+                fileText.Add((String.Join($",{Environment.NewLine}", valueStatements)));
             }
 
             fileText.Add("\t}");

@@ -6,6 +6,7 @@ using System.Text.Json.Serialization;
 namespace Linql.ModelGenerator.Intermediary
 {
     [JsonDerivedType(typeof(IntermediaryAttribute), typeDiscriminator: nameof(IntermediaryAttribute))]
+    [JsonDerivedType(typeof(IntermediaryEnum), typeDiscriminator: nameof(IntermediaryEnum))]
     public class IntermediaryType
     {
         public string TypeName { get; set; }

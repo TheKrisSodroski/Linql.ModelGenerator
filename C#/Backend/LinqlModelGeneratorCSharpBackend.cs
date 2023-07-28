@@ -16,9 +16,9 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
         protected Dictionary<Type, IntermediaryType> TypeProcessing { get; set; } = new Dictionary<Type, IntermediaryType>();
 
-        protected List<IIgnoreTypePlugin> IgnoreTypePlugins { get; set; } = new List<IIgnoreTypePlugin>();
+        public List<IIgnoreTypePlugin> IgnoreTypePlugins { get; set; } = new List<IIgnoreTypePlugin>();
 
-        protected List<IPrimitiveTypePlugin> PrimitiveTypePlugins { get; set; } = new List<IPrimitiveTypePlugin>();
+        public List<IPrimitiveTypePlugin> PrimitiveTypePlugins { get; set; } = new List<IPrimitiveTypePlugin>();
 
         public LinqlModelGeneratorCSharpBackend(
             Assembly Assembly
@@ -104,7 +104,9 @@ namespace Linql.ModelGenerator.CSharp.Backend
             {
                 informationVersion = String.Join(".", informationVersion.Split('.').Take(3));
             }
-            return informationVersion;
+
+
+            return informationVersion.Split('+')[0];
         }
 
         protected IntermediaryType GenerateType(Type Type)
@@ -116,6 +118,10 @@ namespace Linql.ModelGenerator.CSharp.Backend
                 if (this.IsAttribute(Type))
                 {
                     type = new IntermediaryAttribute();
+                }
+                else if (this.IsEnum(Type))
+                {
+                    type = new IntermediaryEnum();
                 }
                 else
                 {
@@ -172,7 +178,11 @@ namespace Linql.ModelGenerator.CSharp.Backend
                 type.IsClass = Type.IsClass;
                 type.IsInterface = Type.IsInterface;
                 type.IsAbstract = Type.IsAbstract;
-                type.NameSpace = Type.Namespace;
+
+                if (type.IsPrimitive == false)
+                {
+                    type.NameSpace = Type.Namespace;
+                }
 
                 if (this.TypeIsInModule(Type))
                 {
@@ -207,12 +217,36 @@ namespace Linql.ModelGenerator.CSharp.Backend
                             attr.Targets = new List<string>()
                             {
                                 Enum.GetName(typeof(AttributeTargets), AttributeTargets.Class),
-                                Enum.GetName(typeof(AttributeTargets), AttributeTargets.Property),                            
+                                Enum.GetName(typeof(AttributeTargets), AttributeTargets.Property),
                             };
                         }
                         else
                         {
-                            attr.Targets = attrUsage.Select(r => Enum.GetName(typeof(AttributeTargets), r.ValidOn)).ToList();
+                            List<string> names = Enum.GetNames(typeof(AttributeTargets)).ToList();
+                            attrUsage.ForEach(r =>
+                            {
+                                foreach (string name in names)
+                                {
+                                    AttributeTargets target = (AttributeTargets)Enum.Parse(typeof(AttributeTargets), name);
+
+                                    if (attr.Targets == null)
+                                    {
+                                        attr.Targets = new List<string>();
+                                    }
+
+                                    if (((int)r.ValidOn & (int)target) == 1)
+                                    {
+                                        attr.Targets.Add(Enum.GetName(typeof(AttributeTargets), target));
+                                    }
+                                    if (target == AttributeTargets.All)
+                                    {
+                                        attr.Targets = new List<string>() { Enum.GetName(typeof(AttributeTargets), AttributeTargets.All) };
+                                        break;
+                                    }
+
+                                }
+
+                            });
                         }
 
                         if (constructorInfo != null)
@@ -224,6 +258,11 @@ namespace Linql.ModelGenerator.CSharp.Backend
                                 attr.Arguments = null;
                             }
                         }
+                    }
+                    else if (type is IntermediaryEnum enumType)
+                    {
+                        List<int> enumValues = Enum.GetValues(Type).Cast<int>().ToList();
+                        enumType.Values = Enum.GetNames(Type).ToDictionary(r => r, r => (object)(int)Enum.Parse(Type, r));
                     }
                     else
                     {
@@ -265,6 +304,11 @@ namespace Linql.ModelGenerator.CSharp.Backend
         protected bool IsAttribute(Type Type)
         {
             return typeof(Attribute).IsAssignableFrom(Type);
+        }
+
+        protected bool IsEnum(Type Type)
+        {
+            return Type.IsEnum;
         }
 
         protected bool IsList(Type Type)

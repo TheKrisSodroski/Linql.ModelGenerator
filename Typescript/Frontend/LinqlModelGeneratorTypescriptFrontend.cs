@@ -41,6 +41,19 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             this.Module = JsonSerializer.Deserialize<IntermediaryModule>(this.IntermediaryJson);
         }
 
+        public LinqlModelGeneratorTypescriptFrontend(IntermediaryModule Module, string ProjectPath = null)
+        {
+            if (ProjectPath == null)
+            {
+                this.ProjectPath = Environment.CurrentDirectory;
+            }
+            else
+            {
+                this.ProjectPath = ProjectPath;
+            }
+            this.Module = Module;
+        }
+
         public void Generate()
         {
             this.CreateProject();
@@ -280,6 +293,10 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             {
                 classType = "class";
             }
+            else if(Type is IntermediaryEnum Enum)
+            {
+                classType = "enum";
+            }
             else
             {
                 throw new Exception($"Unable to determine class type for Type {Type.TypeName}");
@@ -343,6 +360,16 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 {
                     fileText.Add(r);
                 });
+            }
+
+            else if (Type is IntermediaryEnum Enum && Enum.Values != null)
+            {
+                List<string> valueStatements = new List<string>();
+                Enum.Values.Keys.ToList().ForEach(r =>
+                {
+                    valueStatements.Add($"\t{r} = {Enum.Values[r]}");
+                });
+                fileText.Add((String.Join($",{Environment.NewLine}", valueStatements)));
             }
 
             fileText.Add("}");

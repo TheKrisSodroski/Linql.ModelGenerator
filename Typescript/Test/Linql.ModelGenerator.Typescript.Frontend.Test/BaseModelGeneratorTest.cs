@@ -24,7 +24,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend.Test
         protected bool Clean { get; set; } = false;
 
         [OneTimeSetUp]
-        public void SetUp()
+        public virtual void SetUp()
         {
             LinqlModelGeneratorCSharpBackend generator = new LinqlModelGeneratorCSharpBackend(Path.Combine(this.ModelsPath, this.ModuleName));
             this.Module = generator.Generate();
