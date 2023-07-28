@@ -125,6 +125,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
             if (!this.TypeProcessing.ContainsKey(Type))
             {
                 CoreType type;
+
                 if (this.IsAttribute(Type))
                 {
                     type = new CoreAttribute();
@@ -172,6 +173,11 @@ namespace Linql.ModelGenerator.CSharp.Backend
                 {
                     type.Module = null;
                     type.TypeName = TypeName;
+                }
+                else if (!this.IsValidType(Type))
+                {
+                    type = this.GenerateType(typeof(object));
+                    return type;
                 }
                 else
                 {
