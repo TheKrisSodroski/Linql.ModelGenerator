@@ -383,7 +383,13 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             {
                 classArgs.Add(String.Join($",{Environment.NewLine}", Attribute.Arguments.Select(r =>
                 {
-                    return $"\t\t{r.ArgumentName}: {r.ArgumentName}";
+                    IntermediaryProperty prop = Attribute.Properties.FirstOrDefault(s => s.PropertyName.ToLower() == r.ArgumentName.ToLower());
+                    if(prop == null)
+                    {
+                        return $"\t\t//Unable to find Property in {Attribute.TypeName} that matches {r.ArgumentName}";
+
+                    }
+                    return $"\t\t{prop.PropertyName}: {r.ArgumentName}";
                 })));
             }
             classArgs.Add($"\t}} as {Attribute.TypeName};");
