@@ -16,7 +16,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
         protected Dictionary<Type, CoreType> TypeProcessing { get; set; } = new Dictionary<Type, CoreType>();
 
-        public List<IIgnoreTypePlugin> IgnoreTypePlugins { get; set; } = new List<IIgnoreTypePlugin>();
+        public List<IIgnoreTypePlugin> ValidTypePlugins { get; set; } = new List<IIgnoreTypePlugin>();
 
         public List<IPrimitiveTypePlugin> PrimitiveTypePlugins { get; set; } = new List<IPrimitiveTypePlugin>();
 
@@ -25,7 +25,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
             )
         {
             this.Assembly = Assembly;
-            this.IgnoreTypePlugins.Add(new DefaultIgnoreTypePlugin());
+            this.ValidTypePlugins.Add(new DefaultValidPlugin());
             this.PrimitiveTypePlugins.Add(new DefaultPrimitiveTypePlugin());
         }
 
@@ -70,10 +70,21 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
             string fullPath = Path.GetFullPath(assemblyPath);
             this.Assembly = Assembly.LoadFrom(fullPath);
-            this.IgnoreTypePlugins.Add(new DefaultIgnoreTypePlugin());
+            this.ValidTypePlugins.Add(new DefaultValidPlugin());
             this.PrimitiveTypePlugins.Add(new DefaultPrimitiveTypePlugin());
 
         }
+
+        protected virtual bool IsValidType(Type Type)
+        {
+            return this.ValidTypePlugins.All(s => s.IsValidType(Type));
+        }
+
+        protected virtual bool IsValidProperty(Type Type, PropertyInfo Property)
+        {
+            return this.ValidTypePlugins.All(s => s.IsValidProperty(Type, Property));
+        }
+
 
         public virtual CoreModule Generate()
         {
@@ -91,7 +102,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
         {
             List<Type> typesToGenerate = this.Assembly.GetTypes().ToList();
             return typesToGenerate
-              .Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreType(r)))
+              .Where(r => this.IsValidType(r))
               .Select(r => this.GenerateType(r)).ToList();
         }
 
@@ -104,7 +115,6 @@ namespace Linql.ModelGenerator.CSharp.Backend
             {
                 informationVersion = String.Join(".", informationVersion.Split('.').Take(3));
             }
-
 
             return informationVersion.Split('+')[0];
         }
@@ -186,16 +196,16 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
                 if (this.TypeIsInModule(Type))
                 {
-                    if (Type.BaseType != null && !this.IgnoreTypePlugins.Any(s => s.IgnoreType(Type.BaseType)))
+                    if (Type.BaseType != null && this.IsValidType(Type.BaseType))
                     {
                         type.BaseClass = this.GenerateReducedType(Type.BaseType);
                     }
 
-                    List<Type> interfaces = Type.GetInterfaces().Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreType(r))).ToList();
+                    List<Type> interfaces = Type.GetInterfaces().Where(r => this.IsValidType(r)).ToList();
                     List<Type> baseTypeInterfaces = new List<Type>();
                     if (Type.BaseType != null)
                     {
-                        baseTypeInterfaces.AddRange(Type.BaseType.GetInterfaces().Where(r => !this.IgnoreTypePlugins.Any(s => s.IgnoreType(r))));
+                        baseTypeInterfaces.AddRange(Type.BaseType.GetInterfaces().Where(r => this.IsValidType(r)));
                     }
 
                     interfaces = interfaces
@@ -204,7 +214,10 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
                     type.Interfaces = interfaces.Select(r => this.GenerateReducedType(r)).ToList();
 
-                    type.Properties = Type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).Select(r => this.GenerateProperty(r)).ToList();
+                    type.Properties = Type
+                        .GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
+                        .Where(r => this.IsValidProperty(Type, r))
+                        .Select(r => this.GenerateProperty(r)).ToList();
 
                     if (type is CoreAttribute attr)
                     {
@@ -266,7 +279,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
                     }
                     else
                     {
-                        type.Attributes = Type.GetCustomAttributes().Select(r => this.GenerateAttributeInstance(r)).ToList();
+                        type.Attributes = Type.GetCustomAttributes().Where(r => this.IsValidType(r.GetType())).Select(r => this.GenerateAttributeInstance(r)).ToList();
                     }
                 }
                 else if (type.IsPrimitive == false && type.IsIntrinsic == false)

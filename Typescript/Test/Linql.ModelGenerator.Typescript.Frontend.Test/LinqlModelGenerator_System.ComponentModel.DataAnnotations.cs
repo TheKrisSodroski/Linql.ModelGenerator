@@ -1,6 +1,7 @@
 using Linql.ModelGenerator.CSharp.Backend;
 using NUnit.Framework;
 using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 
 namespace Linql.ModelGenerator.Typescript.Frontend.Test
 {
@@ -10,7 +11,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend.Test
         {
             Type efType = typeof(KeyAttribute);
             LinqlModelGeneratorCSharpBackend generator = new LinqlModelGeneratorCSharpBackend(efType.Assembly);
-            generator.IgnoreTypePlugins.Add(new EFIgnoreTypes());
+            generator.ValidTypePlugins.Add(new EFIgnoreTypes());
             this.Module = generator.Generate();
             this.Generator = new LinqlModelGeneratorTypescriptFrontend(this.Module);
         }
@@ -24,12 +25,12 @@ namespace Linql.ModelGenerator.Typescript.Frontend.Test
 
     public class EFIgnoreTypes : IIgnoreTypePlugin
     {
-        public bool IgnoreInterface(Type Type)
+        public bool IsValidProperty(Type Type, PropertyInfo PropertyInfo)
         {
-            return false;
+            return true;
         }
 
-        public bool IgnoreType(Type Type)
+        public bool IsValidType(Type Type)
         {
             List<Type> typesICareAbout = new List<Type>()
             {
@@ -41,7 +42,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend.Test
                typeof(CreditCardAttribute),
                typeof(PhoneAttribute)
             };
-            return !typesICareAbout.Contains(Type);
+            return typesICareAbout.Contains(Type);
         }
     }
 }
