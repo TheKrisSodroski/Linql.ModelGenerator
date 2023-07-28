@@ -1,4 +1,4 @@
-﻿using Linql.ModelGenerator.Intermediary;
+﻿using Linql.ModelGenerator.Core;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
     {
         public Assembly Assembly { get; set; }
 
-        protected Dictionary<Type, IntermediaryType> TypeProcessing { get; set; } = new Dictionary<Type, IntermediaryType>();
+        protected Dictionary<Type, CoreType> TypeProcessing { get; set; } = new Dictionary<Type, CoreType>();
 
         public List<IIgnoreTypePlugin> IgnoreTypePlugins { get; set; } = new List<IIgnoreTypePlugin>();
 
@@ -75,9 +75,9 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
         }
 
-        public IntermediaryModule Generate()
+        public CoreModule Generate()
         {
-            IntermediaryModule module = new IntermediaryModule();
+            CoreModule module = new CoreModule();
             module.BaseLanguage = "C#";
             AssemblyName assemName = this.Assembly.GetName();
             module.ModuleName = assemName.Name;
@@ -87,7 +87,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
             return module;
         }
 
-        protected List<IntermediaryType> GenerateTypes()
+        protected List<CoreType> GenerateTypes()
         {
             List<Type> typesToGenerate = this.Assembly.GetTypes().ToList();
             return typesToGenerate
@@ -109,23 +109,23 @@ namespace Linql.ModelGenerator.CSharp.Backend
             return informationVersion.Split('+')[0];
         }
 
-        protected IntermediaryType GenerateType(Type Type)
+        protected CoreType GenerateType(Type Type)
         {
             string TypeName = Type.Name;
             if (!this.TypeProcessing.ContainsKey(Type))
             {
-                IntermediaryType type;
+                CoreType type;
                 if (this.IsAttribute(Type))
                 {
-                    type = new IntermediaryAttribute();
+                    type = new CoreAttribute();
                 }
                 else if (this.IsEnum(Type))
                 {
-                    type = new IntermediaryEnum();
+                    type = new CoreEnum();
                 }
                 else
                 {
-                    type = new IntermediaryType();
+                    type = new CoreType();
                 }
                 this.TypeProcessing.Add(Type, type);
 
@@ -143,7 +143,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
                     type.TypeName = "Array";
                     type.IsIntrinsic = true;
                     type.Module = null;
-                    type.GenericArguments = new List<IntermediaryType>() { this.GenerateType(Type.GetElementType()) };
+                    type.GenericArguments = new List<CoreType>() { this.GenerateType(Type.GetElementType()) };
                 }
                 else if (this.IsDictionary(Type))
                 {
@@ -206,7 +206,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
                     type.Properties = Type.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).Select(r => this.GenerateProperty(r)).ToList();
 
-                    if (type is IntermediaryAttribute attr)
+                    if (type is CoreAttribute attr)
                     {
                         ConstructorInfo constructorInfo = Type.GetConstructors().FirstOrDefault();
 
@@ -259,7 +259,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
                             }
                         }
                     }
-                    else if (type is IntermediaryEnum enumType)
+                    else if (type is CoreEnum enumType)
                     {
                         List<int> enumValues = Enum.GetValues(Type).Cast<int>().ToList();
                         enumType.Values = Enum.GetNames(Type).ToDictionary(r => r, r => (object)(int)Enum.Parse(Type, r));
@@ -349,9 +349,9 @@ namespace Linql.ModelGenerator.CSharp.Backend
             return typeName;
         }
 
-        protected IntermediaryProperty GenerateProperty(PropertyInfo Property)
+        protected CoreProperty GenerateProperty(PropertyInfo Property)
         {
-            IntermediaryProperty prop = new IntermediaryProperty();
+            CoreProperty prop = new CoreProperty();
             prop.PropertyName = Property.Name;
             prop.Type = this.GenerateReducedType(Property.PropertyType);
             prop.Attributes = Property.GetCustomAttributes().Select(r => this.GenerateAttributeInstance(r)).ToList();
@@ -366,15 +366,15 @@ namespace Linql.ModelGenerator.CSharp.Backend
             return prop;
         }
 
-        protected IntermediaryType GenerateReducedType(Type Type)
+        protected CoreType GenerateReducedType(Type Type)
         {
-            IntermediaryType fullType = this.GenerateType(Type);
+            CoreType fullType = this.GenerateType(Type);
             return this.GenerateReducedType(fullType);
         }
 
-        protected IntermediaryType GenerateReducedType(IntermediaryType FullType)
+        protected CoreType GenerateReducedType(CoreType FullType)
         {
-            IntermediaryType reducedType = new IntermediaryType();
+            CoreType reducedType = new CoreType();
             reducedType.Module = FullType.Module;
             reducedType.ModuleVersion = FullType.ModuleVersion;
 
@@ -389,11 +389,11 @@ namespace Linql.ModelGenerator.CSharp.Backend
             return reducedType;
         }
 
-        protected IntermediaryAttributeInstance GenerateAttributeInstance(Attribute Attribute)
+        protected CoreAttributeInstance GenerateAttributeInstance(Attribute Attribute)
         {
             Type attrType = Attribute.GetType();
-            IntermediaryAttributeInstance attr = new IntermediaryAttributeInstance();
-            IntermediaryType type = this.GenerateType(attrType);
+            CoreAttributeInstance attr = new CoreAttributeInstance();
+            CoreType type = this.GenerateType(attrType);
 
             attr.TypeName = type.TypeName;
             attr.NameSpace = type.NameSpace;
@@ -403,9 +403,9 @@ namespace Linql.ModelGenerator.CSharp.Backend
             return attr;
         }
 
-        protected IntermediaryArgument GenerateParameter(ParameterInfo Parameter)
+        protected CoreArgument GenerateParameter(ParameterInfo Parameter)
         {
-            IntermediaryArgument arg = new IntermediaryArgument();
+            CoreArgument arg = new CoreArgument();
             arg.ArgumentName = Parameter.Name;
 
             if (Parameter.DefaultValue != null && Parameter.DefaultValue.GetType() != typeof(DBNull))

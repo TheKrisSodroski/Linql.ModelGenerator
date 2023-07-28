@@ -1,5 +1,5 @@
 using Linql.ModelGenerator.CSharp.Backend;
-using Linql.ModelGenerator.Intermediary;
+using Linql.ModelGenerator.Core;
 using NUnit.Framework;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -13,7 +13,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend.Test
 
         protected virtual string ModuleName { get; set; } = "Test.Module1";
 
-        protected IntermediaryModule Module { get; set; }
+        protected CoreModule Module { get; set; }
 
         protected string ModuleJson { get; set; }
 
@@ -31,11 +31,11 @@ namespace Linql.ModelGenerator.Typescript.Frontend.Test
             this.ModuleJson = JsonSerializer.Serialize(this.Module, this.JsonOptions);
             this.Generator = new LinqlModelGeneratorTypescriptFrontend(this.ModuleJson);
 
-            List<IntermediaryType> anyCasts = new List<IntermediaryType>();
-            IntermediaryType geo = new IntermediaryType() { TypeName = "Geography", Module = "System.Spatial" };
-            IntermediaryType geometry = new IntermediaryType() { TypeName = "Geometry", Module = "System.Spatial" };
+            List<CoreType> anyCasts = new List<CoreType>();
+            CoreType geo = new CoreType() { TypeName = "Geography", Module = "System.Spatial" };
+            CoreType geometry = new CoreType() { TypeName = "Geometry", Module = "System.Spatial" };
             anyCasts.AddRange(
-                new List<IntermediaryType>() 
+                new List<CoreType>() 
                 { 
                     geo, 
                     geometry 

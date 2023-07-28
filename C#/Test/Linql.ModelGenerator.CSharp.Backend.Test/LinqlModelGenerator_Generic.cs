@@ -1,4 +1,4 @@
-using Linql.ModelGenerator.Intermediary;
+using Linql.ModelGenerator.Core;
 using NUnit.Framework;
 using System.Text.Json;
 using Test.Module1.Inheritance;
@@ -15,7 +15,7 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
             Type genericOne = typeof(GenericOne<object>);
             string typeName = genericOne.Name.Split("`").FirstOrDefault();
 
-            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == typeName);
+            CoreType type = this.Module.Types.FirstOrDefault(r => r.TypeName == typeName);
 
             Assert.That(type, Is.Not.EqualTo(null));
             Assert.That(type.IsClass, Is.True);
@@ -25,7 +25,7 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
 
             Assert.That(type.GenericArguments.Count(), Is.EqualTo(1));
 
-            IntermediaryType genericTypeArg = type.GenericArguments.FirstOrDefault();
+            CoreType genericTypeArg = type.GenericArguments.FirstOrDefault();
 
             Assert.That(genericTypeArg.TypeName, Is.EqualTo("T"));
         }
@@ -37,7 +37,7 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
             Type genericOne = typeof(GenericTwo<object, object>);
             string typeName = genericOne.Name.Split("`").FirstOrDefault();
 
-            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == typeName);
+            CoreType type = this.Module.Types.FirstOrDefault(r => r.TypeName == typeName);
 
             Assert.That(type, Is.Not.EqualTo(null));
             Assert.That(type.IsClass, Is.True);
@@ -47,8 +47,8 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
 
             Assert.That(type.GenericArguments.Count(), Is.EqualTo(2));
 
-            IntermediaryType genericTypeArg = type.GenericArguments.FirstOrDefault();
-            IntermediaryType genericTypeArg2 = type.GenericArguments.LastOrDefault();
+            CoreType genericTypeArg = type.GenericArguments.FirstOrDefault();
+            CoreType genericTypeArg2 = type.GenericArguments.LastOrDefault();
 
             Assert.That(genericTypeArg.TypeName, Is.EqualTo("T"));
             Assert.That(genericTypeArg2.TypeName, Is.EqualTo("S"));
@@ -61,9 +61,9 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
             Type genericOne = typeof(GenericWithConstraint<IPrimitiveInterface, MultipleInterfacesNested>);
             string typeName = genericOne.Name.Split("`").FirstOrDefault();
 
-            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == typeName);
-            IntermediaryType genericConstraint1 = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(IPrimitiveInterface));
-            IntermediaryType genericConstraint2 = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(MultipleInterfacesNested));
+            CoreType type = this.Module.Types.FirstOrDefault(r => r.TypeName == typeName);
+            CoreType genericConstraint1 = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(IPrimitiveInterface));
+            CoreType genericConstraint2 = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(MultipleInterfacesNested));
 
 
             Assert.That(type, Is.Not.EqualTo(null));
@@ -74,8 +74,8 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
 
             Assert.That(type.GenericArguments.Count(), Is.EqualTo(2));
 
-            IntermediaryType genericTypeArg = type.GenericArguments.FirstOrDefault();
-            IntermediaryType genericTypeArg2 = type.GenericArguments.LastOrDefault();
+            CoreType genericTypeArg = type.GenericArguments.FirstOrDefault();
+            CoreType genericTypeArg2 = type.GenericArguments.LastOrDefault();
 
             Assert.That(genericTypeArg.TypeName, Is.EqualTo("T"));
             Assert.That(genericTypeArg2.TypeName, Is.EqualTo("S"));
@@ -98,8 +98,8 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
             string typeName = genericOne.Name.Split("`").FirstOrDefault();
 
 
-            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == generic.Name);
-            IntermediaryType genericOneType = this.Module.Types.FirstOrDefault(r => r.TypeName == typeName);
+            CoreType type = this.Module.Types.FirstOrDefault(r => r.TypeName == generic.Name);
+            CoreType genericOneType = this.Module.Types.FirstOrDefault(r => r.TypeName == typeName);
 
 
             Assert.That(type, Is.Not.EqualTo(null));

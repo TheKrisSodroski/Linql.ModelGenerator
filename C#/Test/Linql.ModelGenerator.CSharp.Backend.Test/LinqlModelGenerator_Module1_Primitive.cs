@@ -1,4 +1,4 @@
-using Linql.ModelGenerator.Intermediary;
+using Linql.ModelGenerator.Core;
 using NUnit.Framework;
 using System.Text.Json;
 using Test.Module1;
@@ -20,7 +20,7 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
         [Test]
         public void PrimitiveClassTest()
         {
-            IntermediaryType basicType = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(PrimitiveClass));
+            CoreType basicType = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(PrimitiveClass));
 
             Assert.That(basicType, Is.Not.EqualTo(null));
             Assert.That(basicType.IsClass, Is.True);
@@ -42,7 +42,7 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
         [Test]
         public void PrimitiveInterfaceTest()
         {
-            IntermediaryType basicInterface = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(IPrimitiveInterface));
+            CoreType basicInterface = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(IPrimitiveInterface));
 
             Assert.That(basicInterface, Is.Not.EqualTo(null));
             Assert.That(basicInterface.IsClass, Is.False);
@@ -63,7 +63,7 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
         [Test]
         public void PrimitiveAbstractTest()
         {
-            IntermediaryType basicInterface = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(PrimitiveAbstract));
+            CoreType basicInterface = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(PrimitiveAbstract));
 
             Assert.That(basicInterface, Is.Not.EqualTo(null));
             Assert.That(basicInterface.IsClass, Is.True);

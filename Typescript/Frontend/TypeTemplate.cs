@@ -1,4 +1,4 @@
-﻿using Linql.ModelGenerator.Intermediary;
+﻿using Linql.ModelGenerator.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -43,12 +43,12 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 Enum.GetName(typeof(AttributeTargets), AttributeTargets.Property)
             };
 
-        private bool IsClassAttribute(IntermediaryAttribute Attr)
+        private bool IsClassAttribute(CoreAttribute Attr)
         {
             return Attr.Targets.Any(s => LinqlModelGeneratorTypescriptFrontend.ClassAttributes.Contains(s));
         }
 
-        private bool IsPropertyAttribute(IntermediaryAttribute Attr)
+        private bool IsPropertyAttribute(CoreAttribute Attr)
         {
             return Attr.Targets.Any(s => LinqlModelGeneratorTypescriptFrontend.PropertyAttributes.Contains(s));
         }

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Linql.ModelGenerator.Intermediary
+namespace Linql.ModelGenerator.Core
 {
-    public class IntermediaryAttributeInstance
+    public class CoreAttributeInstance
     {
         public string TypeName { get; set; }
 

@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Intermediary\Linql.ModelGenerator.Intermediary.csproj" />
+    <ProjectReference Include="..\..\Core\Linql.ModelGenerator.Core.csproj" />
   </ItemGroup>
 
 </Project>

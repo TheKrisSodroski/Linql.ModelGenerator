@@ -1,4 +1,4 @@
-using Linql.ModelGenerator.Intermediary;
+using Linql.ModelGenerator.Core;
 using NUnit.Framework;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -12,7 +12,7 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
 
         protected virtual string ModuleName { get; set; } = "Test.Module1";
 
-        protected IntermediaryModule Module { get; set; }
+        protected CoreModule Module { get; set; }
 
         protected JsonSerializerOptions JsonOptions { get; set; } = new JsonSerializerOptions() { WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
 

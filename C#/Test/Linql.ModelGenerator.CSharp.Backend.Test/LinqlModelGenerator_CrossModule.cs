@@ -1,4 +1,4 @@
-using Linql.ModelGenerator.Intermediary;
+using Linql.ModelGenerator.Core;
 using NUnit.Framework;
 using System.Text.Json;
 using Test.Module1.Inheritance;
@@ -16,7 +16,7 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
         public void CrossModuleTest()
         {
         
-            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(CrossModuleClass));
+            CoreType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(CrossModuleClass));
 
             Assert.That(type, Is.Not.EqualTo(null));
             Assert.That(type.IsClass, Is.True);

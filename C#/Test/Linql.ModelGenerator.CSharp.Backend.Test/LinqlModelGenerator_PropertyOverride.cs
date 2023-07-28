@@ -1,4 +1,4 @@
-using Linql.ModelGenerator.Intermediary;
+using Linql.ModelGenerator.Core;
 using NUnit.Framework;
 using System.Text.Json;
 using Test.Module1.Inheritance;
@@ -16,7 +16,7 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
         public void PropertyOverrideTest()
         {
         
-            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(PropertyOverride));
+            CoreType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(PropertyOverride));
 
             Assert.That(type, Is.Not.EqualTo(null));
             Assert.That(type.IsClass, Is.True);
@@ -25,8 +25,8 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
             Assert.That(type.IsGenericType, Is.False);
             Assert.That(type.IsIntrinsic, Is.False);
 
-            IntermediaryProperty overriden = type.Properties.First(r => r.PropertyName == nameof(PropertyOverride.Integer));
-            IntermediaryProperty notOverriden = type.Properties.First(r => r.PropertyName == nameof(PropertyOverride.NotOverride));
+            CoreProperty overriden = type.Properties.First(r => r.PropertyName == nameof(PropertyOverride.Integer));
+            CoreProperty notOverriden = type.Properties.First(r => r.PropertyName == nameof(PropertyOverride.NotOverride));
 
             Assert.That(overriden.Overriden, Is.EqualTo(true));
             Assert.That(overriden.Virtual, Is.EqualTo(true));

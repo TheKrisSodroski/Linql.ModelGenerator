@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33603.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Linql.ModelGenerator.Intermediary", "Intermediary\Linql.ModelGenerator.Intermediary.csproj", "{45025690-0BA5-45C8-BA12-3F1464A18940}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Linql.ModelGenerator.Core", "Core\Linql.ModelGenerator.Core.csproj", "{45025690-0BA5-45C8-BA12-3F1464A18940}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CSharp", "CSharp", "{76A9817F-A167-49BE-9BBF-0A28352BE05C}"
 EndProject

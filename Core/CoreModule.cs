@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Linql.ModelGenerator.Intermediary
+namespace Linql.ModelGenerator.Core
 {
-    public class IntermediaryModule
+    public class CoreModule
     {
         public string BaseLanguage { get; set; }
 
@@ -11,7 +11,7 @@ namespace Linql.ModelGenerator.Intermediary
 
         public string Version { get; set; }
 
-        public List<IntermediaryType> Types { get; set; } 
+        public List<CoreType> Types { get; set; } 
 
         public override string ToString()
         {

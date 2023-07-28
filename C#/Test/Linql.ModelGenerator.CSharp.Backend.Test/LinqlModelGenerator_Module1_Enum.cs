@@ -1,4 +1,4 @@
-using Linql.ModelGenerator.Intermediary;
+using Linql.ModelGenerator.Core;
 using NUnit.Framework;
 using System.Text.Json;
 using Test.Module1;
@@ -13,11 +13,11 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
         [Test]
         public void Enum()
         {
-            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(IntEnum));
+            CoreType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(IntEnum));
             
-            Assert.That(type is IntermediaryEnum, Is.True);
+            Assert.That(type is CoreEnum, Is.True);
             
-            IntermediaryEnum Enum = (IntermediaryEnum)type;
+            CoreEnum Enum = (CoreEnum)type;
             
             Assert.That(Enum.Values.Count, Is.GreaterThan(0));
         }

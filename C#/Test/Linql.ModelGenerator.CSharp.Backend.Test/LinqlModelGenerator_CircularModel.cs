@@ -1,4 +1,4 @@
-using Linql.ModelGenerator.Intermediary;
+using Linql.ModelGenerator.Core;
 using NUnit.Framework;
 using System.Text.Json;
 using Test.CircularModel;
@@ -13,7 +13,7 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
         public void CircularModelTest()
         {
         
-            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(CircularModel1));
+            CoreType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(CircularModel1));
 
          
         }

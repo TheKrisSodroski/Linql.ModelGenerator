@@ -1,5 +1,5 @@
 using Linql.ModelGenerator.CSharp.Backend;
-using Linql.ModelGenerator.Intermediary;
+using Linql.ModelGenerator.Core;
 using NUnit.Framework;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;

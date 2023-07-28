@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 
-namespace Linql.ModelGenerator.Intermediary
+namespace Linql.ModelGenerator.Core
 {
-    [JsonDerivedType(typeof(IntermediaryAttribute), typeDiscriminator: nameof(IntermediaryAttribute))]
-    [JsonDerivedType(typeof(IntermediaryEnum), typeDiscriminator: nameof(IntermediaryEnum))]
-    public class IntermediaryType
+    [JsonDerivedType(typeof(CoreAttribute), typeDiscriminator: nameof(CoreAttribute))]
+    [JsonDerivedType(typeof(CoreEnum), typeDiscriminator: nameof(CoreEnum))]
+    public class CoreType
     {
         public string TypeName { get; set; }
 
-        public List<IntermediaryType> GenericArguments { get; set; }
-        public IntermediaryType TypeConstraint { get; set; }
+        public List<CoreType> GenericArguments { get; set; }
+        public CoreType TypeConstraint { get; set; }
 
-        public IntermediaryType BaseClass { get; set; }
+        public CoreType BaseClass { get; set; }
 
-        public List<IntermediaryType> Interfaces { get; set; }
+        public List<CoreType> Interfaces { get; set; }
 
         public bool IsClass { get; set; }
 
@@ -30,9 +30,9 @@ namespace Linql.ModelGenerator.Intermediary
 
         public bool IsPrimitive { get; set; }
 
-        public List<IntermediaryProperty> Properties { get; set; }
+        public List<CoreProperty> Properties { get; set; }
 
-        public List<IntermediaryAttributeInstance> Attributes { get; set; }
+        public List<CoreAttributeInstance> Attributes { get; set; }
 
         public string Module { get; set; }
 

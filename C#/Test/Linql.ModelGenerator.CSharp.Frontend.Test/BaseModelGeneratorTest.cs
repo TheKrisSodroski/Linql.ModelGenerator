@@ -1,5 +1,5 @@
 using Linql.ModelGenerator.CSharp.Backend;
-using Linql.ModelGenerator.Intermediary;
+using Linql.ModelGenerator.Core;
 using NUnit.Framework;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -13,7 +13,7 @@ namespace Linql.ModelGenerator.CSharp.Frontend.Test
 
         protected virtual string ModuleName { get; set; } = "Test.Module1";
 
-        protected IntermediaryModule Module { get; set; }
+        protected CoreModule Module { get; set; }
 
         protected string ModuleJson { get; set; }
 

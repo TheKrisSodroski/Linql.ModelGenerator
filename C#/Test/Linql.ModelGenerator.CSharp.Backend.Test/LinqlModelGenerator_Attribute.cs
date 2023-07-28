@@ -1,4 +1,4 @@
-using Linql.ModelGenerator.Intermediary;
+using Linql.ModelGenerator.Core;
 using NUnit.Framework;
 using System.Text.Json;
 using Test.Module1.Inheritance;
@@ -13,8 +13,8 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
         [Test]
         public void BasicAttributeTest()
         {
-            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(BasicAttribute));
-            Assert.That(type is IntermediaryAttribute, Is.True);
+            CoreType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(BasicAttribute));
+            Assert.That(type is CoreAttribute, Is.True);
 
             Assert.That(type, Is.Not.EqualTo(null));
             Assert.That(type.IsClass, Is.True);
@@ -27,9 +27,9 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
         [Test]
         public void AttributewithConstructorTest()
         {
-            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(AttributeWithConstructor));
+            CoreType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(AttributeWithConstructor));
 
-            Assert.That(type is IntermediaryAttribute, Is.True);
+            Assert.That(type is CoreAttribute, Is.True);
 
             Assert.That(type, Is.Not.EqualTo(null));
             Assert.That(type.IsClass, Is.True);
@@ -37,7 +37,7 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
             Assert.That(type.IsInterface, Is.False);
             Assert.That(type.IsGenericType, Is.False);
 
-            IntermediaryAttribute attr = type as IntermediaryAttribute;
+            CoreAttribute attr = type as CoreAttribute;
 
             Assert.That(attr.Arguments.Count(), Is.EqualTo(2));
 
@@ -46,9 +46,9 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
         [Test]
         public void AttributewithDefaultsTest()
         {
-            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(AttributeWithDefaults));
+            CoreType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(AttributeWithDefaults));
 
-            Assert.That(type is IntermediaryAttribute, Is.True);
+            Assert.That(type is CoreAttribute, Is.True);
 
             Assert.That(type, Is.Not.EqualTo(null));
             Assert.That(type.IsClass, Is.True);
@@ -56,12 +56,12 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
             Assert.That(type.IsInterface, Is.False);
             Assert.That(type.IsGenericType, Is.False);
 
-            IntermediaryAttribute attr = type as IntermediaryAttribute;
+            CoreAttribute attr = type as CoreAttribute;
 
             Assert.That(attr.Arguments.Count(), Is.EqualTo(2));
 
-            IntermediaryArgument arg1 = attr.Arguments[0];
-            IntermediaryArgument arg2 = attr.Arguments[1];
+            CoreArgument arg1 = attr.Arguments[0];
+            CoreArgument arg2 = attr.Arguments[1];
 
             Assert.That(arg1.DefaultValue, Is.EqualTo("String"));
             Assert.That(arg1.ArgumentName, Is.EqualTo("String"));
@@ -79,7 +79,7 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
                 nameof(AttributeWithConstructor),
                 nameof(AttributeWithDefaults)
             };
-            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(AttributeInstanceClass));
+            CoreType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(AttributeInstanceClass));
 
             Assert.That(type, Is.Not.EqualTo(null));
             Assert.That(type.IsClass, Is.True);
@@ -87,7 +87,7 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
             Assert.That(type.IsInterface, Is.False);
             Assert.That(type.IsGenericType, Is.False);
 
-            IntermediaryProperty attrProp = type.Properties[0];
+            CoreProperty attrProp = type.Properties[0];
 
             Assert.That(type.Attributes.Count(), Is.EqualTo(3));
             Assert.That(attrProp.Attributes.Count(), Is.EqualTo(3));
@@ -102,8 +102,8 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
                 Assert.That(attributes.Contains(r.TypeName), Is.True);
             });
 
-            IntermediaryAttributeInstance typeAttr = type.Attributes.FirstOrDefault(r => r.TypeName == nameof(AttributeWithConstructor));
-            IntermediaryAttributeInstance propAttr = attrProp.Attributes.FirstOrDefault(r => r.TypeName == nameof(AttributeWithConstructor));
+            CoreAttributeInstance typeAttr = type.Attributes.FirstOrDefault(r => r.TypeName == nameof(AttributeWithConstructor));
+            CoreAttributeInstance propAttr = attrProp.Attributes.FirstOrDefault(r => r.TypeName == nameof(AttributeWithConstructor));
 
             Assert.That(typeAttr.Arguments[nameof(AttributeWithConstructor.String)], Is.EqualTo("Class"));
             Assert.That(typeAttr.Arguments[nameof(AttributeWithConstructor.Int)], Is.EqualTo(2));

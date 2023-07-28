@@ -1,4 +1,4 @@
-using Linql.ModelGenerator.Intermediary;
+using Linql.ModelGenerator.Core;
 using NUnit.Framework;
 using System.Text.Json;
 using Test.Module1;
@@ -12,8 +12,8 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
         [Test]
         public void InheritedAbstract()
         {
-            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(InheritAbstract));
-            IntermediaryType baseType = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(PrimitiveAbstract));
+            CoreType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(InheritAbstract));
+            CoreType baseType = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(PrimitiveAbstract));
 
             Assert.That(type, Is.Not.EqualTo(null));
             Assert.That(type.IsClass, Is.True);
@@ -30,8 +30,8 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
         [Test]
         public void DoubleInheritedAbstract()
         {
-            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(DoubleInheritAbstract));
-            IntermediaryType baseType = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(InheritAbstract));
+            CoreType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(DoubleInheritAbstract));
+            CoreType baseType = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(InheritAbstract));
 
             Assert.That(type, Is.Not.EqualTo(null));
             Assert.That(type.IsClass, Is.True);
@@ -47,9 +47,9 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
         [Test]
         public void TrippleInheritWithInterface()
         {
-            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(TripleInheritWithInterface));
-            IntermediaryType baseType = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(DoubleInheritAbstract));
-            IntermediaryType primitiveInterface = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(IPrimitiveInterface));
+            CoreType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(TripleInheritWithInterface));
+            CoreType baseType = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(DoubleInheritAbstract));
+            CoreType primitiveInterface = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(IPrimitiveInterface));
 
             Assert.That(type, Is.Not.EqualTo(null));
             Assert.That(type.IsClass, Is.True);
@@ -69,7 +69,7 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
         [Test]
         public void MultipleInterfaces()
         {
-            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(MultipleInterfaces));
+            CoreType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(MultipleInterfaces));
            
             Assert.That(type.Interfaces.Count(), Is.EqualTo(3));
 
@@ -78,7 +78,7 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
         [Test]
         public void MultipleInterfacesNested()
         {
-            IntermediaryType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(MultipleInterfacesNested));
+            CoreType type = this.Module.Types.FirstOrDefault(r => r.TypeName == nameof(MultipleInterfacesNested));
 
             Assert.That(type.Interfaces.Count(), Is.EqualTo(2));
 

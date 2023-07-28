@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Linql.ModelGenerator.Intermediary
+namespace Linql.ModelGenerator.Core
 {
-    public class IntermediaryArgument
+    public class CoreArgument
     {
         public string ArgumentName { get; set; }
 
         public object DefaultValue { get; set; }
 
-        public IntermediaryType Type { get; set; }
+        public CoreType Type { get; set; }
 
         public override string ToString()
         {

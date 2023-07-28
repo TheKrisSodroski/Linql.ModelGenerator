@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Linql.ModelGenerator.Intermediary
+namespace Linql.ModelGenerator.Core
 {
-    public class IntermediaryProperty
+    public class CoreProperty
     {
         public string PropertyName { get; set; }
 
-        public List<IntermediaryAttributeInstance> Attributes { get; set; }
+        public List<CoreAttributeInstance> Attributes { get; set; }
 
-        public IntermediaryType Type { get; set; }
+        public CoreType Type { get; set; }
 
         public bool Overriden { get; set; }
 

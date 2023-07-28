@@ -9,27 +9,27 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using Linql.ModelGenerator.Intermediary;
+using Linql.ModelGenerator.Core;
 
 namespace Linql.ModelGenerator.Typescript.Frontend
 {
     public partial class LinqlModelGeneratorTypescriptFrontend
     {
-        public string IntermediaryJson { get; set; }
+        public string CoreJson { get; set; }
 
         public string ProjectPath { get; set; }
 
-        public IntermediaryModule Module { get; set; }
+        public CoreModule Module { get; set; }
 
         public bool SkipInstall { get; set; } = true;
 
-        private HashSet<IntermediaryType> ImportCache = new HashSet<IntermediaryType>();
+        private HashSet<CoreType> ImportCache = new HashSet<CoreType>();
 
-        public List<IntermediaryType> AnyCasts = new List<IntermediaryType>();
+        public List<CoreType> AnyCasts = new List<CoreType>();
 
-        public LinqlModelGeneratorTypescriptFrontend(string IntermediaryJson, string ProjectPath = null)
+        public LinqlModelGeneratorTypescriptFrontend(string CoreJson, string ProjectPath = null)
         {
-            this.IntermediaryJson = IntermediaryJson;
+            this.CoreJson = CoreJson;
             if (ProjectPath == null)
             {
                 this.ProjectPath = Environment.CurrentDirectory;
@@ -38,10 +38,10 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             {
                 this.ProjectPath = ProjectPath;
             }
-            this.Module = JsonSerializer.Deserialize<IntermediaryModule>(this.IntermediaryJson);
+            this.Module = JsonSerializer.Deserialize<CoreModule>(this.CoreJson);
         }
 
-        public LinqlModelGeneratorTypescriptFrontend(IntermediaryModule Module, string ProjectPath = null)
+        public LinqlModelGeneratorTypescriptFrontend(CoreModule Module, string ProjectPath = null)
         {
             if (ProjectPath == null)
             {
@@ -58,7 +58,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         {
             this.CreateProject();
 
-            List<IntermediaryProperty> properties = this.Module.Types.Where(r => r.Properties != null).SelectMany(r => r.Properties).ToList();
+            List<CoreProperty> properties = this.Module.Types.Where(r => r.Properties != null).SelectMany(r => r.Properties).ToList();
             properties.Where(r => r.Type != null).ToList().ForEach(r => this.ReplaceAnyOverrides(r.Type));
 
             Dictionary<string, string> additionalModules = this.ExtractAdditionalModules(this.Module);
@@ -83,7 +83,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             this.WritePublicApi();
         }
 
-        protected void ReplaceAnyOverrides(IntermediaryType Type)
+        protected void ReplaceAnyOverrides(CoreType Type)
         {
             bool isAny = this.IsAnyType(Type);
 
@@ -228,7 +228,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         }
 
 
-        protected void CreateType(IntermediaryType Type)
+        protected void CreateType(CoreType Type)
         {
             List<string> fileText = new List<string>();
             string folder = this.GetNamespaceDirectory(Type.NameSpace);
@@ -256,14 +256,14 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             fileText.AddRange(importStatements);
 
-            if(Type is IntermediaryAttribute)
+            if(Type is CoreAttribute)
             {
                 fileText.Add("import 'reflect-metadata';");
             }
 
             fileText.Add("");
 
-            if (Type is IntermediaryAttribute attr)
+            if (Type is CoreAttribute attr)
             {
                 this.BuildAttributeClass(attr, fileText);
             }
@@ -277,7 +277,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             File.WriteAllText(filePath, compiledText);
         }
 
-        private void BuildTypeClass(IntermediaryType Type, List<string> fileText)
+        private void BuildTypeClass(CoreType Type, List<string> fileText)
         {
             string classType = null;
 
@@ -293,7 +293,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             {
                 classType = "class";
             }
-            else if(Type is IntermediaryEnum Enum)
+            else if(Type is CoreEnum Enum)
             {
                 classType = "enum";
             }
@@ -362,7 +362,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 });
             }
 
-            else if (Type is IntermediaryEnum Enum && Enum.Values != null)
+            else if (Type is CoreEnum Enum && Enum.Values != null)
             {
                 List<string> valueStatements = new List<string>();
                 Enum.Values.Keys.ToList().ForEach(r =>
@@ -375,7 +375,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             fileText.Add("}");
         }
 
-        private List<string> BuildMetadataAttributeInstance(IntermediaryAttribute Attribute)
+        private List<string> BuildMetadataAttributeInstance(CoreAttribute Attribute)
         {
             List<string> classArgs = new List<string>();
             classArgs.Add("\tconst attrInstance = \n\t{");
@@ -383,7 +383,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             {
                 classArgs.Add(String.Join($",{Environment.NewLine}", Attribute.Arguments.Select(r =>
                 {
-                    IntermediaryProperty prop = Attribute.Properties.FirstOrDefault(s => s.PropertyName.ToLower() == r.ArgumentName.ToLower());
+                    CoreProperty prop = Attribute.Properties.FirstOrDefault(s => s.PropertyName.ToLower() == r.ArgumentName.ToLower());
                     if(prop == null)
                     {
                         return $"\t\t//Unable to find Property in {Attribute.TypeName} that matches {r.ArgumentName}";
@@ -397,7 +397,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         }
 
 
-        private void BuildAttributeClass(IntermediaryAttribute attr, List<string> fileText)
+        private void BuildAttributeClass(CoreAttribute attr, List<string> fileText)
         {
             fileText.Add("type constructorType = { new(...args: any[]): {} };");
             fileText.Add("");
@@ -486,7 +486,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             }
         }
 
-        private string BuildProperty(IntermediaryType Type, IntermediaryProperty Property)
+        private string BuildProperty(CoreType Type, CoreProperty Property)
         {
             List<string> propertyText = new List<string>();
 
@@ -524,7 +524,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             return String.Join(Environment.NewLine, propertyText);
         }
 
-        private string BuildAttributeInstance(IntermediaryAttributeInstance Attr, string Suffix = "")
+        private string BuildAttributeInstance(CoreAttributeInstance Attr, string Suffix = "")
         {
             string attrInsides = $"{Attr.TypeName}{Suffix}";
             List<string> args = new List<string>();
@@ -551,7 +551,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             return $"@{attrInsides}";
         }
 
-        private string BuildAttrArgument(IntermediaryArgument Arg)
+        private string BuildAttrArgument(CoreArgument Arg)
         {
             string argString = $"{Arg.ArgumentName}: {this.GetTypeName(Arg.Type)}";
 
@@ -570,7 +570,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         }
 
 
-        private List<TypescriptImport> ExtractImports(IntermediaryType Type)
+        private List<TypescriptImport> ExtractImports(CoreType Type)
         {
             List<TypescriptImport> imports = new List<TypescriptImport>();
 
@@ -602,11 +602,11 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             {
                 imports.AddRange(Type.Properties.Select(r => new TypescriptImport(r.Type.TypeName, r.Type.Module, r.Type.NameSpace)));
                 imports.AddRange(Type.Properties.SelectMany(r => this.ExtractImports(r.Type)));
-                List<IntermediaryAttributeInstance> attrs = Type.Properties.Where(r => r.Attributes != null).SelectMany(r => r.Attributes).ToList();
+                List<CoreAttributeInstance> attrs = Type.Properties.Where(r => r.Attributes != null).SelectMany(r => r.Attributes).ToList();
                 imports.AddRange(attrs.Select(r => new TypescriptImport(r.TypeName, r.Module, r.NameSpace, "Prop")));
             }
 
-            if (Type is IntermediaryAttribute attr && attr.Arguments != null)
+            if (Type is CoreAttribute attr && attr.Arguments != null)
             {
                 imports.AddRange(attr.Arguments.SelectMany(r => this.ExtractImports(r.Type)));
             }
@@ -614,7 +614,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             return imports;
         }
 
-        private Dictionary<string, string> ExtractAdditionalModules(IntermediaryModule Module)
+        private Dictionary<string, string> ExtractAdditionalModules(CoreModule Module)
         {
             Dictionary<string, string> additionalModules = new Dictionary<string, string>();
 
@@ -626,7 +626,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             return additionalModules;
         }
 
-        private Dictionary<string, string> ExtractAdditionalModules(IntermediaryType Type)
+        private Dictionary<string, string> ExtractAdditionalModules(CoreType Type)
         {
             if (this.ImportCache.Contains(Type))
             {
@@ -663,7 +663,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 otherModules.ForEach(r => additionalModules.Merge(r));
             }
 
-            if (Type is IntermediaryAttribute attr && attr.Arguments != null)
+            if (Type is CoreAttribute attr && attr.Arguments != null)
             {
                 attr.Arguments.Where(r => r.Type.Module != null).ToList().ForEach(r => additionalModules[r.Type.Module] = r.Type.ModuleVersion);
                 List<Dictionary<string, string>> otherModules = attr.Arguments.Select(r => this.ExtractAdditionalModules(r.Type)).ToList();
@@ -674,7 +674,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             return additionalModules;
         }
 
-        private string BuildGenericType(IntermediaryType Type)
+        private string BuildGenericType(CoreType Type)
         {
             string type = this.GetTypeName(Type);
 
@@ -694,7 +694,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             return type;
         }
 
-        private string GetGenericArgumentDefinition(IntermediaryType Type)
+        private string GetGenericArgumentDefinition(CoreType Type)
         {
             string typeName = this.GetTypeName(Type);
             List<string> inheritedTypes = new List<string>();
@@ -718,7 +718,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             return typeName;
         }
 
-        private string GetTypeName(IntermediaryType Type)
+        private string GetTypeName(CoreType Type)
         {
             List<string> arrayTypes = new List<string>() { "List", "Array" };
             List<Type> types = typeof(string).Assembly.GetTypes().ToList();
@@ -748,7 +748,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             }
         }
 
-        private bool IsAnyType(IntermediaryType Type)
+        private bool IsAnyType(CoreType Type)
         {
             return this.AnyCasts.Any(s => s.TypeName == Type.TypeName && s.Module == Type.Module);
         }

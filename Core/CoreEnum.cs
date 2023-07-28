@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Linql.ModelGenerator.Intermediary
+namespace Linql.ModelGenerator.Core
 {
-    public class IntermediaryEnum : IntermediaryType
+    public class CoreEnum : CoreType
     {
         public Dictionary<string, object> Values { get; set; } = new Dictionary<string, object>();
         
