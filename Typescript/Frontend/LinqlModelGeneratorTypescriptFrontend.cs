@@ -483,10 +483,10 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         {
             string attrInsides = $"{Attr.TypeName}{Suffix}";
             string argMap = "";
+            List<string> args = new List<string>();
 
             if (Attr.Arguments != null && Attr.Arguments.Count() > 0)
             {
-                List<string> args = new List<string>();
 
                 foreach (var key in Attr.Arguments)
                 {
@@ -507,8 +507,8 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
                     args.Add($"{key.Key}: {stringValue}");
                 }
-                argMap = $"{{{String.Join(", ", args)}}}";
             }
+            argMap = $"{{{String.Join(", ", args)}}}";
             attrInsides += $"({argMap})";
             return $"@{attrInsides}";
         }
