@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
 namespace Linql.ModelGenerator.CSharp.Backend
 {
-    public class DefaultValidPlugin : IIgnoreTypePlugin
+    public class DefaultOverridePlugin : IModuleOverridePlugin
     {
         private static List<Assembly> AssembliesToIgnore = new List<Assembly>()
             {
                 typeof(IComparable).Assembly,
                 typeof(Attribute).Assembly,
-                typeof(DefaultValidPlugin).Assembly
+                typeof(DefaultOverridePlugin).Assembly
             };
 
         private static List<Type> AnyTypes = new List<Type>()
@@ -24,7 +25,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
         public bool IsValidType(Type Type)
         {
-            bool linqlBaseIgnore = !DefaultValidPlugin.AssembliesToIgnore.Contains(Type.Assembly) && Type.GetCustomAttribute<LinqlGenIngore>() == null;
+            bool linqlBaseIgnore = !DefaultOverridePlugin.AssembliesToIgnore.Contains(Type.Assembly) && Type.GetCustomAttribute<LinqlGenIngore>() == null;
             return linqlBaseIgnore && !Type.Name.Contains(">c");
         }
 
@@ -35,8 +36,21 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
         public bool IsObjectType(Type Type)
         {
-            return DefaultValidPlugin.AnyTypes.Contains(Type);
+            return DefaultOverridePlugin.AnyTypes.Contains(Type);
         }
 
+        public string ModuleVersionOverride(Assembly Assembly)
+        {
+            AssemblyInformationalVersionAttribute version = Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            string informationVersion = version.InformationalVersion;
+
+            if (informationVersion.Split('.').Count() > 3)
+            {
+                informationVersion = String.Join(".", informationVersion.Split('.').Take(3));
+            }
+
+            return informationVersion.Split('+')[0];
+
+        }
     }
 }

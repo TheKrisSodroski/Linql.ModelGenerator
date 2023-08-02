@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
+using System.Linq;
 
 namespace Linql.ComponentModel.DataAnnotations
 {
-    public class LinqlDataAnnotationsIgnore : IIgnoreTypePlugin
+    public class LinqlDataAnnotationsIgnore : IModuleOverridePlugin
     {
         public bool IsValidProperty(Type Type, PropertyInfo PropertyInfo)
         {
@@ -47,6 +47,25 @@ namespace Linql.ComponentModel.DataAnnotations
             return false;
         }
 
+        public string ModuleVersionOverride(Assembly Assembly)
+        {
+            if (Assembly == typeof(KeyAttribute).Assembly)
+            {
+                AssemblyInformationalVersionAttribute version = Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+                string informationVersion = version.InformationalVersion;
+
+                if (informationVersion.Split('.').Count() > 3)
+                {
+                    informationVersion = String.Join(".", informationVersion.Split('.').Take(3));
+                }
+
+                return informationVersion.Split('+')[0] + "-alpha1";
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 
 }

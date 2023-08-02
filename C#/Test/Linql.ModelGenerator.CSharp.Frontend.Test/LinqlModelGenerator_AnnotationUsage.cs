@@ -18,7 +18,7 @@ namespace Linql.ModelGenerator.CSharp.Frontend.Test
         {
             Type efType = typeof(KeyAttribute);
             LinqlModelGeneratorCSharpBackend efGenerator = new LinqlModelGeneratorCSharpBackend(efType.Assembly);
-            efGenerator.ValidTypePlugins.Add(new LinqlDataAnnotationsIgnore());
+            efGenerator.OverridePlugins.Add(new LinqlDataAnnotationsIgnore());
             this.EFModule = efGenerator.Generate();
             base.SetUp();
         }

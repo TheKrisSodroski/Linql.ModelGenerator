@@ -16,7 +16,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
         protected Dictionary<Type, CoreType> TypeProcessing { get; set; } = new Dictionary<Type, CoreType>();
 
-        public List<IIgnoreTypePlugin> ValidTypePlugins { get; set; } = new List<IIgnoreTypePlugin>();
+        public List<IModuleOverridePlugin> OverridePlugins { get; set; } = new List<IModuleOverridePlugin>();
 
         public List<IPrimitiveTypePlugin> PrimitiveTypePlugins { get; set; } = new List<IPrimitiveTypePlugin>();
 
@@ -25,7 +25,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
             )
         {
             this.Assembly = Assembly;
-            this.ValidTypePlugins.Add(new DefaultValidPlugin());
+            this.OverridePlugins.Add(new DefaultOverridePlugin());
             this.PrimitiveTypePlugins.Add(new DefaultPrimitiveTypePlugin());
         }
 
@@ -70,24 +70,24 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
             string fullPath = Path.GetFullPath(assemblyPath);
             this.Assembly = Assembly.LoadFrom(fullPath);
-            this.ValidTypePlugins.Add(new DefaultValidPlugin());
+            this.OverridePlugins.Add(new DefaultOverridePlugin());
             this.PrimitiveTypePlugins.Add(new DefaultPrimitiveTypePlugin());
 
         }
 
         protected virtual bool IsValidType(Type Type)
         {
-            return this.ValidTypePlugins.All(s => s.IsValidType(Type));
+            return this.OverridePlugins.All(s => s.IsValidType(Type));
         }
 
         protected virtual bool IsObjectType(Type Type)
         {
-            return this.ValidTypePlugins.Any(s => s.IsObjectType(Type));
+            return this.OverridePlugins.Any(s => s.IsObjectType(Type));
         }
 
         protected virtual bool IsValidProperty(Type Type, PropertyInfo Property)
         {
-            return this.ValidTypePlugins.All(s => s.IsValidProperty(Type, Property));
+            return this.OverridePlugins.All(s => s.IsValidProperty(Type, Property));
         }
 
 
@@ -113,15 +113,11 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
         protected string GetAssemblyVersion(Assembly Assembly)
         {
-            AssemblyInformationalVersionAttribute version = Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-            string informationVersion = version.InformationalVersion;
+            List<IModuleOverridePlugin> overrides = this.OverridePlugins.ToList();
+            overrides.Reverse();
 
-            if (informationVersion.Split('.').Count() > 3)
-            {
-                informationVersion = String.Join(".", informationVersion.Split('.').Take(3));
-            }
+            return overrides.Select(r => r.ModuleVersionOverride(Assembly)).FirstOrDefault(r => r != null);
 
-            return informationVersion.Split('+')[0];
         }
 
         protected CoreType GenerateType(Type Type)

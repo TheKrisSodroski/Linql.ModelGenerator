@@ -28,7 +28,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend.Test
         public virtual void SetUp()
         {
             LinqlModelGeneratorCSharpBackend generator = new LinqlModelGeneratorCSharpBackend(Path.Combine(this.ModelsPath, this.ModuleName));
-            generator.ValidTypePlugins.Add(new LinqlDataAnnotationsIgnore());
+            generator.OverridePlugins.Add(new LinqlDataAnnotationsIgnore());
             this.Module = generator.Generate();
             this.ModuleJson = JsonSerializer.Serialize(this.Module, this.JsonOptions);
             this.Generator = new LinqlModelGeneratorTypescriptFrontend(this.ModuleJson);

@@ -17,11 +17,11 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
         public override void SetUp()
         {
             LinqlModelGeneratorCSharpBackend annotationsGen = new LinqlModelGeneratorCSharpBackend(typeof(KeyAttribute).Assembly);
-            annotationsGen.ValidTypePlugins.Add(new LinqlDataAnnotationsIgnore());
+            annotationsGen.OverridePlugins.Add(new LinqlDataAnnotationsIgnore());
             CoreModule annotations = annotationsGen.Generate();
 
             LinqlModelGeneratorCSharpBackend generator = new LinqlModelGeneratorCSharpBackend(Path.Combine(this.ModelsPath, this.ModuleName));
-            generator.ValidTypePlugins.Add(new LinqlDataAnnotationsIgnore());
+            generator.OverridePlugins.Add(new LinqlDataAnnotationsIgnore());
             this.Module = generator.Generate();
 
         }
