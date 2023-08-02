@@ -30,7 +30,14 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             {
                 r.ToList().ForEach(s =>
                 {
-                    s.TypeName = $"{s.TypeName}{s.GenericArguments.Count}";
+                    if (s.GenericArguments != null)
+                    {
+                        s.TypeName = $"{s.TypeName}{s.GenericArguments.Count}";
+                    }
+                    else
+                    {
+                        s.TypeName = $"{s.TypeName}{r.ToList().IndexOf(s) + 1}";
+                    }
                 });
             });
 
@@ -332,7 +339,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             {
                 classArgs.Add(String.Join($",{Environment.NewLine}", Attribute.Arguments.Select(r =>
                 {
-                    CoreProperty prop = Attribute.Properties.FirstOrDefault(s => s.PropertyName.ToLower() == r.ArgumentName.ToLower());
+                    CoreProperty prop = Attribute.Properties?.FirstOrDefault(s => s.PropertyName.ToLower() == r.ArgumentName.ToLower());
                     if(prop == null)
                     {
                         return $"\t\t//Unable to find Property in {Attribute.TypeName} that matches {r.ArgumentName}";

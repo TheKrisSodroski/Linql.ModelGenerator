@@ -11,5 +11,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
         bool IsValidProperty(Type Type, PropertyInfo PropertyInfo);
 
+        bool IsObjectType(Type Type);
+
     }
 }

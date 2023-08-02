@@ -80,6 +80,11 @@ namespace Linql.ModelGenerator.CSharp.Backend
             return this.ValidTypePlugins.All(s => s.IsValidType(Type));
         }
 
+        protected virtual bool IsObjectType(Type Type)
+        {
+            return this.ValidTypePlugins.Any(s => s.IsObjectType(Type));
+        }
+
         protected virtual bool IsValidProperty(Type Type, PropertyInfo Property)
         {
             return this.ValidTypePlugins.All(s => s.IsValidProperty(Type, Property));
@@ -169,6 +174,13 @@ namespace Linql.ModelGenerator.CSharp.Backend
                     type.IsIntrinsic = true;
                     type.Module = null;
                 }
+                else if(this.IsObjectType(Type))
+                {
+                    type.TypeName = "object";
+                    type.IsIntrinsic = true;
+                    type.Module = null;
+                    type.NameSpace = null;
+                }
                 else if (Type.IsGenericParameter == true)
                 {
                     type.Module = null;
@@ -228,7 +240,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
                     if (type is CoreAttribute attr)
                     {
                         ConstructorInfo constructorInfo = Type.GetConstructors().FirstOrDefault();
-
+                        List<PropertyInfo> properties = Type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).ToList();
                         List<AttributeUsageAttribute> attrUsage = Type.GetCustomAttributes(typeof(AttributeUsageAttribute)).Cast<AttributeUsageAttribute>().ToList();
 
                         if (attrUsage.Count == 0)
@@ -268,14 +280,18 @@ namespace Linql.ModelGenerator.CSharp.Backend
                             });
                         }
 
-                        if (constructorInfo != null)
+                        if (constructorInfo != null && constructorInfo.GetParameters().Count() == properties.Count)
                         {
-                            attr.Arguments = constructorInfo.GetParameters().Select(r => this.GenerateParameter(r)).ToList();
+                            attr.Arguments = constructorInfo.GetParameters().Select(r => this.GenerateParameter(r)).ToList();        
+                        }
+                        else
+                        {
+                            attr.Arguments = properties.Select(r => this.GenerateParameterFromProperty(r)).ToList();
+                        }
 
-                            if (attr.Arguments?.Count() == 0)
-                            {
-                                attr.Arguments = null;
-                            }
+                        if (attr.Arguments?.Count() == 0)
+                        {
+                            attr.Arguments = null;
                         }
                     }
                     else if (type is CoreEnum enumType)
@@ -373,7 +389,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
             CoreProperty prop = new CoreProperty();
             prop.PropertyName = Property.Name;
             prop.Type = this.GenerateReducedType(Property.PropertyType);
-            prop.Attributes = Property.GetCustomAttributes().Select(r => this.GenerateAttributeInstance(r)).ToList();
+            prop.Attributes = Property.GetCustomAttributes().Where(r => this.IsValidType(r.GetType())).Select(r => this.GenerateAttributeInstance(r)).ToList();
             prop.Overriden = Property.GetGetMethod().GetBaseDefinition().DeclaringType != Property.DeclaringType;
             prop.Virtual = Property.GetGetMethod().IsVirtual;
 
@@ -432,6 +448,14 @@ namespace Linql.ModelGenerator.CSharp.Backend
                 arg.DefaultValue = Parameter.DefaultValue;
             }
             arg.Type = this.GenerateType(Parameter.ParameterType);
+            return arg;
+        }
+
+        protected CoreArgument GenerateParameterFromProperty(PropertyInfo Parameter)
+        {
+            CoreArgument arg = new CoreArgument();
+            arg.ArgumentName = Parameter.Name;
+            arg.Type = this.GenerateType(Parameter.PropertyType);
             return arg;
         }
     }
