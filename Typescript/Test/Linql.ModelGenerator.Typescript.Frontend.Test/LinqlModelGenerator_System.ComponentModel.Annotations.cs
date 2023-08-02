@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Linql.ModelGenerator.Typescript.Frontend.Test
 {
-    public class LinqlModelGenerator_SystemComponentDataAnnotation : BaseModelGeneratorTest
+    public class LinqlModelGenerator_SystemComponentModelAnnotations : BaseModelGeneratorTest
     {
         public override void SetUp()
         {

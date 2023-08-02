@@ -13,6 +13,7 @@
     <PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
     <PackageReference Include="NUnit.Analyzers" Version="3.3.0" />
     <PackageReference Include="coverlet.collector" Version="3.1.2" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -21,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Backend\Linql.ModelGenerator.CSharp.Backend.csproj" />
+    <ProjectReference Include="..\..\DataAnnotations\Linql.ComponentModel.DataAnnotations.csproj" />
     <ProjectReference Include="..\Test.CircularModel\Test.CircularModel.csproj" />
     <ProjectReference Include="..\Test.Module1\Test.Module1.csproj" />
     <ProjectReference Include="..\Test.Module2\Test.Module2.csproj" />

@@ -35,6 +35,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Linql.ModelGenerator.Typesc
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Linql.ComponentModel.DataAnnotations", "C#\DataAnnotations\Linql.ComponentModel.DataAnnotations.csproj", "{880E8D3E-FF02-499D-BB42-7102DACFC104}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.Annotations", "C#\Test\Test.Annotations\Test.Annotations.csproj", "{9E1D3800-5AFD-4AD0-AC15-3E409F854025}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -85,6 +87,10 @@ Global
 		{880E8D3E-FF02-499D-BB42-7102DACFC104}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{880E8D3E-FF02-499D-BB42-7102DACFC104}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{880E8D3E-FF02-499D-BB42-7102DACFC104}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E1D3800-5AFD-4AD0-AC15-3E409F854025}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E1D3800-5AFD-4AD0-AC15-3E409F854025}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E1D3800-5AFD-4AD0-AC15-3E409F854025}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E1D3800-5AFD-4AD0-AC15-3E409F854025}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -103,6 +109,7 @@ Global
 		{0BFDDC3F-A4F1-4DA2-AF08-D8B21576BDD1} = {43C220CE-5DBF-482B-B4DE-94B977801B6C}
 		{24086093-2F8B-42B9-A6B9-CB0FD11AA8C5} = {E7E3AF19-88F1-4FBF-A286-45B028439DFB}
 		{880E8D3E-FF02-499D-BB42-7102DACFC104} = {76A9817F-A167-49BE-9BBF-0A28352BE05C}
+		{9E1D3800-5AFD-4AD0-AC15-3E409F854025} = {C1121100-914B-4238-865E-5FCC9D3A9A55}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3A65EC2D-A66B-4038-AC1F-12A62D096273}

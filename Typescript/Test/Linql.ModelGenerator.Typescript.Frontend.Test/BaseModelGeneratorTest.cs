@@ -3,6 +3,7 @@ using Linql.ModelGenerator.Core;
 using NUnit.Framework;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Linql.ComponentModel.DataAnnotations;
 
 namespace Linql.ModelGenerator.Typescript.Frontend.Test
 {
@@ -27,6 +28,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend.Test
         public virtual void SetUp()
         {
             LinqlModelGeneratorCSharpBackend generator = new LinqlModelGeneratorCSharpBackend(Path.Combine(this.ModelsPath, this.ModuleName));
+            generator.ValidTypePlugins.Add(new LinqlDataAnnotationsIgnore());
             this.Module = generator.Generate();
             this.ModuleJson = JsonSerializer.Serialize(this.Module, this.JsonOptions);
             this.Generator = new LinqlModelGeneratorTypescriptFrontend(this.ModuleJson);

@@ -9,15 +9,18 @@ using Linql.ComponentModel.DataAnnotations;
 
 namespace Linql.ModelGenerator.CSharp.Frontend.Test
 {
-    public class LinqlModelGenerator_SystemComponentDataAnnotation : BaseModelGeneratorTest
+    public class LinqlModelGenerator_AnnotationUsageTest : BaseModelGeneratorTest
     {
+        protected override string ModuleName { get; set; } = "Test.Annotations";
+
+        protected CoreModule EFModule { get; set; }
         public override void SetUp()
         {
             Type efType = typeof(KeyAttribute);
-            LinqlModelGeneratorCSharpBackend generator = new LinqlModelGeneratorCSharpBackend(efType.Assembly);
-            generator.ValidTypePlugins.Add(new LinqlDataAnnotationsIgnore());
-            this.Module = generator.Generate();
-            this.Generator = new LinqlModelGeneratorCSharpFrontend(this.Module);
+            LinqlModelGeneratorCSharpBackend efGenerator = new LinqlModelGeneratorCSharpBackend(efType.Assembly);
+            efGenerator.ValidTypePlugins.Add(new LinqlDataAnnotationsIgnore());
+            this.EFModule = efGenerator.Generate();
+            base.SetUp();
         }
 
         [Test]

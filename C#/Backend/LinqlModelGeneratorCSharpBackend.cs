@@ -280,14 +280,14 @@ namespace Linql.ModelGenerator.CSharp.Backend
                             });
                         }
 
-                        if (constructorInfo != null && constructorInfo.GetParameters().Count() == properties.Count)
+                        if (constructorInfo != null)
                         {
                             attr.Arguments = constructorInfo.GetParameters().Select(r => this.GenerateParameter(r)).ToList();        
                         }
-                        else
-                        {
-                            attr.Arguments = properties.Select(r => this.GenerateParameterFromProperty(r)).ToList();
-                        }
+                        //else
+                        //{
+                        //    attr.Arguments = properties.Select(r => this.GenerateParameterFromProperty(r)).ToList();
+                        //}
 
                         if (attr.Arguments?.Count() == 0)
                         {
@@ -433,7 +433,16 @@ namespace Linql.ModelGenerator.CSharp.Backend
             attr.TypeName = type.TypeName;
             attr.NameSpace = type.NameSpace;
             attr.Module = type.Module;
-            attr.Arguments = attrType.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).ToDictionary(r => r.Name, r => r.GetValue(Attribute));
+
+            ConstructorInfo constructorInfo = Attribute.GetType().GetConstructors().FirstOrDefault();
+            List<string> argNames = attrType.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).Select(r => r.Name.ToLower()).ToList();
+            if (constructorInfo != null)
+            {
+                argNames = constructorInfo.GetParameters().Select(r => r.Name.ToLower()).ToList();
+            }
+            attr.Arguments = attrType.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
+                .Where(r => argNames.Contains(r.Name.ToLower()))
+                .ToDictionary(r => r.Name, r => r.GetValue(Attribute));
 
             return attr;
         }

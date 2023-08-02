@@ -21,7 +21,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Backend\Linql.ModelGenerator.CSharp.Backend.csproj" />
+    <ProjectReference Include="..\..\DataAnnotations\Linql.ComponentModel.DataAnnotations.csproj" />
     <ProjectReference Include="..\..\Frontend\Linql.ModelGenerator.CSharp.Frontend.csproj" />
+    <ProjectReference Include="..\Test.Annotations\Test.Annotations.csproj" />
     <ProjectReference Include="..\Test.Module1\Test.Module1.csproj" />
     <ProjectReference Include="..\Test.Module2\Test.Module2.csproj" />
   </ItemGroup>

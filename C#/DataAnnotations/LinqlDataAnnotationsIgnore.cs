@@ -17,6 +17,10 @@ namespace Linql.ComponentModel.DataAnnotations
 
         public bool IsValidType(Type Type)
         {
+            if(Type.Assembly != typeof(KeyAttribute).Assembly)
+            {
+                return true;
+            }
             List<Type> typesICareAbout = new List<Type>()
             {
                typeof(KeyAttribute),
@@ -33,7 +37,6 @@ namespace Linql.ComponentModel.DataAnnotations
                typeof(RequiredAttribute),
                typeof(RangeAttribute),
                typeof(RegularExpressionAttribute),
-               typeof(DisplayAttribute)
             };
             return typesICareAbout.Contains(Type);
         }

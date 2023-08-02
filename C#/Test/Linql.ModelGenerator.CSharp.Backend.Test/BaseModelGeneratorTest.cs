@@ -17,7 +17,7 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
         protected JsonSerializerOptions JsonOptions { get; set; } = new JsonSerializerOptions() { WriteIndented = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault };
 
         [OneTimeSetUp]
-        public void SetUp()
+        public virtual void SetUp()
         {
             LinqlModelGeneratorCSharpBackend generator = new LinqlModelGeneratorCSharpBackend(Path.Combine(this.ModelsPath, this.ModuleName));
             this.Module = generator.Generate();
