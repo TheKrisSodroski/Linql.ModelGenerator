@@ -58,10 +58,8 @@ namespace Linql.ModelGenerator.Core
 
             additionalModules.Remove(this.Module.ModuleName);
 
-            if (additionalModules.Count > 0)
-            {
-                this.AddAdditionalModules(additionalModules);
-            }
+            this.AddAdditionalModules(additionalModules);
+
             this.Module.Types.ForEach(r =>
             {
                 this.CreateType(r);

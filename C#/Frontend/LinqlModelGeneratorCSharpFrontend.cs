@@ -162,9 +162,9 @@ namespace Linql.ModelGenerator.CSharp.Frontend
             {
                 List<string> arguments = new List<string>();
 
-                if (attr.Arguments != null)
+                if (attr.RequiredArguments != null)
                 {
-                    arguments = attr.Arguments.Select(r => this.BuildAttrArgument(r)).ToList();
+                    arguments = attr.RequiredArguments.Select(r => this.BuildAttrArgument(r)).ToList();
                 }
 
                 fileText.Add($"\t\tpublic {attr.TypeName}({String.Join(", ", arguments)})");
@@ -325,9 +325,9 @@ namespace Linql.ModelGenerator.CSharp.Frontend
                 imports.AddRange(attrs.Select(r => r.NameSpace));
             }
 
-            if (Type is CoreAttribute attr && attr.Arguments != null)
+            if (Type is CoreAttribute attr && attr.RequiredArguments != null)
             {
-                imports.AddRange(attr.Arguments.SelectMany(r => this.ExtractImports(r.Type)));
+                imports.AddRange(attr.RequiredArguments.SelectMany(r => this.ExtractImports(r.Type)));
             }
 
             return imports.Where(r => r != null && r != Type.NameSpace).Distinct().ToList();
@@ -382,10 +382,10 @@ namespace Linql.ModelGenerator.CSharp.Frontend
                 otherModules.ForEach(r => additionalModules.Merge(r));
             }
 
-            if (Type is CoreAttribute attr && attr.Arguments != null)
+            if (Type is CoreAttribute attr && attr.RequiredArguments != null)
             {
-                attr.Arguments.Where(r => r.Type.Module != null).ToList().ForEach(r => additionalModules[r.Type.Module] = r.Type.ModuleVersion);
-                List<Dictionary<string, string>> otherModules = attr.Arguments.Select(r => this.ExtractAdditionalModules(r.Type)).ToList();
+                attr.RequiredArguments.Where(r => r.Type.Module != null).ToList().ForEach(r => additionalModules[r.Type.Module] = r.Type.ModuleVersion);
+                List<Dictionary<string, string>> otherModules = attr.RequiredArguments.Select(r => this.ExtractAdditionalModules(r.Type)).ToList();
                 otherModules.ForEach(r => additionalModules.Merge(r));
             }
 

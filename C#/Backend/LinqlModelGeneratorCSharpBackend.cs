@@ -280,18 +280,25 @@ namespace Linql.ModelGenerator.CSharp.Backend
                             });
                         }
 
+                        List<ParameterInfo> parameters = new List<ParameterInfo>();
+
                         if (constructorInfo != null)
                         {
-                            attr.Arguments = constructorInfo.GetParameters().Select(r => this.GenerateParameter(r)).ToList();        
+                            parameters = constructorInfo.GetParameters().ToList();
+                            attr.RequiredArguments = constructorInfo.GetParameters().Select(r => this.GenerateParameter(r)).ToList();        
                         }
-                        //else
-                        //{
-                        //    attr.Arguments = properties.Select(r => this.GenerateParameterFromProperty(r)).ToList();
-                        //}
 
-                        if (attr.Arguments?.Count() == 0)
+                        List<PropertyInfo> optionalArguments = properties.Where(r => !parameters.Select(s => s.Name.ToLower()).Contains(r.Name.ToLower())).ToList();
+
+                        attr.OptionalArguments = optionalArguments.Select(r => this.GenerateParameterFromProperty(r)).ToList();
+
+                        if (attr.RequiredArguments?.Count() == 0)
                         {
-                            attr.Arguments = null;
+                            attr.RequiredArguments = null;
+                        }
+                        if(attr.OptionalArguments?.Count() == 0)
+                        {
+                            attr.OptionalArguments = null;
                         }
                     }
                     else if (type is CoreEnum enumType)
@@ -433,6 +440,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
             attr.TypeName = type.TypeName;
             attr.NameSpace = type.NameSpace;
             attr.Module = type.Module;
+            attr.ModuleVersion = this.GetAssemblyVersion(Attribute.GetType().Assembly);
 
             ConstructorInfo constructorInfo = Attribute.GetType().GetConstructors().FirstOrDefault();
             List<string> argNames = attrType.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).Select(r => r.Name.ToLower()).ToList();

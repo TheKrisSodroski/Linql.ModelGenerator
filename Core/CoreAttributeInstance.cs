@@ -10,6 +10,8 @@ namespace Linql.ModelGenerator.Core
 
         public string Module { get; set; }
 
+        public string ModuleVersion { get; set; }
+
         public string NameSpace { get; set; }
 
         public Dictionary<string, object> Arguments { get; set; }

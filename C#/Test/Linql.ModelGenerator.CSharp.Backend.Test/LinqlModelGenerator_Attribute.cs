@@ -39,7 +39,7 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
 
             CoreAttribute attr = type as CoreAttribute;
 
-            Assert.That(attr.Arguments.Count(), Is.EqualTo(2));
+            Assert.That(attr.RequiredArguments.Count(), Is.EqualTo(2));
 
         }
 
@@ -58,10 +58,10 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
 
             CoreAttribute attr = type as CoreAttribute;
 
-            Assert.That(attr.Arguments.Count(), Is.EqualTo(2));
+            Assert.That(attr.RequiredArguments.Count(), Is.EqualTo(2));
 
-            CoreArgument arg1 = attr.Arguments[0];
-            CoreArgument arg2 = attr.Arguments[1];
+            CoreArgument arg1 = attr.RequiredArguments[0];
+            CoreArgument arg2 = attr.RequiredArguments[1];
 
             Assert.That(arg1.DefaultValue, Is.EqualTo("String"));
             Assert.That(arg1.ArgumentName, Is.EqualTo("String"));

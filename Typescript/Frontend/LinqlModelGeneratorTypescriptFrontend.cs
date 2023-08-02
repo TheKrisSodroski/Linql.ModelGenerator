@@ -203,7 +203,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             moduleImports.ForEach(r =>
             {
-                List<string> typesToImport = r.Select(s => s.TypeName).Distinct().ToList();
+                List<string> typesToImport = r.Select(s => $"{s.TypeName}{s.AttributeSuffix}").Distinct().ToList();
                 string typeImportString = String.Join(", ", typesToImport);
                 importStatements.Add($"import {{ {typeImportString} }} from '{this.GetAngularLibraryName(r.Key)}';");
             });
@@ -335,9 +335,9 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         {
             List<string> classArgs = new List<string>();
             classArgs.Add("\tconst attrInstance = \n\t{");
-            if (Attribute.Arguments != null)
+            if (Attribute.RequiredArguments != null)
             {
-                classArgs.Add(String.Join($",{Environment.NewLine}", Attribute.Arguments.Select(r =>
+                classArgs.Add(String.Join($",{Environment.NewLine}", Attribute.RequiredArguments.Select(r =>
                 {
                     CoreProperty prop = Attribute.Properties?.FirstOrDefault(s => s.PropertyName.ToLower() == r.ArgumentName.ToLower());
                     if(prop == null)
@@ -373,16 +373,11 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             if (isClassAttribute)
             {
-                List<string> arguments = new List<string>();
-                if (attr.Arguments != null)
-                {
-                    arguments = attr.Arguments.Select(r => this.BuildAttrArgument(r)).ToList();
-                }
-                fileText.Add($"export function {attr.TypeName}Class({String.Join(", ", arguments)})");
+                fileText.Add($"export function {attr.TypeName}Class(attrInstance: {attr.TypeName})");
                 fileText.Add("{");
 
-                List<string> classArgs = this.BuildMetadataAttributeInstance(attr);
-                fileText.AddRange(classArgs);
+                //List<string> classArgs = this.BuildMetadataAttributeInstance(attr);
+                //fileText.AddRange(classArgs);
 
                 fileText.Add($"\treturn function {attr.TypeName}Class<T extends constructorType>(constructor: T)");
                 fileText.Add("\t{");
@@ -396,15 +391,15 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             {
                 List<string> arguments = new List<string>();
                 List<string> metadataArguments = new List<string>();
-                if (attr.Arguments != null)
+                if (attr.RequiredArguments != null)
                 {
-                    arguments = attr.Arguments.Select(r => this.BuildAttrArgument(r)).ToList();
+                    arguments = attr.RequiredArguments.Select(r => this.BuildAttrArgument(r)).ToList();
                 }
 
-                fileText.Add($"export function {attr.TypeName}Prop({String.Join(", ", arguments)})");
+                fileText.Add($"export function {attr.TypeName}Prop(attrInstance: {attr.TypeName})");
                 fileText.Add("{");
-                List<string> classArgs = this.BuildMetadataAttributeInstance(attr);
-                fileText.AddRange(classArgs);
+                //List<string> classArgs = this.BuildMetadataAttributeInstance(attr);
+                //fileText.AddRange(classArgs);
                 fileText.Add($"\treturn Reflect.metadata({attributeSymbol}, attrInstance);");
                 fileText.Add("}");
                 fileText.Add("");
@@ -446,11 +441,6 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         {
             List<string> propertyText = new List<string>();
 
-            if (!Type.IsInterface)
-            {
-
-            }
-
             if (Property.Attributes != null)
             {
                 List<string> attrs = Property.Attributes.Select(r => $"\t{this.BuildAttributeInstance(r, "Prop")}").ToList();
@@ -458,6 +448,15 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             }
 
             string modifier = "";
+            string propertyModifier = "!";
+
+            if(Type is CoreAttribute attr && attr.OptionalArguments != null)
+            {
+                if(attr.OptionalArguments.Any(s => s.ArgumentName.ToLower() == Property.PropertyName.ToLower()))
+                {
+                    propertyModifier = "?";
+                }
+            }
 
             if (!Type.IsInterface)
             {
@@ -470,7 +469,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             if (!String.IsNullOrEmpty(modifier))
             {
-                propertyText.Add($"\t{modifier} {Property.PropertyName}!: {this.BuildGenericType(Property.Type)};");
+                propertyText.Add($"\t{modifier} {Property.PropertyName}{propertyModifier}: {this.BuildGenericType(Property.Type)};");
             }
             else
             {
@@ -483,27 +482,34 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         private string BuildAttributeInstance(CoreAttributeInstance Attr, string Suffix = "")
         {
             string attrInsides = $"{Attr.TypeName}{Suffix}";
-            List<string> args = new List<string>();
+            string argMap = "";
+
             if (Attr.Arguments != null && Attr.Arguments.Count() > 0)
             {
-                args = Attr.Arguments.Select(r =>
+                List<string> args = new List<string>();
+
+                foreach (var key in Attr.Arguments)
                 {
-                    if (r.Value is JsonElement elem)
+                    object value = key.Value;
+                    string stringValue = "";
+
+                    if (value is JsonElement elem)
                     {
                         if (elem.ValueKind == JsonValueKind.String)
                         {
-                            return $"\"{elem.ToString()}\"";
+                            stringValue = $"\"{elem.ToString()}\"";
                         }
                         else
                         {
-                            return elem.GetRawText();
+                            stringValue = elem.GetRawText();
                         }
                     }
-                    return "";
-                }).ToList();
 
+                    args.Add($"{key.Key}: {stringValue}");
+                }
+                argMap = $"{{{String.Join(", ", args)}}}";
             }
-            attrInsides += $"({String.Join(", ", args)})";
+            attrInsides += $"({argMap})";
             return $"@{attrInsides}";
         }
 
@@ -562,9 +568,9 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 imports.AddRange(attrs.Select(r => new TypescriptImport(r.TypeName, r.Module, r.NameSpace, "Prop")));
             }
 
-            if (Type is CoreAttribute attr && attr.Arguments != null)
+            if (Type is CoreAttribute attr && attr.RequiredArguments != null)
             {
-                imports.AddRange(attr.Arguments.SelectMany(r => this.ExtractImports(r.Type)));
+                imports.AddRange(attr.RequiredArguments.SelectMany(r => this.ExtractImports(r.Type)));
             }
 
             return imports;
@@ -619,10 +625,15 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 otherModules.ForEach(r => additionalModules.Merge(r));
             }
 
-            if (Type is CoreAttribute attr && attr.Arguments != null)
+            if(Type.Attributes != null)
             {
-                attr.Arguments.Where(r => r.Type.Module != null).ToList().ForEach(r => additionalModules[r.Type.Module] = r.Type.ModuleVersion);
-                List<Dictionary<string, string>> otherModules = attr.Arguments.Select(r => this.ExtractAdditionalModules(r.Type)).ToList();
+                Type.Attributes.Where(r => r.Module != null).ToList().ForEach(r => additionalModules[r.Module] = r.ModuleVersion);
+            }
+
+            if (Type is CoreAttribute attr && attr.RequiredArguments != null)
+            {
+                attr.RequiredArguments.Where(r => r.Type.Module != null).ToList().ForEach(r => additionalModules[r.Type.Module] = r.Type.ModuleVersion);
+                List<Dictionary<string, string>> otherModules = attr.RequiredArguments.Select(r => this.ExtractAdditionalModules(r.Type)).ToList();
                 otherModules.ForEach(r => additionalModules.Merge(r));
             }
 

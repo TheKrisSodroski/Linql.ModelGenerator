@@ -37,6 +37,7 @@ namespace Linql.ComponentModel.DataAnnotations
                typeof(RequiredAttribute),
                typeof(RangeAttribute),
                typeof(RegularExpressionAttribute),
+               typeof(DisplayAttribute)
             };
             return typesICareAbout.Contains(Type);
         }
