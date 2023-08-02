@@ -487,7 +487,6 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             if (Attr.Arguments != null && Attr.Arguments.Count() > 0)
             {
-
                 foreach (var key in Attr.Arguments)
                 {
                     object value = key.Value;

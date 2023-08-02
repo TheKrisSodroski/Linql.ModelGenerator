@@ -285,7 +285,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
                         if (constructorInfo != null)
                         {
                             parameters = constructorInfo.GetParameters().ToList();
-                            attr.RequiredArguments = constructorInfo.GetParameters().Select(r => this.GenerateParameter(r)).ToList();        
+                            attr.RequiredArguments = parameters.Where(r => !this.IsObjectType(r.ParameterType)).Select(r => this.GenerateParameter(r)).ToList();        
                         }
 
                         List<PropertyInfo> optionalArguments = properties.Where(r => !parameters.Select(s => s.Name.ToLower()).Contains(r.Name.ToLower())).ToList();
@@ -443,16 +443,38 @@ namespace Linql.ModelGenerator.CSharp.Backend
             attr.ModuleVersion = this.GetAssemblyVersion(Attribute.GetType().Assembly);
 
             ConstructorInfo constructorInfo = Attribute.GetType().GetConstructors().FirstOrDefault();
-            List<string> argNames = attrType.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).Select(r => r.Name.ToLower()).ToList();
+            List<PropertyInfo> properties = attrType.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance).ToList();
+            List<string> argNames = properties.Select(r => r.Name.ToLower()).ToList();
             if (constructorInfo != null)
             {
                 argNames = constructorInfo.GetParameters().Select(r => r.Name.ToLower()).ToList();
             }
-            attr.Arguments = attrType.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
-                .Where(r => argNames.Contains(r.Name.ToLower()))
-                .ToDictionary(r => r.Name, r => r.GetValue(Attribute));
+            //var test = properties.Where(r => argNames.Contains(r.Name.ToLower())).ToList();
+            //var test2 = test.Where(r => !this.IsObjectType(r.PropertyType)).ToList();
+
+            //attr.Arguments = attrType.GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
+            //    .Where(r => argNames.Contains(r.Name.ToLower()))
+            //    .Where(r => !this.IsObjectType(r.PropertyType))
+            //    .ToDictionary(r => r.Name, r => r.GetValue(Attribute));
+
+            attr.Arguments = properties
+                .Where(r => !this.IsObjectType(r.PropertyType))
+                .Where(r => this.GetAttributeValue(Attribute, r) != null)
+                            .ToDictionary(r => r.Name, r => this.GetAttributeValue(Attribute, r));
 
             return attr;
+        }
+
+        protected object GetAttributeValue(Attribute Attribute, PropertyInfo Property)
+        {
+            try
+            {
+                return Property.GetValue(Attribute);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         protected CoreArgument GenerateParameter(ParameterInfo Parameter)
