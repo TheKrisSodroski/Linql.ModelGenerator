@@ -43,7 +43,9 @@ namespace Linql.ModelGenerator.CSharp.Backend
                     Console.WriteLine(r);
                 });
 
-                string csProj = files.FirstOrDefault());
+                string csProj = files.FirstOrDefault();
+
+                Console.WriteLine($"Chose project {csProj}");
 
                 if (csProj != null)
                 {
