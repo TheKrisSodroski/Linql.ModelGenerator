@@ -180,6 +180,10 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             root["scripts"]["linqlBuild"] = new JsonObject();
             root["scripts"]["linqlBuild"] = $"npm i && cd {this.GetRelativePath(rootFolder, projectFolder)} && npm i && cd ../../ && ng build {libraryName}";
+
+            root["scripts"]["linqlPublish"] = new JsonObject();
+            root["scripts"]["linqlPublish"] = $"cd dist/{libraryName} && npm publish";
+
             File.WriteAllText(packageJsonFile, root.ToJsonString(new JsonSerializerOptions() { WriteIndented = true }));
 
         }
