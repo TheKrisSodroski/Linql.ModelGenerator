@@ -98,6 +98,8 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 ngNew.Arguments += " --skip-install";
             }
 
+            ngNew.Arguments += " --interactive=false --force";
+
             ngNew.WorkingDirectory = this.ProjectPath;
             ngNew.CreateNoWindow = false;
             ngNewProcess.StartInfo = ngNew;
@@ -116,6 +118,8 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 ngLibrary.Arguments += " --skip-install";
             }
 
+            ngLibrary.Arguments += " --interactive=false --force";
+
             ngLibrary.WorkingDirectory = this.GetAngularAppPath();
             ngLibrary.CreateNoWindow = false;
             ngNewLibrary.StartInfo = ngLibrary;
@@ -128,6 +132,22 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             File.WriteAllText(Path.Combine(srcDirectory, "public-api.ts"), $"// Public API Surface of {libraryName}");
             Directory.GetFiles(libDirectory).ToList().ForEach(r => File.Delete(r));
+
+            string rootFolder = this.GetAngularAppPath();
+            string projectFolder = this.GetAngularLibPath();
+            string packageJsonFile = Path.Combine(rootFolder, "package.json");
+            string packageJsonText = File.ReadAllText(packageJsonFile);
+
+            JsonNode packageJson = JsonNode.Parse(packageJsonText);
+
+            JsonNode root = packageJson.Root;
+
+            string distFolder = Path.Combine(rootFolder, "dist", root["name"].ToString());
+
+            root["scripts"]["linqlBuild"] = new JsonObject();
+            root["scripts"]["linqlBuild"] = $"npm i && cd {this.GetRelativePath(rootFolder, projectFolder)} && npm i && cd ../../ && ng build {libraryName}";
+            File.WriteAllText(packageJsonFile, root.ToJsonString(new JsonSerializerOptions() { WriteIndented = true }));
+
         }
 
         protected void WritePublicApi()
@@ -151,6 +171,15 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         {
             string folder = NameSpace.Replace($"{this.Module.ModuleName}", String.Empty).TrimStart('.');
             return folder;
+        }
+
+        protected string GetRelativePath(string ComparePath, string Path)
+        {
+            Uri path1 = new Uri(ComparePath);
+            Uri path2 = new Uri(Path);
+            Uri diff = path1.MakeRelativeUri(path2);
+            string relativePath = diff.OriginalString;
+            return "./" + String.Join("/", relativePath.Split('/').Skip(1));
         }
 
         protected string GetRelativeImport(string NameSpace1, string Namespace2)

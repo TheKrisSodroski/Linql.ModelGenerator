@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Test.Module2": {
+      "commandName": "Project",
+      "commandLineArgs": "\"C:\\Linql.ModelGenerator\\C#\\Test\\Test.Module2\\bin\\Debug\\netstandard2.0\\publish\\Test.Module2.dll\""
+    },
+    "system.componentmodel.annotations": {
+      "commandName": "Project",
+      "commandLineArgs": "system.componentmodel.annotations"
+    }
+  }
+}
