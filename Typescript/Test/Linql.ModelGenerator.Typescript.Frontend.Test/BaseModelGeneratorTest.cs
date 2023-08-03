@@ -1,9 +1,10 @@
-using Linql.ModelGenerator.CSharp.Backend;
+using Linql.ComponentModel.Annotations;
 using Linql.ModelGenerator.Core;
+using Linql.ModelGenerator.CSharp.Backend;
+using Linql.System.Spatial;
 using NUnit.Framework;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Linql.ComponentModel.DataAnnotations;
 
 namespace Linql.ModelGenerator.Typescript.Frontend.Test
 {
@@ -28,7 +29,8 @@ namespace Linql.ModelGenerator.Typescript.Frontend.Test
         public virtual void SetUp()
         {
             LinqlModelGeneratorCSharpBackend generator = new LinqlModelGeneratorCSharpBackend(Path.Combine(this.ModelsPath, this.ModuleName));
-            generator.OverridePlugins.Add(new LinqlDataAnnotationsIgnore());
+            generator.OverridePlugins.Add(new LinqlAnnotationsModuleOverride());
+            generator.OverridePlugins.Add(new LinqlSpatialModuleOverride());
             this.Module = generator.Generate();
             this.ModuleJson = JsonSerializer.Serialize(this.Module, this.JsonOptions);
             this.Generator = new LinqlModelGeneratorTypescriptFrontend(this.ModuleJson);

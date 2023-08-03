@@ -6,9 +6,9 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
-namespace Linql.ComponentModel.DataAnnotations
+namespace Linql.ComponentModel.Annotations
 {
-    public class LinqlDataAnnotationsIgnore : IModuleOverridePlugin
+    public class LinqlAnnotationsModuleOverride : IModuleOverridePlugin
     {
         public bool IsValidProperty(Type Type, PropertyInfo PropertyInfo)
         {

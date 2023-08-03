@@ -21,7 +21,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\C#\Backend\Linql.ModelGenerator.CSharp.Backend.csproj" />
-    <ProjectReference Include="..\..\..\C#\DataAnnotations\Linql.ComponentModel.DataAnnotations.csproj" />
+    <ProjectReference Include="..\..\..\C#\ModuleOverrides\DataAnnotations\Linql.System.ComponentModel.Annotations.csproj" />
+    <ProjectReference Include="..\..\..\C#\ModuleOverrides\System.Spatial\Linql.System.Spatial.csproj" />
     <ProjectReference Include="..\..\..\Core\Linql.ModelGenerator.Core.csproj" />
     <ProjectReference Include="..\..\Frontend\Linql.ModelGenerator.Typescript.Frontend.csproj" />
   </ItemGroup>

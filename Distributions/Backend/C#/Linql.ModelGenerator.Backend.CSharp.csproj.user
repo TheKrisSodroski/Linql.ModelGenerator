@@ -4,6 +4,6 @@
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup>
-    <ActiveDebugProfile>system.componentmodel.annotations</ActiveDebugProfile>
+    <ActiveDebugProfile>Test.Module1</ActiveDebugProfile>
   </PropertyGroup>
 </Project>

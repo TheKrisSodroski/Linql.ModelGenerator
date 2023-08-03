@@ -1,9 +1,7 @@
-using Linql.ComponentModel.DataAnnotations;
+using Linql.ComponentModel.Annotations;
 using Linql.ModelGenerator.CSharp.Backend;
 using NUnit.Framework;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Reflection;
 
 namespace Linql.ModelGenerator.Typescript.Frontend.Test
 {
@@ -13,7 +11,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend.Test
         {
             Type efType = typeof(KeyAttribute);
             LinqlModelGeneratorCSharpBackend generator = new LinqlModelGeneratorCSharpBackend(efType.Assembly);
-            generator.OverridePlugins.Add(new LinqlDataAnnotationsIgnore());
+            generator.OverridePlugins.Add(new LinqlAnnotationsModuleOverride());
             this.Module = generator.Generate();
             this.Generator = new LinqlModelGeneratorTypescriptFrontend(this.Module);
         }

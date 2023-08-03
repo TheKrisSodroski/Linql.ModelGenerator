@@ -1,13 +1,8 @@
+using Linql.ComponentModel.Annotations;
 using Linql.ModelGenerator.Core;
+using Linql.System.Spatial;
 using NUnit.Framework;
-using System.Text.Json;
-using Test.Module1.Inheritance;
-using Test.Module1;
-using Test.Module1.Generics;
-using Test.Module2;
 using System.ComponentModel.DataAnnotations;
-using System.Reflection.Emit;
-using Linql.ComponentModel.DataAnnotations;
 
 namespace Linql.ModelGenerator.CSharp.Backend.Test
 {
@@ -17,11 +12,15 @@ namespace Linql.ModelGenerator.CSharp.Backend.Test
         public override void SetUp()
         {
             LinqlModelGeneratorCSharpBackend annotationsGen = new LinqlModelGeneratorCSharpBackend(typeof(KeyAttribute).Assembly);
-            annotationsGen.OverridePlugins.Add(new LinqlDataAnnotationsIgnore());
+            annotationsGen.OverridePlugins.Add(new LinqlAnnotationsModuleOverride());
+            annotationsGen.OverridePlugins.Add(new LinqlSpatialModuleOverride());
+
             CoreModule annotations = annotationsGen.Generate();
 
             LinqlModelGeneratorCSharpBackend generator = new LinqlModelGeneratorCSharpBackend(Path.Combine(this.ModelsPath, this.ModuleName));
-            generator.OverridePlugins.Add(new LinqlDataAnnotationsIgnore());
+            generator.OverridePlugins.Add(new LinqlAnnotationsModuleOverride());
+            generator.OverridePlugins.Add(new LinqlSpatialModuleOverride());
+
             this.Module = generator.Generate();
 
         }

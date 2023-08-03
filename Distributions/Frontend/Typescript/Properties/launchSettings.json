@@ -4,6 +4,10 @@
       "commandName": "Project",
       "commandLineArgs": "C:\\Linql.ModelGenerator\\Distributions\\Backend\\C#\\bin\\Debug\\net7.0\\Test.Module2.linqlmodel.json"
     },
+    "Test.Module1": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Linql.ModelGenerator\\Distributions\\Backend\\C#\\bin\\Debug\\net7.0\\Test.Module1.linqlmodel.json"
+    },
     "system.componentmodel.annotations": {
       "commandName": "Project",
       "commandLineArgs": "C:\\Linql.ModelGenerator\\Distributions\\Backend\\C#\\bin\\Debug\\net7.0\\System.ComponentModel.Annotations.linqlmodel.json"

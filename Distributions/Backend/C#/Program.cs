@@ -1,10 +1,10 @@
-﻿using Linql.ComponentModel.DataAnnotations;
+﻿using Linql.ComponentModel.Annotations;
 using Linql.ModelGenerator.Core;
 using Linql.ModelGenerator.CSharp.Backend;
+using Linql.System.Spatial;
 using System.ComponentModel.DataAnnotations;
-using System.Reflection;
+using System.Reflection.Emit;
 using System.Text.Json;
-using static System.Net.Mime.MediaTypeNames;
 
 class Program
 {
@@ -25,7 +25,8 @@ class Program
             {
                 generator = new LinqlModelGeneratorCSharpBackend(firstArg);
             }
-            generator.OverridePlugins.Add(new LinqlDataAnnotationsIgnore());
+            generator.OverridePlugins.Add(new LinqlAnnotationsModuleOverride());
+            generator.OverridePlugins.Add(new LinqlSpatialModuleOverride());
             CoreModule module = generator.Generate();
             string moduleJson = JsonSerializer.Serialize(module);
             string currentDirectory = Path.GetDirectoryName(System.AppContext.BaseDirectory);

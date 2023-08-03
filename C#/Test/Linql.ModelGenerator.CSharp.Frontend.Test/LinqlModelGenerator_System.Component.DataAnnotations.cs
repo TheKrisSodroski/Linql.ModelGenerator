@@ -1,11 +1,8 @@
+using Linql.ComponentModel.Annotations;
 using Linql.ModelGenerator.CSharp.Backend;
-using Linql.ModelGenerator.Core;
+using Linql.System.Spatial;
 using NUnit.Framework;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
-using Test.Module1;
-using System.Reflection;
-using Linql.ComponentModel.DataAnnotations;
 
 namespace Linql.ModelGenerator.CSharp.Frontend.Test
 {
@@ -15,7 +12,8 @@ namespace Linql.ModelGenerator.CSharp.Frontend.Test
         {
             Type efType = typeof(KeyAttribute);
             LinqlModelGeneratorCSharpBackend generator = new LinqlModelGeneratorCSharpBackend(efType.Assembly);
-            generator.OverridePlugins.Add(new LinqlDataAnnotationsIgnore());
+            generator.OverridePlugins.Add(new LinqlAnnotationsModuleOverride());
+            generator.OverridePlugins.Add(new LinqlSpatialModuleOverride());
             this.Module = generator.Generate();
             this.Generator = new LinqlModelGeneratorCSharpFrontend(this.Module);
         }
