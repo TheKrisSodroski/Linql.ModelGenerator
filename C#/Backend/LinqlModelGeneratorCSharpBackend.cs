@@ -34,8 +34,16 @@ namespace Linql.ModelGenerator.CSharp.Backend
             string assemblyPath = AssemblyPath;
             if (!AssemblyPath.EndsWith(".dll"))
             {
-                List<string> files = Directory.GetFiles(AssemblyPath).ToList();
-                string csProj = files.FirstOrDefault(r => r.EndsWith("csproj"));
+                List<string> files = Directory.GetFiles(AssemblyPath, "*.csproj", SearchOption.AllDirectories).ToList();
+
+                Console.WriteLine("Found the following csproj files:");
+
+                files.ForEach(r =>
+                {
+                    Console.WriteLine(r);
+                });
+
+                string csProj = files.FirstOrDefault());
 
                 if (csProj != null)
                 {
