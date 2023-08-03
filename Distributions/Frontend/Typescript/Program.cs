@@ -9,7 +9,7 @@ class Program
     {
         string firstArg = args.FirstOrDefault();
 
-        if(firstArg != null)
+        if(firstArg != null && firstArg.Contains("linqlmodel.json"))
         {
             string json = File.ReadAllText(firstArg);
             CoreModule module = JsonSerializer.Deserialize<CoreModule>(json);
