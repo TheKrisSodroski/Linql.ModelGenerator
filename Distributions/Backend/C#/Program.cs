@@ -1,4 +1,5 @@
 ﻿using Linql.ComponentModel.Annotations;
+using Linql.EntityFramework;
 using Linql.ModelGenerator.Core;
 using Linql.ModelGenerator.CSharp.Backend;
 using Linql.System.Spatial;
@@ -27,6 +28,7 @@ class Program
             }
             generator.OverridePlugins.Add(new LinqlAnnotationsModuleOverride());
             generator.OverridePlugins.Add(new LinqlSpatialModuleOverride());
+            generator.OverridePlugins.Add(new LinqlEntityFrameworkModuleOverride());
             CoreModule module = generator.Generate();
             string moduleJson = JsonSerializer.Serialize(module);
             string currentDirectory = Path.GetDirectoryName(System.AppContext.BaseDirectory);

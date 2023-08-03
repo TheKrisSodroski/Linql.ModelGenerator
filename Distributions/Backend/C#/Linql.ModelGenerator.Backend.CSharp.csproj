@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\C#\Backend\Linql.ModelGenerator.CSharp.Backend.csproj" />
     <ProjectReference Include="..\..\..\C#\ModuleOverrides\DataAnnotations\Linql.System.ComponentModel.Annotations.csproj" />
+    <ProjectReference Include="..\..\..\C#\ModuleOverrides\EntityFramework\Linql.EntityFramework.csproj" />
     <ProjectReference Include="..\..\..\C#\ModuleOverrides\System.Spatial\Linql.System.Spatial.csproj" />
   </ItemGroup>
 
