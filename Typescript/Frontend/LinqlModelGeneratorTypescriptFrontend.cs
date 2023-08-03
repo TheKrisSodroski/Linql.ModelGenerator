@@ -103,7 +103,25 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                     Console.WriteLine(e.Data);
                 }
             );
+            process.ErrorDataReceived += new DataReceivedEventHandler
+            (
+                delegate (object sender, DataReceivedEventArgs e)
+                {
+                    Console.WriteLine(e.Data);
+                }
+            );
             return process;
+        }
+
+        protected void RunProcess(Process Process)
+        {
+            Process.Start();
+            Process.BeginOutputReadLine();
+            Process.BeginErrorReadLine();
+            Process.WaitForExit();
+            Process.CancelOutputRead();
+            Process.CancelErrorRead();
+
         }
 
         protected override void CreateProject()
@@ -120,10 +138,8 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             ngNewProcess.StartInfo.Arguments += " --interactive=false --force";
 
             ngNewProcess.StartInfo.WorkingDirectory = this.ProjectPath;
-            ngNewProcess.Start();
-            ngNewProcess.BeginOutputReadLine();
-            ngNewProcess.WaitForExit();
-            ngNewProcess.CancelOutputRead();
+            this.RunProcess(ngNewProcess);
+
             Console.WriteLine("Finished creating angular app");
             string libraryName = this.GetAngularLibraryName(this.Module.ModuleName);
 
@@ -140,12 +156,8 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             ngNewLibrary.StartInfo.Arguments += " --interactive=false --force";
 
             ngNewLibrary.StartInfo.WorkingDirectory = this.GetAngularAppPath();
-            ngNewLibrary.Start();
+            this.RunProcess(ngNewLibrary);
 
-            ngNewProcess.Start();
-            ngNewProcess.BeginOutputReadLine();
-            ngNewProcess.WaitForExit();
-            ngNewProcess.CancelOutputRead();
 
             Console.WriteLine("Finished creating angular library");
 
