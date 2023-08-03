@@ -49,17 +49,14 @@ namespace Linql.ModelGenerator.CSharp.Backend
                     process.Start();
                     process.WaitForExit();
 
-                    string compiledPath = Path.Combine(assemblyPath, "bin", "Debug");
-                    List<string> compiledDirectories = Directory.GetDirectories(compiledPath).ToList();
+                    List<string> foundDlls = Directory.GetFiles(AssemblyPath, $"{moduleName}.dll", SearchOption.AllDirectories).ToList();
+                    foundDlls = foundDlls.Where(r => r.Contains("publish")).ToList();
+                    assemblyPath = foundDlls.FirstOrDefault(r => r.Contains("Release"));
 
-                    string compiledDirectory = compiledDirectories.FirstOrDefault(r => r.Contains("netstandard"));
-
-                    if (compiledDirectory == null)
+                    if(assemblyPath == null)
                     {
-                        compiledDirectory = compiledDirectories.FirstOrDefault();
+                        assemblyPath = foundDlls.FirstOrDefault();
                     }
-
-                    assemblyPath = Path.Combine(compiledDirectory, "publish", $"{moduleName}.dll");
                 }
                 else
                 {
@@ -443,7 +440,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
             List<string> argNames = properties.Select(r => r.Name.ToLower()).ToList();
             if (constructorInfo != null)
             {
-                argNames = constructorInfo.GetParameters().Select(r => r.Name.ToLower()).ToList();
+                argNames = constructorInfo.GetParameters().Where(r => r.Name != null).Select(r => r.Name.ToLower()).ToList();
             }
             //var test = properties.Where(r => argNames.Contains(r.Name.ToLower())).ToList();
             //var test2 = test.Where(r => !this.IsObjectType(r.PropertyType)).ToList();
