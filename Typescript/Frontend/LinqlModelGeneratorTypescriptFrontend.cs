@@ -108,6 +108,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
         protected override void CreateProject()
         {
+            Console.WriteLine($"Creating new Angular App: {this.Module.ModuleName}");
             Process ngNewProcess = this.GetProcess();
             ngNewProcess.StartInfo.Arguments = $"ng new {this.Module.ModuleName}";
 
@@ -123,8 +124,10 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             ngNewProcess.BeginOutputReadLine();
             ngNewProcess.WaitForExit();
             ngNewProcess.CancelOutputRead();
-
+            Console.WriteLine("Finished creating angular app");
             string libraryName = this.GetAngularLibraryName(this.Module.ModuleName);
+
+            Console.WriteLine($"Generating library {libraryName}");
 
             Process ngNewLibrary = this.GetProcess();
             ngNewLibrary.StartInfo.Arguments = $"ng generate library {libraryName}";
@@ -143,6 +146,8 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             ngNewProcess.BeginOutputReadLine();
             ngNewProcess.WaitForExit();
             ngNewProcess.CancelOutputRead();
+
+            Console.WriteLine("Finished creating angular library");
 
             string srcDirectory = this.GetAngularSrcPath();
             string libDirectory = this.GetAngularLibPath();
