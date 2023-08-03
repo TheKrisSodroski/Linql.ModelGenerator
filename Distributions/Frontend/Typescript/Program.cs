@@ -9,29 +9,33 @@ class Program
     {
         string firstArg = args.FirstOrDefault();
 
-        if(firstArg != null && firstArg.Contains("linqlmodel.json"))
+        if (firstArg != null && firstArg.Contains("linqlmodel.json"))
         {
             string json = File.ReadAllText(firstArg);
             CoreModule module = JsonSerializer.Deserialize<CoreModule>(json);
             LinqlModelGeneratorTypescriptFrontend generator = new LinqlModelGeneratorTypescriptFrontend(module);
             generator.Generate();
+            return;
         }
-        else
+        else if (firstArg == null)
         {
-            string currentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            List<string> linqlModels = Directory.GetFiles(currentDirectory, "*.linqlmodel.json", SearchOption.AllDirectories).ToList();
-
-            Console.WriteLine("Found the following linql models:");
-            linqlModels.ForEach(r => Console.WriteLine(r));
-
-            linqlModels.ForEach(r =>
-            {
-                Console.WriteLine($"Generating from file {r}");
-                string json = File.ReadAllText(r);
-                CoreModule module = JsonSerializer.Deserialize<CoreModule>(json);
-                LinqlModelGeneratorTypescriptFrontend generator = new LinqlModelGeneratorTypescriptFrontend(module);
-                generator.Generate();
-            });
+            firstArg = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
+
+        string currentDirectory = firstArg;
+        List<string> linqlModels = Directory.GetFiles(currentDirectory, "*.linqlmodel.json", SearchOption.AllDirectories).ToList();
+
+        Console.WriteLine("Found the following linql models:");
+        linqlModels.ForEach(r => Console.WriteLine(r));
+
+        linqlModels.ForEach(r =>
+        {
+            Console.WriteLine($"Generating from file {r}");
+            string json = File.ReadAllText(r);
+            CoreModule module = JsonSerializer.Deserialize<CoreModule>(json);
+            LinqlModelGeneratorTypescriptFrontend generator = new LinqlModelGeneratorTypescriptFrontend(module);
+            generator.Generate();
+        });
+
     }
 }

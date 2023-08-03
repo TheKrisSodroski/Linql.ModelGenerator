@@ -49,14 +49,14 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         {
             bool isAny = this.IsAnyType(Type);
 
-            if(isAny == true)
+            if (isAny == true)
             {
                 Type.Module = null;
                 Type.TypeName = "object";
                 Type.IsPrimitive = true;
                 Type.NameSpace = null;
             }
-            else if (Type.GenericArguments != null) 
+            else if (Type.GenericArguments != null)
             {
                 Type.GenericArguments.ForEach(r => this.ReplaceAnyOverrides(r));
             }
@@ -87,45 +87,62 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             File.WriteAllText(packageJsonFile, root.ToJsonString(new JsonSerializerOptions() { WriteIndented = true }));
         }
 
+        protected Process GetProcess(string Process = "Powershell.exe")
+        {
+            Process process = new Process();
+            ProcessStartInfo processStartInfo = new ProcessStartInfo(Process);
+            processStartInfo.UseShellExecute = false;
+            processStartInfo.RedirectStandardOutput = true;
+            processStartInfo.RedirectStandardError = true;
+            process.StartInfo.CreateNoWindow = true;
+            process.StartInfo = processStartInfo;
+            process.OutputDataReceived += new DataReceivedEventHandler
+            (
+                delegate (object sender, DataReceivedEventArgs e)
+                {
+                    Console.WriteLine(e.Data);
+                }
+            );
+            return process;
+        }
+
         protected override void CreateProject()
         {
-            Process ngNewProcess = new Process();
-            ProcessStartInfo ngNew = new ProcessStartInfo("Powershell.exe");
-            ngNew.Arguments = $"ng new {this.Module.ModuleName}";
+            Process ngNewProcess = this.GetProcess();
+            ngNewProcess.StartInfo.Arguments = $"ng new {this.Module.ModuleName}";
 
             if (this.SkipInstall)
             {
-                ngNew.Arguments += " --skip-install";
+                ngNewProcess.StartInfo.Arguments += " --skip-install";
             }
 
-            ngNew.Arguments += " --interactive=false --force";
+            ngNewProcess.StartInfo.Arguments += " --interactive=false --force";
 
-            ngNew.WorkingDirectory = this.ProjectPath;
-            ngNew.CreateNoWindow = false;
-            ngNewProcess.StartInfo = ngNew;
+            ngNewProcess.StartInfo.WorkingDirectory = this.ProjectPath;
             ngNewProcess.Start();
-
+            ngNewProcess.BeginOutputReadLine();
             ngNewProcess.WaitForExit();
+            ngNewProcess.CancelOutputRead();
 
             string libraryName = this.GetAngularLibraryName(this.Module.ModuleName);
 
-            Process ngNewLibrary = new Process();
-            ProcessStartInfo ngLibrary = new ProcessStartInfo("Powershell.exe");
-            ngLibrary.Arguments = $"ng generate library {libraryName}";
+            Process ngNewLibrary = this.GetProcess();
+            ngNewLibrary.StartInfo.Arguments = $"ng generate library {libraryName}";
 
             if (this.SkipInstall)
             {
-                ngLibrary.Arguments += " --skip-install";
+                ngNewLibrary.StartInfo.Arguments += " --skip-install";
             }
 
-            ngLibrary.Arguments += " --interactive=false --force";
+            ngNewLibrary.StartInfo.Arguments += " --interactive=false --force";
 
-            ngLibrary.WorkingDirectory = this.GetAngularAppPath();
-            ngLibrary.CreateNoWindow = false;
-            ngNewLibrary.StartInfo = ngLibrary;
+            ngNewLibrary.StartInfo.WorkingDirectory = this.GetAngularAppPath();
             ngNewLibrary.Start();
 
-            ngNewLibrary.WaitForExit();
+            ngNewProcess.Start();
+            ngNewProcess.BeginOutputReadLine();
+            ngNewProcess.WaitForExit();
+            ngNewProcess.CancelOutputRead();
 
             string srcDirectory = this.GetAngularSrcPath();
             string libDirectory = this.GetAngularLibPath();
@@ -241,7 +258,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             fileText.AddRange(importStatements);
 
-            if(Type is CoreAttribute)
+            if (Type is CoreAttribute)
             {
                 fileText.Add("import 'reflect-metadata';");
             }
@@ -278,7 +295,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             {
                 classType = "class";
             }
-            else if(Type is CoreEnum Enum)
+            else if (Type is CoreEnum Enum)
             {
                 classType = "enum";
             }
@@ -369,7 +386,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 classArgs.Add(String.Join($",{Environment.NewLine}", Attribute.RequiredArguments.Select(r =>
                 {
                     CoreProperty prop = Attribute.Properties?.FirstOrDefault(s => s.PropertyName.ToLower() == r.ArgumentName.ToLower());
-                    if(prop == null)
+                    if (prop == null)
                     {
                         return $"\t\t//Unable to find Property in {Attribute.TypeName} that matches {r.ArgumentName}";
 
@@ -434,7 +451,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 fileText.Add("");
             }
 
-            if(isPropertyAttribute && isClassAttribute)
+            if (isPropertyAttribute && isClassAttribute)
             {
                 fileText.Add($"export function get{attr.TypeName}<T extends object | constructorType, Property extends keyof T & string>(target: T, propertyKey?: Property)");
                 fileText.Add("{");
@@ -479,9 +496,9 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             string modifier = "";
             string propertyModifier = "!";
 
-            if(Type is CoreAttribute attr && attr.OptionalArguments != null)
+            if (Type is CoreAttribute attr && attr.OptionalArguments != null)
             {
-                if(attr.OptionalArguments.Any(s => s.ArgumentName.ToLower() == Property.PropertyName.ToLower()))
+                if (attr.OptionalArguments.Any(s => s.ArgumentName.ToLower() == Property.PropertyName.ToLower()))
                 {
                     propertyModifier = "?";
                 }
@@ -653,7 +670,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 otherModules.ForEach(r => additionalModules.Merge(r));
             }
 
-            if(Type.Attributes != null)
+            if (Type.Attributes != null)
             {
                 Type.Attributes.Where(r => r.Module != null).ToList().ForEach(r => additionalModules[r.Module] = r.ModuleVersion);
             }
@@ -729,7 +746,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 return foundType.Name;
 
             }
-            else if(Type.TypeName == "object")
+            else if (Type.TypeName == "object")
             {
                 return "any";
             }
