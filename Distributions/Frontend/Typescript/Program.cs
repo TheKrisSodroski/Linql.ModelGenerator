@@ -18,7 +18,7 @@ class Program
         }
         else
         {
-            string currentDirectory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+            string currentDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             List<string> linqlModels = Directory.GetFiles(currentDirectory, "*.linqlmodel.json", SearchOption.AllDirectories).ToList();
 
             Console.WriteLine("Found the following linql models:");
