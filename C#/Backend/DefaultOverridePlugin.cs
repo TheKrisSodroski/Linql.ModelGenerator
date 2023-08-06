@@ -21,12 +21,21 @@ namespace Linql.ModelGenerator.CSharp.Backend
                 typeof(Type)
             };
 
-
+        private static List<string> IgnoreIfNameContains = new List<string>()
+        {
+            ">c",
+            "__"
+        };
 
         public bool IsValidType(Type Type)
         {
             bool linqlBaseIgnore = !DefaultOverridePlugin.AssembliesToIgnore.Contains(Type.Assembly) && Type.GetCustomAttribute<LinqlGenIngore>() == null;
-            return linqlBaseIgnore && !Type.Name.Contains(">c");
+            return linqlBaseIgnore && !IgnoreIfNameContains.Any(s => Type.Name.Contains(s)) && !this.isSealed(Type);
+        }
+
+        private bool isSealed(Type Type) 
+        {
+            return Type.IsSealed;
         }
 
         public bool IsValidProperty(Type Type, PropertyInfo PropertyInfo)

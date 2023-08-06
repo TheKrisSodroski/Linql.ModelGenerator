@@ -113,8 +113,8 @@ namespace Linql.ModelGenerator.CSharp.Backend
         protected virtual List<CoreType> GenerateTypes()
         {
             List<Type> typesToGenerate = this.Assembly.GetTypes().ToList();
-            return typesToGenerate
-              .Where(r => this.IsValidType(r))
+            List<Type> validTypes = typesToGenerate.Where(r => this.IsValidType(r)).ToList();
+            return validTypes
               .Select(r => this.GenerateType(r)).ToList();
         }
 
