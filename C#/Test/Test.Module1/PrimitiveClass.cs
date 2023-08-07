@@ -27,5 +27,7 @@ namespace Test.Module1
         public short Int16 { get; set; } 
 
         public object Object { get; set; }
+
+        public DateTime DateTime { get; set; }
     }
 }

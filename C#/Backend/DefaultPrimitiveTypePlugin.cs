@@ -10,7 +10,8 @@ namespace Linql.ModelGenerator.CSharp.Backend
             {
                 typeof(Decimal),
                 typeof(string),
-                typeof(object)
+                typeof(object),
+                typeof(DateTime),
             };
 
 

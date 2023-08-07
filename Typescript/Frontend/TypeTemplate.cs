@@ -28,7 +28,8 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             { typeof(bool), "boolean" },
             { typeof(char), "string" },
             { typeof(string), "string" },
-            { typeof(void), "any" }
+            { typeof(void), "any" },
+            { typeof(DateTime), "Date" }
         };
 
         private static readonly List<string> ClassAttributes = new List<string>()
