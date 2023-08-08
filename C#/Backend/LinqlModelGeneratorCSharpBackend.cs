@@ -396,11 +396,12 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
         protected CoreProperty GenerateProperty(PropertyInfo Property)
         {
+            List<PropertyInfo> test = Property.DeclaringType.GetProperties(BindingFlags.Instance | BindingFlags.Public).ToList();
             CoreProperty prop = new CoreProperty();
             prop.PropertyName = Property.Name;
             prop.Type = this.GenerateReducedType(Property.PropertyType);
             prop.Attributes = Property.GetCustomAttributes().Where(r => this.IsValidType(r.GetType())).Select(r => this.GenerateAttributeInstance(r)).ToList();
-            prop.Overriden = Property.GetGetMethod().GetBaseDefinition().DeclaringType != Property.DeclaringType;
+            prop.Overriden = Property.GetGetMethod().GetBaseDefinition().DeclaringType != Property.DeclaringType || test.Any(s => s.Name == Property.Name && s.DeclaringType != Property.DeclaringType);
             prop.Virtual = Property.GetGetMethod().IsVirtual;
 
             if (prop.Attributes.Count() == 0)
