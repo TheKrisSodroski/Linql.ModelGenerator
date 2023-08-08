@@ -36,7 +36,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                     }
                     else
                     {
-                        s.TypeName = $"{s.TypeName}{r.ToList().IndexOf(s) + 1}";
+                        s.TypeName = $"{s.TypeName}";
                     }
                 });
             });
@@ -80,8 +80,11 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             foreach (var dep in AdditionalModules)
             {
-                peerDependencies[this.GetAngularLibraryName(dep.Key)] = dep.Value;
-                devDependencies[this.GetAngularLibraryName(dep.Key)] = dep.Value;
+                string version = dep.Value;
+                //version = String.Join(".", version.Split('.').Take(2));
+                //version += ".*-*";
+                peerDependencies[this.GetAngularLibraryName(dep.Key)] = $"^{version}";
+                devDependencies[this.GetAngularLibraryName(dep.Key)] = $"^{version}";
             }
 
             File.WriteAllText(packageJsonFile, root.ToJsonString(new JsonSerializerOptions() { WriteIndented = true }));
