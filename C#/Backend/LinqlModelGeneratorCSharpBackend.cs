@@ -107,6 +107,17 @@ namespace Linql.ModelGenerator.CSharp.Backend
             module.Version = this.GetAssemblyVersion(this.Assembly);
 
             module.Types = this.GenerateTypes();
+            module.Types.ForEach(r =>
+            {
+                if(r.BaseClass!= null)
+                {
+                    r.BaseClass = this.GenerateReducedType(r.BaseClass);
+                }
+
+                r.Interfaces = r.Interfaces?.Select(s => this.GenerateReducedType(s)).ToList();
+
+                r.Properties?.ForEach(s => s.Type = this.GenerateReducedType(s.Type));
+            });
             return module;
         }
 
@@ -219,7 +230,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
                 {
                     if (Type.BaseType != null && this.IsValidType(Type.BaseType))
                     {
-                        type.BaseClass = this.GenerateReducedType(Type.BaseType);
+                        type.BaseClass = this.GenerateType(Type.BaseType);
                     }
 
                     List<Type> interfaces = Type.GetInterfaces().Where(r => this.IsValidType(r)).ToList();
@@ -233,7 +244,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
                         .Except(baseTypeInterfaces)
                         .Except(interfaces.SelectMany(s => s.GetInterfaces())).ToList();
 
-                    type.Interfaces = interfaces.Select(r => this.GenerateReducedType(r)).ToList();
+                    type.Interfaces = interfaces.Select(r => this.GenerateType(r)).ToList();
 
                     type.Properties = Type
                         .GetProperties(BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance)
@@ -399,7 +410,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
             List<PropertyInfo> test = Property.DeclaringType.GetProperties(BindingFlags.Instance | BindingFlags.Public).ToList();
             CoreProperty prop = new CoreProperty();
             prop.PropertyName = Property.Name;
-            prop.Type = this.GenerateReducedType(Property.PropertyType);
+            prop.Type = this.GenerateType(Property.PropertyType);
             prop.Attributes = Property.GetCustomAttributes().Where(r => this.IsValidType(r.GetType())).Select(r => this.GenerateAttributeInstance(r)).ToList();
             prop.Overriden = Property.GetGetMethod().GetBaseDefinition().DeclaringType != Property.DeclaringType || test.Any(s => s.Name == Property.Name && s.DeclaringType != Property.DeclaringType);
             prop.Virtual = Property.GetGetMethod().IsVirtual;
