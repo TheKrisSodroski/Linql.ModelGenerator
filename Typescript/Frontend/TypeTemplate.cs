@@ -32,6 +32,27 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             { typeof(DateTime), "Date" }
         };
 
+        private static readonly Dictionary<Type, string> DefaultValues =
+new Dictionary<Type, string>()
+{
+            { typeof(byte), "0" },
+            { typeof(sbyte), "0" },
+            { typeof(short), "0" },
+            { typeof(ushort), "0" },
+            { typeof(int), "0" },
+            { typeof(uint), "0" },
+            { typeof(long), "0" },
+            { typeof(ulong), "0" },
+            { typeof(float), "0" },
+            { typeof(double), "0" },
+            { typeof(decimal), "0" },
+            { typeof(bool), "false" },
+            { typeof(char), "\"\"" },
+            { typeof(string), "\"\"" },
+            { typeof(void), "null" },
+            { typeof(DateTime), "new Date()" }
+};
+
         private static readonly List<string> ClassAttributes = new List<string>()
             {
                 Enum.GetName(typeof(AttributeTargets), AttributeTargets.All),

@@ -17,6 +17,8 @@ namespace Linql.ModelGenerator.Typescript.Frontend
     {
         public bool SkipInstall { get; set; } = true;
 
+        public bool InitializeProperties { get; set; } = true;
+
         public List<CoreType> AnyCasts = new List<CoreType>();
 
         public LinqlModelGeneratorTypescriptFrontend(string CoreJson, string ProjectPath = null) : base(CoreJson, ProjectPath) { }
@@ -401,28 +403,6 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             fileText.Add("}");
         }
 
-        private List<string> BuildMetadataAttributeInstance(CoreAttribute Attribute)
-        {
-            List<string> classArgs = new List<string>();
-            classArgs.Add("\tconst attrInstance = \n\t{");
-            if (Attribute.RequiredArguments != null)
-            {
-                classArgs.Add(String.Join($",{Environment.NewLine}", Attribute.RequiredArguments.Select(r =>
-                {
-                    CoreProperty prop = Attribute.Properties?.FirstOrDefault(s => s.PropertyName.ToLower() == r.ArgumentName.ToLower());
-                    if (prop == null)
-                    {
-                        return $"\t\t//Unable to find Property in {Attribute.TypeName} that matches {r.ArgumentName}";
-
-                    }
-                    return $"\t\t{prop.PropertyName}: {r.ArgumentName}";
-                })));
-            }
-            classArgs.Add($"\t}} as {Attribute.TypeName};");
-            return classArgs;
-        }
-
-
         private void BuildAttributeClass(CoreAttribute attr, List<string> fileText)
         {
             fileText.Add("type constructorType = { new(...args: any[]): {} };");
@@ -518,7 +498,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             }
 
             string modifier = "";
-            string propertyModifier = "!";
+            string propertyModifier = "";
 
             if (Type is CoreAttribute attr && attr.OptionalArguments != null)
             {
@@ -537,16 +517,65 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 }
             }
 
+            string propType = this.BuildGenericType(Property.Type);
+
+            if (Property.Type.IsPrimitive == false && Property.Type.TypeName != "List")
+            {
+                propType += " | null";
+            }
+
             if (!String.IsNullOrEmpty(modifier))
             {
-                propertyText.Add($"\t{modifier} {Property.PropertyName}{propertyModifier}: {this.BuildGenericType(Property.Type)};");
+               
+                string propDef = $"\t{modifier} {Property.PropertyName}{propertyModifier}: {propType}";
+
+                if (this.InitializeProperties && Type.IsClass)
+                {
+                    propDef += $" = {this.GetPropertyDefault(Property)}";
+                }
+
+                propDef += ";";
+
+                propertyText.Add(propDef);
             }
             else
             {
-                propertyText.Add($"\t{Property.PropertyName}: {this.BuildGenericType(Property.Type)};");
+                propertyText.Add($"\t{Property.PropertyName}: {propType};");
             }
 
             return String.Join(Environment.NewLine, propertyText);
+        }
+
+        public string GetPropertyDefault(CoreProperty Property)
+        {
+            string defaultProperty = "";
+
+            if (Property.Type.IsPrimitive)
+            {
+                List<Type> types = typeof(string).Assembly.GetTypes().ToList();
+                Type foundType = types.FirstOrDefault(r => r.Name == Property.Type.TypeName);
+
+                if (foundType != null && LinqlModelGeneratorTypescriptFrontend.DefaultValues.ContainsKey(foundType))
+                {
+                    defaultProperty = LinqlModelGeneratorTypescriptFrontend.DefaultValues[foundType];
+                }
+                else
+                {
+                    defaultProperty = "null";
+                }
+
+            }
+            else if(Property.Type.TypeName == "List")
+            {
+                string propType = this.BuildGenericType(Property.Type);
+                defaultProperty = $"new {propType}()";
+            }
+            else
+            {
+                defaultProperty = "null";
+            }
+
+            return defaultProperty;
         }
 
         private string BuildAttributeInstance(CoreAttributeInstance Attr, string Suffix = "")
