@@ -30,7 +30,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
         public bool IsValidType(Type Type)
         {
             bool linqlBaseIgnore = !DefaultOverridePlugin.AssembliesToIgnore.Contains(Type.Assembly) && Type.GetCustomAttribute<LinqlGenIngore>() == null;
-            return linqlBaseIgnore && !IgnoreIfNameContains.Any(s => Type.Name.Contains(s)) && !this.isSealed(Type);
+            return linqlBaseIgnore && !IgnoreIfNameContains.Any(s => Type.Name.Contains(s));
         }
 
         private bool isSealed(Type Type) 

@@ -59,7 +59,7 @@ namespace Linql.ComponentModel.Annotations
                     informationVersion = String.Join(".", informationVersion.Split('.').Take(3));
                 }
 
-                return informationVersion.Split('+')[0] + "-alpha1";
+                return informationVersion.Split('+')[0] + "-alpha2";
             }
             else
             {
