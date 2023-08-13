@@ -2,26 +2,27 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Linql.ModelGenerator.CSharp.Backend
 {
     public class DefaultOverridePlugin : IModuleOverridePlugin
     {
-        private static List<Assembly> AssembliesToIgnore = new List<Assembly>()
+        protected static List<Assembly> AssembliesToIgnore = new List<Assembly>()
             {
                 typeof(IComparable).Assembly,
                 typeof(Attribute).Assembly,
-                typeof(DefaultOverridePlugin).Assembly
+                typeof(DefaultOverridePlugin).Assembly,
+                typeof(JsonIgnoreAttribute).Assembly
             };
 
-        private static List<Type> AnyTypes = new List<Type>()
+        protected static List<Type> AnyTypes = new List<Type>()
             {
                 typeof(TimeSpan),
                 typeof(Type)
             };
 
-        private static List<string> IgnoreIfNameContains = new List<string>()
+        protected static List<string> IgnoreIfNameContains = new List<string>()
         {
             ">c",
             "__"
