@@ -51,15 +51,16 @@ namespace Linql.ComponentModel.Annotations
         {
             if (Assembly == typeof(KeyAttribute).Assembly)
             {
-                AssemblyInformationalVersionAttribute version = Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
-                string informationVersion = version.InformationalVersion;
+                //AssemblyInformationalVersionAttribute version = Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+                //string informationVersion = version.InformationalVersion;
 
-                if (informationVersion.Split('.').Count() > 3)
-                {
-                    informationVersion = String.Join(".", informationVersion.Split('.').Take(3));
-                }
+                //if (informationVersion.Split('.').Count() > 3)
+                //{
+                //    informationVersion = String.Join(".", informationVersion.Split('.').Take(3));
+                //}
 
-                return informationVersion.Split('+')[0] + "-alpha2";
+                //return informationVersion.Split('+')[0] + "-alpha2";
+                return "6.0.22-alpha.1";
             }
             else
             {
