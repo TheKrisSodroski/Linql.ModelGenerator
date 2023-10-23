@@ -330,7 +330,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 throw new Exception($"Unable to determine class type for Type {Type.TypeName}");
             }
 
-            if (Type.Attributes != null)
+            if (Type.Attributes != null && Type.IsAbstract == false)
             {
                 List<string> attrs = Type.Attributes.Select(r => $"{this.BuildAttributeInstance(r, "Class")}").ToList();
                 fileText.AddRange(attrs);
