@@ -251,6 +251,10 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             {
                 relativePath = "./";
             }
+            else if (!relativePath.StartsWith("./"))
+            {
+                relativePath = $"./{relativePath}";
+            }
 
             return relativePath;
         }
