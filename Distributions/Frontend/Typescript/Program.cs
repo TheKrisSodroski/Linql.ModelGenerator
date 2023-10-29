@@ -9,11 +9,17 @@ class Program
     {
         string firstArg = args.FirstOrDefault();
 
+        List<TypescriptGeneratorPlugin> plugins = new List<TypescriptGeneratorPlugin>()
+        {
+            new StaticTypePlugin(),
+            new PropertyMapPlugin()
+        };
+
         if (firstArg != null && firstArg.Contains("linqlmodel.json"))
         {
             string json = File.ReadAllText(firstArg);
             CoreModule module = JsonSerializer.Deserialize<CoreModule>(json);
-            LinqlModelGeneratorTypescriptFrontend generator = new LinqlModelGeneratorTypescriptFrontend(module);
+            LinqlModelGeneratorTypescriptFrontend generator = new LinqlModelGeneratorTypescriptFrontend(module, plugins);
             generator.Generate();
             return;
         }
@@ -33,7 +39,7 @@ class Program
             Console.WriteLine($"Generating from file {r}");
             string json = File.ReadAllText(r);
             CoreModule module = JsonSerializer.Deserialize<CoreModule>(json);
-            LinqlModelGeneratorTypescriptFrontend generator = new LinqlModelGeneratorTypescriptFrontend(module);
+            LinqlModelGeneratorTypescriptFrontend generator = new LinqlModelGeneratorTypescriptFrontend(module, plugins);
             generator.Generate();
         });
 

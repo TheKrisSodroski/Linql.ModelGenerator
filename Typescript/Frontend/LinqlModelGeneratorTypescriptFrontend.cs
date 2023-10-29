@@ -21,8 +21,22 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
         public List<CoreType> AnyCasts = new List<CoreType>();
 
-        public LinqlModelGeneratorTypescriptFrontend(string CoreJson, string ProjectPath = null) : base(CoreJson, ProjectPath) { }
-        public LinqlModelGeneratorTypescriptFrontend(CoreModule Module, string ProjectPath = null) : base(Module, ProjectPath) { }
+        public List<TypescriptGeneratorPlugin> Plugins { get; set; } = new List<TypescriptGeneratorPlugin>();
+
+        public LinqlModelGeneratorTypescriptFrontend(string CoreJson, List<TypescriptGeneratorPlugin> Plugins = null, string ProjectPath = null) : base(CoreJson, ProjectPath) 
+        {
+            if (Plugins != null)
+            {
+                this.Plugins = Plugins;
+            }
+        }
+        public LinqlModelGeneratorTypescriptFrontend(CoreModule Module, List<TypescriptGeneratorPlugin> Plugins = null, string ProjectPath = null) : base(Module, ProjectPath) 
+        {
+            if(Plugins != null)
+            {
+                this.Plugins = Plugins;
+            }
+        }
 
 
         public override void Generate()
@@ -374,6 +388,11 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             fileText.Add(classRegion);
             fileText.Add("{");
+
+            this.Plugins.ForEach(r =>
+            {
+                fileText.AddRange(r.BeforePropertiesBuilt(Type, this));
+            });
 
             if (Type.Properties != null)
             {
@@ -743,10 +762,9 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             return additionalModules;
         }
 
-        private string BuildGenericType(CoreType Type)
+        public string BuildGenericType(CoreType Type)
         {
             string type = this.GetTypeName(Type);
-
 
             if (type != "Dictionary" && Type.GenericArguments != null && Type.GenericArguments.Count > 0)
             {
@@ -763,7 +781,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             return type;
         }
 
-        private string GetGenericArgumentDefinition(CoreType Type)
+        public string GetGenericArgumentDefinition(CoreType Type)
         {
             string typeName = this.GetTypeName(Type);
             List<string> inheritedTypes = new List<string>();
@@ -787,9 +805,14 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             return typeName;
         }
 
-        private string GetTypeName(CoreType Type)
+        public bool IsListType(CoreType Type)
         {
             List<string> arrayTypes = new List<string>() { "List", "Array" };
+            return arrayTypes.Contains(Type.TypeName);
+        }
+
+        public string GetTypeName(CoreType Type)
+        {
             List<Type> types = typeof(string).Assembly.GetTypes().ToList();
             Type foundType = types.FirstOrDefault(r => r.Name == Type.TypeName);
 
@@ -807,7 +830,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             {
                 return "any";
             }
-            else if (arrayTypes.Contains(Type.TypeName))
+            else if (this.IsListType(Type))
             {
                 return "Array";
             }
