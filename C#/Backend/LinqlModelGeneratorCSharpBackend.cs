@@ -141,7 +141,12 @@ namespace Linql.ModelGenerator.CSharp.Backend
         protected CoreType GenerateType(Type Type)
         {
             string TypeName = Type.Name;
-            if (!this.TypeProcessing.ContainsKey(Type))
+
+            if (this.IsNullable(Type))
+            {
+                return this.GenerateType(this.GetNullableType(Type));
+            }
+            else if (!this.TypeProcessing.ContainsKey(Type))
             {
                 CoreType type;
 
@@ -378,6 +383,15 @@ namespace Linql.ModelGenerator.CSharp.Backend
             return Type.IsPrimitive;
         }
 
+        protected bool IsNullable(Type Type)
+        {
+            return this.GetNullableType(Type) != null;
+        }
+
+        protected Type GetNullableType(Type Type)
+        {
+            return Nullable.GetUnderlyingType(Type);
+        }
 
         protected bool IsArray(Type Type)
         {
@@ -414,6 +428,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
             prop.Attributes = Property.GetCustomAttributes().Where(r => this.IsValidType(r.GetType())).Select(r => this.GenerateAttributeInstance(r)).ToList();
             prop.Overriden = Property.GetGetMethod().GetBaseDefinition().DeclaringType != Property.DeclaringType || test.Any(s => s.Name == Property.Name && s.DeclaringType != Property.DeclaringType);
             prop.Virtual = Property.GetGetMethod().IsVirtual;
+            prop.Nullable = this.IsNullable(Property.PropertyType);
 
             if (prop.Attributes.Count() == 0)
             {

@@ -530,6 +530,10 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                     propertyModifier = "?";
                 }
             }
+            if(Property.Nullable == true)
+            {
+                propertyModifier = "?";
+            }
 
             if (!Type.IsInterface)
             {

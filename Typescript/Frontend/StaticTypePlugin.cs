@@ -7,6 +7,14 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 {
     public class StaticTypePlugin: TypescriptGeneratorPlugin
     {
+        protected string PropertyName { get; set; }
+
+        public StaticTypePlugin(string PropertyName = "Type")
+        {
+            this.PropertyName = PropertyName;
+        }
+
+
         public override List<string> BeforePropertiesBuilt(CoreType Type, LinqlModelGeneratorTypescriptFrontend Generator)
         {
             List<string> pluginText = new List<string>();
@@ -21,7 +29,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 };
                 if (Type.IsClass)
                 {
-                    pluginText.Add($"\tpublic static{overrideModifier}Type = \"{Generator.GetTypeName(Type)}\";");
+                    pluginText.Add($"\tpublic static{overrideModifier}{this.PropertyName} = \"{Generator.GetTypeName(Type)}\";");
                 }
             }
            

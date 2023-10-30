@@ -16,6 +16,8 @@ namespace Linql.ModelGenerator.Core
 
         public bool Virtual { get; set; }
 
+        public bool Nullable { get; set; }
+
         public override string ToString()
         {
             return $"{this.PropertyName} - {this.Type.ToString()}";

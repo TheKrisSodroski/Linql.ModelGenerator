@@ -6,8 +6,15 @@ using System.Text;
 
 namespace Linql.ModelGenerator.Typescript.Frontend
 {
-    public class PropertyMapPlugin: TypescriptGeneratorPlugin
+    public class PropertyMapPlugin : TypescriptGeneratorPlugin
     {
+        protected string PropertyName { get; set; }
+
+        public PropertyMapPlugin(string PropertyName = "LinqlPropertyMap")
+        {
+            this.PropertyName = PropertyName;
+        }
+
         protected string GetPropertyMapType(CoreType ParentType, CoreType PropertyType, LinqlModelGeneratorTypescriptFrontend Generator)
         {
             bool isPrimitive = PropertyType.IsPrimitive;
@@ -47,29 +54,58 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         {
             List<string> pluginText = new List<string>();
 
-            if(!(Type is CoreAttribute))
+            if (!(Type is CoreAttribute))
             {
-                string overrideModifier = " ";
+                string overrideModifier = "";
 
-                if(Type.BaseClass != null)
+                if (Type.BaseClass != null)
                 {
-                    overrideModifier = " override ";
+                    overrideModifier = "override";
                 };
                 if (Type.IsClass && Type.Properties?.Count > 0)
                 {
                     string mapType = $"string, string | (new () => any)";
-                    pluginText.Add($"\tpublic static{overrideModifier}PropertyMap: Map<{mapType}> = new Map<{mapType}>([");
+
                     List<string> properties = new List<string>();
                     Type.Properties.ForEach(r =>
                     {
                         string type = this.GetPropertyMapType(Type, r.Type, Generator);
-                        properties.Add($"\t\t[\"{r.PropertyName}\", {type}]");
+                        properties.Add($"\t\t\t\t[\"{r.PropertyName}\", {type}]");
                     });
-                    pluginText.Add(String.Join(",\n", properties));
-                    pluginText.Add("\t]);");
+                    string propertyBlock = String.Join(",\n", properties);
+
+                    string privatePropertyName = $"{Type.TypeName}{this.PropertyName}";
+
+                    string mergeMap = "";
+
+                    if(Type.BaseClass != null)
+                    {
+                        mergeMap = $",...{Type.BaseClass.TypeName}.{this.PropertyName}";
+                    }
+
+                    string protectedProperty =
+                        $@"
+    protected static {privatePropertyName}: Map<{mapType}> | undefined;";
+
+                    string propertyMapCode =
+    $@"
+    {protectedProperty}
+    public static {overrideModifier} get {this.PropertyName}()
+    {{
+        if(!this.{privatePropertyName})
+        {{
+            this.{privatePropertyName} = new Map<{mapType}>([
+{propertyBlock}
+            {mergeMap}]
+            );
+        }}
+        return this.{privatePropertyName};
+    }}";
+
+                    pluginText.Add(propertyMapCode);
                 }
             }
-           
+
             return pluginText;
         }
     }
