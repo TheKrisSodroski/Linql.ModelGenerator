@@ -21,7 +21,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 };
                 if (Type.IsClass)
                 {
-                    pluginText.Add($"\tpublic static{overrideModifier}Type = {Generator.GetTypeName(Type)};");
+                    pluginText.Add($"\tpublic static{overrideModifier}Type = \"{Generator.GetTypeName(Type)}\";");
                 }
             }
            

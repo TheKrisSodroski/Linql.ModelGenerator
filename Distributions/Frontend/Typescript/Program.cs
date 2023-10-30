@@ -12,7 +12,7 @@ class Program
         List<TypescriptGeneratorPlugin> plugins = new List<TypescriptGeneratorPlugin>()
         {
             new StaticTypePlugin(),
-            new PropertyMapPlugin()
+            //new PropertyMapPlugin()
         };
 
         if (firstArg != null && firstArg.Contains("linqlmodel.json"))
