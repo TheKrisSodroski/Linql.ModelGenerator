@@ -173,6 +173,12 @@ namespace Linql.ModelGenerator.CSharp.Backend
                     type.TypeName = this.GetPrimitiveTypeName(Type);
                     type.Module = null;
                 }
+                else if (this.IsGuid(Type))
+                {
+                    type.IsPrimitive = true;
+                    type.TypeName = this.GetPrimitiveTypeName(typeof(string));
+                    type.Module = null;
+                }
                 else if (this.IsArray(Type))
                 {
                     type.TypeName = "Array";
@@ -401,6 +407,11 @@ namespace Linql.ModelGenerator.CSharp.Backend
         protected bool IsDictionary(Type Type)
         {
             return Type.IsGenericType && Type.GetGenericTypeDefinition() == typeof(Dictionary<,>);
+        }
+
+        protected bool IsGuid(Type Type)
+        {
+            return Type == typeof(Guid);
         }
 
         protected string GetPrimitiveTypeName(Type Type)

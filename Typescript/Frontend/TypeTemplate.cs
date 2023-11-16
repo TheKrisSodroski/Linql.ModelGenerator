@@ -29,7 +29,8 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             { typeof(char), "string" },
             { typeof(string), "string" },
             { typeof(void), "any" },
-            { typeof(DateTime), "Date" }
+            { typeof(DateTime), "Date" },
+            { typeof(Guid), "string" },
         };
 
         private static readonly Dictionary<Type, string> DefaultValues =
@@ -50,7 +51,9 @@ new Dictionary<Type, string>()
             { typeof(char), "\"\"" },
             { typeof(string), "\"\"" },
             { typeof(void), "null" },
-            { typeof(DateTime), "new Date()" }
+            { typeof(DateTime), "new Date()" },
+            { typeof(Guid), "\"\"" }
+
 };
 
         private static readonly List<string> ClassAttributes = new List<string>()
