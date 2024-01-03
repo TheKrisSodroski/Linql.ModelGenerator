@@ -18,6 +18,13 @@ namespace Linql.ModelGenerator.CSharp.Backend
                 typeof(StreamContent).Assembly
             };
 
+        protected static List<string> NamespacesToIgnore = new List<string>()
+        {
+            "Microsoft.CodeAnalysis",
+            "System.Runtime.CompilerServices"
+
+        };
+
         protected static List<Type> AnyTypes = new List<Type>()
             {
                 typeof(TimeSpan),
@@ -32,8 +39,11 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
         public bool IsValidType(Type Type)
         {
-            bool linqlBaseIgnore = !DefaultOverridePlugin.AssembliesToIgnore.Contains(Type.Assembly) && Type.GetCustomAttribute<LinqlGenIngore>() == null;
-            return linqlBaseIgnore && !IgnoreIfNameContains.Any(s => Type.Name.Contains(s));
+            bool linqlBaseIgnore = !DefaultOverridePlugin.AssembliesToIgnore.Contains(Type.Assembly) 
+                && !DefaultOverridePlugin.NamespacesToIgnore.Contains(Type.Namespace)
+                && Type.GetCustomAttribute<LinqlGenIngore>() == null;
+            return linqlBaseIgnore 
+                && !IgnoreIfNameContains.Any(s => Type.Name.Contains(s));
         }
 
         private bool isSealed(Type Type) 
