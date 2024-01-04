@@ -94,6 +94,8 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             JsonNode peerDependencies = root["peerDependencies"];
             JsonNode devDependencies = root["devDependencies"];
 
+            peerDependencies["reflect-metadata"] = "*";
+
             foreach (var dep in AdditionalModules)
             {
                 string version = dep.Value;
