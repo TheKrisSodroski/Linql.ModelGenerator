@@ -569,7 +569,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             }
             else
             {
-                propertyText.Add($"\t{Property.PropertyName}: {propType};");
+                propertyText.Add($"\t{Property.PropertyName}{propertyModifier}: {propType};");
             }
 
             return String.Join(Environment.NewLine, propertyText);
