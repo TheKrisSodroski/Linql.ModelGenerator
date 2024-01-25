@@ -457,7 +457,14 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
         protected CoreType GenerateReducedType(CoreType FullType)
         {
+            
             CoreType reducedType = new CoreType();
+
+            if(FullType is CoreEnum)
+            {
+                reducedType = new CoreEnum();
+            }
+
             reducedType.Module = FullType.Module;
             reducedType.ModuleVersion = FullType.ModuleVersion;
 
