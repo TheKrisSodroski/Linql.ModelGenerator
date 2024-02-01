@@ -1,12 +1,19 @@
 ﻿using Linql.ModelGenerator.CSharp.Backend;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 
 namespace Linql.EntityFramework
 {
     public class LinqlEFCoreModuleOverride : IModuleOverridePlugin
     {
+
+        protected List<Type> WhiteListedTypes { get; set; } = new List<Type>()
+        {
+            typeof(PrimaryKeyAttribute)
+        };
+
         public bool IsValidProperty(Type Type, PropertyInfo PropertyInfo)
         {
             return true;
@@ -14,7 +21,7 @@ namespace Linql.EntityFramework
 
         public bool IsValidType(Type Type)
         {
-            if(Type.Assembly == typeof(IndexAttribute).Assembly)
+            if(!this.WhiteListedTypes.Contains(Type) && Type.Assembly == typeof(IndexAttribute).Assembly)
             {
                 return false;
             }
