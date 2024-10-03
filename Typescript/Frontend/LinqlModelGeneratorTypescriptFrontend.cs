@@ -26,7 +26,9 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
         private string Powershell 
         { 
-            get { return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Powershell.exe" : "pwsh";
+            get 
+            { 
+                return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Powershell.exe" : "pwsh -Command";
             } 
         }
 
