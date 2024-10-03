@@ -24,11 +24,13 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
         public List<TypescriptGeneratorPlugin> Plugins { get; set; } = new List<TypescriptGeneratorPlugin>();
 
+        private static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
         private string Powershell 
         { 
             get 
             { 
-                return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Powershell.exe" : "pwsh -Command";
+                return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Powershell.exe" : "pwsh";
             } 
         }
 
@@ -158,11 +160,21 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
         }
 
+        protected string GetProcessArgs(string Command)
+        {
+            if(IsWindows)
+            {
+                return Command;
+            }
+
+            return $"-Command ${Command}";
+        }
+
         protected override void CreateProject()
         {
             Console.WriteLine($"Creating new Angular App: {this.Module.ModuleName}");
             Process ngNewProcess = this.GetProcess();
-            ngNewProcess.StartInfo.Arguments = $"ng new {this.Module.ModuleName}";
+            ngNewProcess.StartInfo.Arguments = this.GetProcessArgs($"ng new {this.Module.ModuleName}");
 
             if (this.SkipInstall)
             {
@@ -180,7 +192,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             Console.WriteLine($"Generating library {libraryName}");
 
             Process ngNewLibrary = this.GetProcess();
-            ngNewLibrary.StartInfo.Arguments = $"ng generate library {libraryName}";
+            ngNewLibrary.StartInfo.Arguments = this.GetProcessArgs($"ng generate library {libraryName}");
 
             if (this.SkipInstall)
             {
