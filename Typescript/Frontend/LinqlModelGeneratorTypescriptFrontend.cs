@@ -167,7 +167,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 return Command;
             }
 
-            return $"-Command ${Command}";
+            return $"-Command {Command}";
         }
 
         protected override void CreateProject()
