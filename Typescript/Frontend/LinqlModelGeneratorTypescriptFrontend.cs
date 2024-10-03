@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Text.Json;
@@ -22,6 +23,12 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         public List<CoreType> AnyCasts = new List<CoreType>();
 
         public List<TypescriptGeneratorPlugin> Plugins { get; set; } = new List<TypescriptGeneratorPlugin>();
+
+        private string Powershell 
+        { 
+            get { return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Powershell.exe" : "pwsh";
+            } 
+        }
 
         public LinqlModelGeneratorTypescriptFrontend(string CoreJson, List<TypescriptGeneratorPlugin> Plugins = null, string ProjectPath = null) : base(CoreJson, ProjectPath) 
         {
@@ -108,8 +115,12 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             File.WriteAllText(packageJsonFile, root.ToJsonString(new JsonSerializerOptions() { WriteIndented = true }));
         }
 
-        protected Process GetProcess(string Process = "Powershell.exe")
+        protected Process GetProcess(string Process = null)
         {
+            if (String.IsNullOrEmpty(Process))
+            {
+                Process = this.Powershell;
+            }
             Process process = new Process();
             ProcessStartInfo processStartInfo = new ProcessStartInfo(Process);
             processStartInfo.UseShellExecute = false;
