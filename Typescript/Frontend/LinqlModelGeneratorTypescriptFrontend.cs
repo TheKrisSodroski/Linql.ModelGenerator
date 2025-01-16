@@ -816,7 +816,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             else if (type == "Dictionary")
             {
                 List<string> dictionaryTypes = Type.GenericArguments.Select(r => this.BuildGenericType(r)).ToList();
-                type = $"{{ [key: {dictionaryTypes[0]}]: {dictionaryTypes[1]} }}";
+                type = $"Map<{dictionaryTypes[0]}, {dictionaryTypes[1]}>";
             }
 
             return type;
