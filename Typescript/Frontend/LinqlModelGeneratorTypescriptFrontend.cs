@@ -775,6 +775,10 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 Type.Properties.Where(r => r.Type.Module != null).ToList().ForEach(r => additionalModules[r.Type.Module] = r.Type.ModuleVersion);
                 List<Dictionary<string, string>> otherModules = Type.Properties.Select(r => this.ExtractAdditionalModules(r.Type)).ToList();
                 otherModules.ForEach(r => additionalModules.Merge(r));
+
+                List<CoreAttributeInstance> propAttributes = Type.Properties.Where(r => r.Attributes != null).SelectMany(r => r.Attributes).ToList();
+
+                propAttributes.ForEach(r => additionalModules[r.Module] = r.ModuleVersion);
             }
 
             if (Type.Attributes != null)
