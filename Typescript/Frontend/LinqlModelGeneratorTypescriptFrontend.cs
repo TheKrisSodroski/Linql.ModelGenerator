@@ -541,7 +541,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         {
             List<string> propertyText = new List<string>();
 
-            if (Property.Attributes != null)
+            if (Property.Attributes != null && Type.IsInterface == false)
             {
                 List<string> attrs = Property.Attributes.Select(r => $"\t{this.BuildAttributeInstance(r, "Prop")}").ToList();
                 propertyText.AddRange(attrs);
@@ -717,7 +717,11 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 imports.AddRange(Type.Properties.Select(r => new TypescriptImport(r.Type.TypeName, r.Type.Module, r.Type.NameSpace)));
                 imports.AddRange(Type.Properties.SelectMany(r => this.ExtractImports(r.Type)));
                 List<CoreAttributeInstance> attrs = Type.Properties.Where(r => r.Attributes != null).SelectMany(r => r.Attributes).ToList();
-                imports.AddRange(attrs.Select(r => new TypescriptImport(r.TypeName, r.Module, r.NameSpace, "Prop")));
+
+                if (Type.IsInterface == false)
+                {
+                    imports.AddRange(attrs.Select(r => new TypescriptImport(r.TypeName, r.Module, r.NameSpace, "Prop")));
+                }
             }
 
             if (Type is CoreAttribute attr && attr.RequiredArguments != null)
@@ -776,9 +780,11 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 List<Dictionary<string, string>> otherModules = Type.Properties.Select(r => this.ExtractAdditionalModules(r.Type)).ToList();
                 otherModules.ForEach(r => additionalModules.Merge(r));
 
-                List<CoreAttributeInstance> propAttributes = Type.Properties.Where(r => r.Attributes != null).SelectMany(r => r.Attributes).ToList();
-
-                propAttributes.ForEach(r => additionalModules[r.Module] = r.ModuleVersion);
+                if (Type.IsInterface == false)
+                {
+                    List<CoreAttributeInstance> propAttributes = Type.Properties.Where(r => r.Attributes != null).SelectMany(r => r.Attributes).ToList();
+                    propAttributes.ForEach(r => additionalModules[r.Module] = r.ModuleVersion);
+                }
             }
 
             if (Type.Attributes != null)
