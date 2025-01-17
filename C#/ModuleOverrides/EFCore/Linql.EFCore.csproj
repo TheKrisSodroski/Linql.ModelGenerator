@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\LInql\Linql.ModelGenerator\Distributions\Backend\C#\Linql.ModelGenerator.Backend.CSharp.csproj" />
+    <ProjectReference Include="..\..\..\..\LInql\Linql.ModelGenerator\C#\Backend\Linql.ModelGenerator.CSharp.Backend.csproj" />
   </ItemGroup>
 
 </Project>
