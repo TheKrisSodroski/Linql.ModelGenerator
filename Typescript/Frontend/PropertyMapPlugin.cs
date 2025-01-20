@@ -69,7 +69,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
                 };
                 if (Type.IsClass && Type.Properties?.Count > 0)
                 {
-                    string mapType = $"string, string | (new () => any)";
+                    string mapType = $"string, string | (new () => any) | (abstract new() => any)";
 
                     List<string> properties = new List<string>();
                     Type.Properties.ForEach(r =>

@@ -314,6 +314,8 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
             List<IGrouping<string, TypescriptImport>> moduleImports = imports.Except(localImports).Where(r => !String.IsNullOrEmpty(r.ModuleName)).GroupBy(r => r.ModuleName).ToList();
 
+            localImports = localImports.Where(r => r.TypeName != Type.TypeName).ToList();
+
             List<IGrouping<string, TypescriptImport>> localImportsMapping = localImports.GroupBy(r => Path.Combine(this.GetRelativeImport(Type.NameSpace, r.NameSpace), r.TypeName)).ToList();
 
             List<string> importStatements = localImportsMapping.Select(r => $"import {{ {String.Join(", ", r.Select(s => $"{s.TypeName}{s.AttributeSuffix}").Distinct())} }} from '{r.Key}';").Distinct().ToList();
