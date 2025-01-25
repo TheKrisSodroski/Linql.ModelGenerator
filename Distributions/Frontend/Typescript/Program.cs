@@ -12,6 +12,7 @@ class Program
         List<TypescriptGeneratorPlugin> plugins = new List<TypescriptGeneratorPlugin>()
         {
             new StaticTypePlugin(),
+            new PolymorphicTypePlugin(),
             new PropertyMapPlugin()
         };
 
