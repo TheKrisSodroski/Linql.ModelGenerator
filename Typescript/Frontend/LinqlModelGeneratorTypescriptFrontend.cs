@@ -809,7 +809,7 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         {
             string type = this.GetTypeName(Type);
 
-            if (type != "Dictionary" && Type.GenericArguments != null && Type.GenericArguments.Count > 0)
+            if (type != "Dictionary" && type != "Uint8Array" && Type.GenericArguments != null && Type.GenericArguments.Count > 0)
             {
                 type += "<";
                 string generics = String.Join(", ", Type.GenericArguments.Select(r => this.BuildGenericType(r)));
@@ -856,8 +856,14 @@ namespace Linql.ModelGenerator.Typescript.Frontend
 
         public string GetTypeName(CoreType Type)
         {
+            string name = Type.TypeName;
+
             List<Type> types = typeof(string).Assembly.GetTypes().ToList();
             Type foundType = types.FirstOrDefault(r => r.Name == Type.TypeName);
+
+            bool isListType = this.IsListType(Type);
+            bool isFileType = isListType && Type.GenericArguments.FirstOrDefault()?.TypeName == typeof(byte).Name;
+
 
             if (Type.IsPrimitive && foundType != null)
             {
@@ -872,6 +878,10 @@ namespace Linql.ModelGenerator.Typescript.Frontend
             else if (Type.TypeName == "object")
             {
                 return "any";
+            }
+            else if(isFileType)
+            {
+                return "Uint8Array";
             }
             else if (this.IsListType(Type))
             {

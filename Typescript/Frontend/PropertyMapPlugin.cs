@@ -19,11 +19,17 @@ namespace Linql.ModelGenerator.Typescript.Frontend
         {
             bool isPrimitive = PropertyType.IsPrimitive;
             bool isListType = Generator.IsListType(PropertyType);
+
+            bool isFileType = isListType && PropertyType.GenericArguments.FirstOrDefault()?.TypeName == typeof(byte).Name;
             bool isEnumType = PropertyType is CoreEnum;
             bool? isGeneric = ParentType.GenericArguments?.Any(s => s.TypeName == PropertyType.TypeName);
             string type = "";
 
-            if (isListType)
+            if(isFileType)
+            {
+                type = "Uint8Array";
+            }
+            else if (isListType)
             {
                 type = this.GetPropertyMapType(ParentType, PropertyType.GenericArguments.First(), Generator);
             }
