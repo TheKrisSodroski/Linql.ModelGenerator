@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Linql.ModelGenerator.CSharp.Backend
@@ -50,20 +51,30 @@ namespace Linql.ModelGenerator.CSharp.Backend
                 if (csProj != null)
                 {
                     string moduleName = Path.GetFileNameWithoutExtension(csProj);
-                    Process process = new Process();
-                    ProcessStartInfo processStartInfo = new ProcessStartInfo("dotnet");
-                    processStartInfo.Arguments = "publish";
-                    processStartInfo.WorkingDirectory = AssemblyPath;
-                    processStartInfo.CreateNoWindow = false;
-                    process.StartInfo = processStartInfo;
-                    process.Start();
-                    process.WaitForExit();
 
                     List<string> foundDlls = Directory.GetFiles(AssemblyPath, $"{moduleName}.dll", SearchOption.AllDirectories).ToList();
                     foundDlls = foundDlls.Where(r => r.Contains("publish")).ToList();
                     assemblyPath = foundDlls.FirstOrDefault(r => r.Contains("Release"));
+                    
+                    // can't do this on linux since it won't retain the prerelease.
+                    if (assemblyPath == null && !RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                    {
 
-                    if(assemblyPath == null)
+                        Process process = new Process();
+                        ProcessStartInfo processStartInfo = new ProcessStartInfo("dotnet");
+                        processStartInfo.Arguments = "publish";
+                        processStartInfo.WorkingDirectory = AssemblyPath;
+                        processStartInfo.CreateNoWindow = false;
+                        process.StartInfo = processStartInfo;
+                        process.Start();
+                        process.WaitForExit();
+
+                    }
+
+                    foundDlls = Directory.GetFiles(AssemblyPath, $"{moduleName}.dll", SearchOption.AllDirectories).ToList();
+                    foundDlls = foundDlls.Where(r => r.Contains("publish")).ToList();
+                    assemblyPath = foundDlls.FirstOrDefault(r => r.Contains("Release"));
+                    if (assemblyPath == null)
                     {
                         assemblyPath = foundDlls.FirstOrDefault();
                     }
@@ -109,7 +120,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
             module.Types = this.GenerateTypes();
             module.Types.ForEach(r =>
             {
-                if(r.BaseClass!= null)
+                if (r.BaseClass != null)
                 {
                     r.BaseClass = this.GenerateReducedType(r.BaseClass);
                 }
@@ -199,7 +210,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
                     type.IsIntrinsic = true;
                     type.Module = null;
                 }
-                else if(this.IsObjectType(Type))
+                else if (this.IsObjectType(Type))
                 {
                     type.TypeName = "object";
                     type.IsIntrinsic = true;
@@ -310,7 +321,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
                         if (constructorInfo != null)
                         {
                             parameters = constructorInfo.GetParameters().ToList();
-                            attr.RequiredArguments = parameters.Where(r => !this.IsObjectType(r.ParameterType)).Select(r => this.GenerateParameter(r)).ToList();        
+                            attr.RequiredArguments = parameters.Where(r => !this.IsObjectType(r.ParameterType)).Select(r => this.GenerateParameter(r)).ToList();
                         }
 
                         List<PropertyInfo> optionalArguments = properties.Where(r => !parameters.Select(s => s.Name.ToLower()).Contains(r.Name.ToLower())).ToList();
@@ -321,7 +332,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
                         {
                             attr.RequiredArguments = null;
                         }
-                        if(attr.OptionalArguments?.Count() == 0)
+                        if (attr.OptionalArguments?.Count() == 0)
                         {
                             attr.OptionalArguments = null;
                         }
@@ -435,7 +446,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
             List<PropertyInfo> test = Property.DeclaringType.GetProperties(BindingFlags.Instance | BindingFlags.Public).ToList();
             List<PropertyInfo> baseTypeProperties = new List<PropertyInfo>();
 
-            if(Property.DeclaringType.BaseType != null)
+            if (Property.DeclaringType.BaseType != null)
             {
                 baseTypeProperties = Property.DeclaringType.BaseType.GetProperties(BindingFlags.Instance | BindingFlags.Public).ToList();
             }
@@ -444,7 +455,7 @@ namespace Linql.ModelGenerator.CSharp.Backend
             prop.PropertyName = Property.Name;
             prop.Type = this.GenerateType(Property.PropertyType);
             prop.Attributes = Property.GetCustomAttributes().Where(r => this.IsValidType(r.GetType())).Select(r => this.GenerateAttributeInstance(r)).ToList();
-            prop.Overriden = Property.GetGetMethod().GetBaseDefinition().DeclaringType != Property.DeclaringType 
+            prop.Overriden = Property.GetGetMethod().GetBaseDefinition().DeclaringType != Property.DeclaringType
                 || test.Any(s => s.Name == Property.Name && s.DeclaringType != Property.DeclaringType)
                 || baseTypeProperties.Any(s => s.Name == Property.Name);
             prop.Virtual = Property.GetGetMethod().IsVirtual;
@@ -466,10 +477,10 @@ namespace Linql.ModelGenerator.CSharp.Backend
 
         protected CoreType GenerateReducedType(CoreType FullType)
         {
-            
+
             CoreType reducedType = new CoreType();
 
-            if(FullType is CoreEnum)
+            if (FullType is CoreEnum)
             {
                 reducedType = new CoreEnum();
             }
